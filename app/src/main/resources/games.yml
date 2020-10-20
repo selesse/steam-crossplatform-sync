@@ -1,7 +1,0 @@
-games:
-  - name: Pillars of Eternity
-    mac: '~/Library/Application Support/Pillars of Eternity/Saved Games'
-    windows: '%USERPROFILE%\Saved Games\Pillars of Eternity'
-  - name: Oxygen Not Included
-    mac: '~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files'
-    windows: '%USERPROFILE%\Documents\Klei\OxygenNotIncluded\save_files'

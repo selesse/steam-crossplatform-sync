@@ -3,6 +3,7 @@
  */
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.steam.crossplatform.sync.config.GameLoader;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import org.slf4j.Logger;
@@ -11,16 +12,17 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 
 public class App {
-    private static Logger LOGGER = LoggerFactory.getLogger(App.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+
     public static void main(String[] args) {
         SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
-        GameConfig gameList = config.loadGames();
+        GameConfig gameList = new GameLoader().loadGames(config);
         gameList.getGames().forEach(game -> {
             Path localPath = game.getLocalPath();
-            Path syncPath = game.getSyncPath(config);
+            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
 
             LOGGER.info("Checking {}", game.getName());
-            SyncResolver.resolve(localPath, syncPath);
+            GameSyncer.sync(localPath, cloudSyncPath);
         });
     }
 }

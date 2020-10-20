@@ -1,4 +1,4 @@
-package com.selesse.steam.crossplatform.sync.drive;
+package com.selesse.steam.crossplatform.sync.cloud;
 
 import com.selesse.os.OperatingSystems;
 
@@ -30,14 +30,16 @@ public class GoogleDrive {
     }
 
     private static Path defaultWindowsPath() {
-        return dbPath(Path.of(System.getenv("LOCALAPPDATA")));
+        return dbPathRelativeToDriveRoot(Path.of(System.getenv("LOCALAPPDATA")));
     }
 
     private static Path defaultMacPath() {
-        return dbPath(Path.of(System.getProperty("user.home"), "Library", "Application Support"));
+        return dbPathRelativeToDriveRoot(
+                Path.of(System.getProperty("user.home"), "Library", "Application Support")
+        );
     }
 
-    private static Path dbPath(Path base) {
+    private static Path dbPathRelativeToDriveRoot(Path base) {
         return Path.of(base.toAbsolutePath().toString(), "Google", "Drive", "user_default", "sync_config.db");
     }
 

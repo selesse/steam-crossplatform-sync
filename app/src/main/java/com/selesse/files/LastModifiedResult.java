@@ -3,8 +3,8 @@ package com.selesse.files;
 import java.time.LocalDateTime;
 
 public class LastModifiedResult {
-    private LocalDateTime lastModified;
-    private boolean exists;
+    private final LocalDateTime lastModified;
+    private final boolean exists;
 
     private LastModifiedResult(LocalDateTime lastModified, boolean exists) {
         this.lastModified = lastModified;

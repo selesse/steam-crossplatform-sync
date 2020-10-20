@@ -1,58 +1,36 @@
 package com.selesse.steam.crossplatform.sync.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.io.Resources;
-import com.selesse.steam.crossplatform.sync.GameConfig;
-import com.selesse.steam.crossplatform.sync.drive.GoogleDrive;
-import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
+import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
+import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.Objects;
 
 public interface SteamCrossplatformSyncConfig {
-    default Path getLocalSyncLocation() {
-        return localConfigMaybe().map(SteamCrossplatformSyncConfig::getLocalSyncLocation)
-                .orElse(getDrivePath().orElseThrow());
-    };
     Path getConfigLocation();
 
-    @SuppressWarnings("UnstableApiUsage")
+    default Path getLocalCloudSyncLocation() {
+        return ConfigLoader.loadIfExists(getConfigLocation())
+                .map(ConfigRaw::getLocalSyncLocation)
+                .filter(Objects::nonNull)
+                .map(Path::of)
+                .orElse(CloudSyncLocationSupplier.get(this).orElseThrow());
+    }
+
+    // Which folder to write into the cloud storage, relative to the root
+    default Path getCloudStorageRelativeWritePath() {
+        return ConfigLoader.loadIfExists(getConfigLocation())
+                .map(ConfigRaw::getSyncStorageRelativePath)
+                .filter(Objects::nonNull)
+                .map(Path::of)
+                .orElse(Path.of("steam-crossplatform-sync"));
+    }
+
     default Path getGamesFile() {
-        Path sharedConfig = Path.of(getLocalSyncLocation().toAbsolutePath().toString(), "/games.yml");
-        if (sharedConfig.toFile().exists()) {
-            return sharedConfig;
-        }
-        return Path.of(Resources.getResource("games.yml").getFile());
-    }
-
-    default GameConfig loadGames() {
-        var mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        try {
-            return GameConfig.fromRaw(mapper.readValue(getGamesFile().toFile(), GameConfigRaw.class));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    default Optional<SteamCrossplatformSyncConfig> localConfigMaybe() {
-        var mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        try {
-            // e.g. read the local config, otherwise pick a sane default
-            SteamCrossplatformSyncConfig config =
-                    mapper.readValue(getConfigLocation().toFile(), SteamCrossplatformSyncConfig.class);
-            return Optional.ofNullable(config);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<Path> getDrivePath() {
-        return GoogleDrive.getDriveRoot().map(
-                config -> Path.of(config.toAbsolutePath().toString(), "gaming", "steam-crossplatform-sync")
-        );
+        return ConfigLoader.loadIfExists(getConfigLocation())
+                .map(ConfigRaw::getGamesFileLocation)
+                .filter(Objects::nonNull)
+                .map(Path::of)
+                .orElse(Path.of(getLocalCloudSyncLocation().toAbsolutePath().toString(), "/games.yml"));
     }
 }

@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-public class SyncResolver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncResolver.class);
+public class GameSyncer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameSyncer.class);
 
-    public static void resolve(Path local, Path sync) {
+    public static void sync(Path local, Path cloudSyncPath) {
         LatestModifiedFileFinder latestModifiedLocalFinder = new LatestModifiedFileFinder(local);
-        LatestModifiedFileFinder latestModifiedSyncFinder = new LatestModifiedFileFinder(sync);
+        LatestModifiedFileFinder latestModifiedSyncFinder = new LatestModifiedFileFinder(cloudSyncPath);
 
         LastModifiedResult localResult = latestModifiedLocalFinder.getLastModified();
         LastModifiedResult syncResult = latestModifiedSyncFinder.getLastModified();
@@ -28,22 +28,22 @@ public class SyncResolver {
             if (lastModifiedLocal.equals(lastModifiedSync)) {
                 LOGGER.info("Up to date");
             } else if (lastModifiedLocal.isAfter(lastModifiedSync)) {
-                LOGGER.info("Copying local into sync");
-                copyFiles(local, sync);
+                LOGGER.info("Copying local into cloudSyncPath");
+                copyFiles(local, cloudSyncPath);
             } else if (lastModifiedSync.isAfter(lastModifiedLocal)) {
-                LOGGER.info("Copying sync into local");
-                copyFiles(sync, local);
+                LOGGER.info("Copying cloudSyncPath into local");
+                copyFiles(cloudSyncPath, local);
             }
         }
         if (localResult.exists() && !syncResult.exists()) {
-            LOGGER.info("Local exists, sync does not");
-            LOGGER.info("Copying local into sync");
-            copyFiles(local, sync);
+            LOGGER.info("Local exists, cloudSyncPath does not");
+            LOGGER.info("Copying local into cloudSyncPath");
+            copyFiles(local, cloudSyncPath);
         }
         if (!localResult.exists() && syncResult.exists()) {
-            LOGGER.info("Local does not exist, sync exists");
-            LOGGER.info("Copying sync into local");
-            copyFiles(sync, local);
+            LOGGER.info("Local does not exist, cloudSyncPath exists");
+            LOGGER.info("Copying cloudSyncPath into local");
+            copyFiles(cloudSyncPath, local);
         }
         if (!localResult.exists() && !syncResult.exists()) {
             LOGGER.info("Neither exist");
@@ -53,7 +53,7 @@ public class SyncResolver {
     private static void copyFiles(Path a, Path b) {
         try {
             LOGGER.info("Copying {} into {}", a.toAbsolutePath(), b.toAbsolutePath());
-            DirectoryCopier.copyFileOrFolder(a.toFile(), b.toFile());
+            DirectoryCopier.recursiveCopy(a.toFile(), b.toFile());
         } catch (IOException e) {
             LOGGER.error("Error trying to copy {} into {}", a.toAbsolutePath(), b.toAbsolutePath());
             throw new RuntimeException(e);

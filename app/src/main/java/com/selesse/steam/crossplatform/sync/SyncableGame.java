@@ -29,10 +29,11 @@ public class SyncableGame {
         };
     }
 
-    public Path getSyncPath(SteamCrossplatformSyncConfig config) {
+    public Path getLocalCloudSyncPath(SteamCrossplatformSyncConfig config) {
         return Path.of(
-                config.getLocalSyncLocation().toAbsolutePath().toString(),
+                config.getLocalCloudSyncLocation().toAbsolutePath().toString(),
                 "games",
+                // This is definitely gonna be a problem at some point...
                 name.toLowerCase().replaceAll(" ", "_")
         );
     }
