@@ -9,18 +9,22 @@ import java.util.Objects;
 public interface SteamCrossplatformSyncConfig {
     Path getConfigLocation();
 
-    default Path getLocalCloudSyncLocation() {
+    /**
+     * @return The absolute path to where we should be syncing games config files to, which
+     * incorporates {@link #getCloudStorageRelativeWritePath()}}
+     */
+    default Path getLocalCloudSyncBaseDirectory() {
         return ConfigLoader.loadIfExists(getConfigLocation())
-                .map(ConfigRaw::getLocalSyncLocation)
+                .map(ConfigRaw::getPathToCloudStorage)
                 .filter(Objects::nonNull)
                 .map(Path::of)
-                .orElse(CloudSyncLocationSupplier.get(this).orElseThrow());
+                .orElse(CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath).orElseThrow());
     }
 
     // Which folder to write into the cloud storage, relative to the root
     default Path getCloudStorageRelativeWritePath() {
         return ConfigLoader.loadIfExists(getConfigLocation())
-                .map(ConfigRaw::getSyncStorageRelativePath)
+                .map(ConfigRaw::getCloudStorageRelativeWritePath)
                 .filter(Objects::nonNull)
                 .map(Path::of)
                 .orElse(Path.of("steam-crossplatform-sync"));
@@ -31,6 +35,6 @@ public interface SteamCrossplatformSyncConfig {
                 .map(ConfigRaw::getGamesFileLocation)
                 .filter(Objects::nonNull)
                 .map(Path::of)
-                .orElse(Path.of(getLocalCloudSyncLocation().toAbsolutePath().toString(), "/games.yml"));
+                .orElse(Path.of(getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
 }

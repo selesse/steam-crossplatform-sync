@@ -31,7 +31,7 @@ public class SyncableGame {
 
     public Path getLocalCloudSyncPath(SteamCrossplatformSyncConfig config) {
         return Path.of(
-                config.getLocalCloudSyncLocation().toAbsolutePath().toString(),
+                config.getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(),
                 "games",
                 // This is definitely gonna be a problem at some point...
                 name.toLowerCase().replaceAll(" ", "_")

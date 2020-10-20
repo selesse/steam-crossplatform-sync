@@ -1,19 +1,23 @@
 package com.selesse.steam.crossplatform.sync.serialize;
 
+import com.selesse.os.FilePathSanitizer;
+
+import java.util.Optional;
+
 public class ConfigRaw {
-    public String localSyncLocation;
+    public String pathToCloudStorage;
     public String gamesFileLocation;
-    public String syncStorageRelativePath;
+    public String cloudStorageRelativeWritePath;
 
     public String getGamesFileLocation() {
-        return gamesFileLocation;
+        return Optional.ofNullable(gamesFileLocation).map(FilePathSanitizer::sanitize).orElse(null);
     }
 
-    public String getLocalSyncLocation() {
-        return localSyncLocation;
+    public String getPathToCloudStorage() {
+        return Optional.ofNullable(pathToCloudStorage).map(FilePathSanitizer::sanitize).orElse(null);
     }
 
-    public String getSyncStorageRelativePath() {
-        return syncStorageRelativePath;
+    public String getCloudStorageRelativeWritePath() {
+        return Optional.ofNullable(cloudStorageRelativeWritePath).map(FilePathSanitizer::sanitize).orElse(null);
     }
 }
