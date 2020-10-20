@@ -1,0 +1,21 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13'
+
+    compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1')
+    compile('com.google.guava:guava:29.0-jre')
+    compile('org.xerial:sqlite-jdbc:3.32.3.2')
+    compile('org.slf4j:slf4j-api:1.7.30')
+    compile("ch.qos.logback:logback-classic:1.2.3")
+}
+
+application {
+    mainClass = 'com.selesse.steam.crossplatform.sync.App'
+}
