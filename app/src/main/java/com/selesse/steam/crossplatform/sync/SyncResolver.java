@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class SyncResolver {
-    private static Logger LOGGER = LoggerFactory.getLogger(SyncResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyncResolver.class);
 
     public static void resolve(Path local, Path sync) {
         LatestModifiedFileFinder latestModifiedLocalFinder = new LatestModifiedFileFinder(local);
@@ -42,6 +42,7 @@ public class SyncResolver {
         }
         if (!localResult.exists() && syncResult.exists()) {
             LOGGER.info("Local does not exist, sync exists");
+            LOGGER.info("Copying sync into local");
             copyFiles(sync, local);
         }
         if (!localResult.exists() && !syncResult.exists()) {
@@ -51,6 +52,7 @@ public class SyncResolver {
 
     private static void copyFiles(Path a, Path b) {
         try {
+            LOGGER.info("Copying {} into {}", a.toAbsolutePath(), b.toAbsolutePath());
             DirectoryCopier.copyFileOrFolder(a.toFile(), b.toFile());
         } catch (IOException e) {
             LOGGER.error("Error trying to copy {} into {}", a.toAbsolutePath(), b.toAbsolutePath());

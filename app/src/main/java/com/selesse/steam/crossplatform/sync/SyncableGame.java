@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
@@ -23,8 +24,8 @@ public class SyncableGame {
 
     public Path getLocalPath() {
         return switch (OperatingSystems.get()) {
-            case MAC -> Path.of(mac.replaceFirst("^~", System.getProperty("user.home")));
-            case WINDOWS -> Path.of(windows);
+            case MAC -> Path.of(FilePathSanitizer.sanitize(mac));
+            case WINDOWS -> Path.of(FilePathSanitizer.sanitize(windows));
         };
     }
 
