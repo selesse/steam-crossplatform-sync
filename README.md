@@ -8,6 +8,9 @@ If you're playing a game on your laptop (in OS X), but want to switch over to
 your desktop (Windows), it's tedious to copy your save files over. It gets
 especially annoying if you're switching repeatedly.
 
+**Note**: this is largely untested and experimental - it may behave poorly
+and accidentally delete some files. Use at your own discretion.
+
 ## Setup
 
 By default, the program assumes you're using Google Drive. It will sync to the
@@ -50,7 +53,7 @@ games:
 
 For now, the sync strategy is intentionally dumb. It looks across both folders
 to find the oldest file. Whichever is oldest gets all its files copied into
-the younger. Name collisions are overwritten.
+the younger. Name collisions are resolved by overwriting the older file.
 
 Eventually I can do something smarter like only write when the md5sums don't
 match, but this works out pretty well for the games I've tested it on.
