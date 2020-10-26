@@ -7,14 +7,17 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public interface SteamCrossplatformSyncConfig {
-    Path getConfigLocation();
+    Path getConfigDirectory();
+    default Path getConfigFileLocation() {
+        return Path.of(getConfigDirectory().toAbsolutePath().toString(), "config.yml");
+    }
 
     /**
      * @return The absolute path to where we should be syncing games config files to, which
      * incorporates {@link #getCloudStorageRelativeWritePath()}}
      */
     default Path getLocalCloudSyncBaseDirectory() {
-        return ConfigLoader.loadIfExists(getConfigLocation())
+        return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getPathToCloudStorage)
                 .filter(Objects::nonNull)
                 .map(Path::of)
@@ -23,7 +26,7 @@ public interface SteamCrossplatformSyncConfig {
 
     // Which folder to write into the cloud storage, relative to the root
     default Path getCloudStorageRelativeWritePath() {
-        return ConfigLoader.loadIfExists(getConfigLocation())
+        return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getCloudStorageRelativeWritePath)
                 .filter(Objects::nonNull)
                 .map(Path::of)
@@ -31,7 +34,7 @@ public interface SteamCrossplatformSyncConfig {
     }
 
     default Path getGamesFile() {
-        return ConfigLoader.loadIfExists(getConfigLocation())
+        return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getGamesFileLocation)
                 .filter(Objects::nonNull)
                 .map(Path::of)
