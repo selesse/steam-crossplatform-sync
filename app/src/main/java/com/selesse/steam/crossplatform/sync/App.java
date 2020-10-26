@@ -3,12 +3,23 @@
  */
 package com.selesse.steam.crossplatform.sync;
 
+import com.google.common.collect.Lists;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
+import com.selesse.steam.crossplatform.sync.daemon.Daemon;
+
+import java.util.List;
 
 public class App {
     public static void main(String[] args) {
+        List<String> arguments = Lists.newArrayList(args);
+
         SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
-        new SyncGameFilesService(config).run();
+        if (arguments.contains("--sync")) {
+            new SyncGameFilesService(config).run();
+        } else {
+            boolean fast = arguments.contains("--fast");
+            new Daemon(config, fast).run();
+        }
     }
 }
