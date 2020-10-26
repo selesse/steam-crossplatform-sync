@@ -19,3 +19,9 @@ dependencies {
 application {
     mainClass = 'com.selesse.steam.crossplatform.sync.App'
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}
