@@ -1,5 +1,6 @@
 plugins {
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 repositories {
@@ -13,11 +14,20 @@ dependencies {
     compile('com.google.guava:guava:29.0-jre')
     compile('org.xerial:sqlite-jdbc:3.32.3.2')
     compile('org.slf4j:slf4j-api:1.7.30')
-    compile("ch.qos.logback:logback-classic:1.2.3")
+    compile('ch.qos.logback:logback-classic:1.2.3')
 }
 
 application {
     mainClass = 'com.selesse.steam.crossplatform.sync.App'
+}
+
+task localRelease(type: Copy) {
+    from shadowJar.outputs
+    into file("release")
+}
+
+shadowJar {
+    mainClassName = 'com.selesse.steam.crossplatform.sync.App'
 }
 
 java {
