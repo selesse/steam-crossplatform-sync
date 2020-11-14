@@ -1,0 +1,174 @@
+"Registry"
+{
+	"HKLM"
+	{
+		"Software"
+		{
+			"Valve"
+			{
+				"Steam"
+				{
+					"SteamPID"		"48129"
+					"TempAppCmdLine"		""
+				}
+			}
+		}
+	}
+	"HKCU"
+	{
+		"Software"
+		{
+			"Valve"
+			{
+				"Steam"
+				{
+					"RunningAppID"		"0"
+					"steamglobal"
+					{
+						"language"		"english"
+					}
+					"language"		"english"
+					"AutoLoginUser"		"selesse"
+					"RememberPassword"		"1"
+					"SourceModInstallPath"		"/Users/alex/Library/Application Support/Steam/steamapps\\sourcemods"
+					"Rate"		"30000"
+					"AlreadyRetriedOfflineMode"		"0"
+					"StartupMode"		"0"
+					"apps"
+					{
+						"105600"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Terraria"
+							"Running"		"0"
+						}
+						"607050"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Wargroove"
+							"Running"		"0"
+						}
+						"646570"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Slay the Spire"
+							"Running"		"0"
+						}
+						"200710"
+						{
+							"installed"		"0"
+							"Updating"		"0"
+							"name"		"Torchlight II"
+							"Running"		"0"
+						}
+						"653530"
+						{
+							"installed"		"0"
+							"Updating"		"0"
+							"Running"		"0"
+							"name"		"Return of the Obra Dinn"
+						}
+						"262060"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Darkest Dungeon®"
+							"Running"		"0"
+						}
+						"55040"
+						{
+							"installed"		"0"
+							"Updating"		"0"
+							"name"		"Atom Zombie Smasher "
+							"Running"		"0"
+						}
+						"457140"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Oxygen Not Included"
+							"Running"		"0"
+						}
+						"291650"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Pillars of Eternity"
+							"Running"		"0"
+						}
+						"367720"
+						{
+							"installed"		"1"
+						}
+						"349180"
+						{
+							"installed"		"1"
+						}
+						"349181"
+						{
+							"installed"		"1"
+						}
+						"349182"
+						{
+							"installed"		"1"
+						}
+						"349183"
+						{
+							"installed"		"1"
+						}
+						"349184"
+						{
+							"installed"		"1"
+						}
+						"349185"
+						{
+							"installed"		"1"
+						}
+						"351130"
+						{
+							"installed"		"1"
+						}
+						"351131"
+						{
+							"installed"		"1"
+						}
+						"351132"
+						{
+							"installed"		"1"
+						}
+						"358661"
+						{
+							"installed"		"1"
+						}
+						"358662"
+						{
+							"installed"		"1"
+						}
+						"373340"
+						{
+							"installed"		"1"
+						}
+						"373740"
+						{
+							"installed"		"1"
+						}
+						"734070"
+						{
+							"installed"		"1"
+						}
+						"367520"
+						{
+							"installed"		"1"
+							"Updating"		"0"
+							"name"		"Hollow Knight"
+							"Running"		"0"
+						}
+					}
+				}
+			}
+		}
+	}
+}

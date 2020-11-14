@@ -1,37 +1,24 @@
 package com.selesse.steam;
 
-import com.google.common.base.Splitter;
 import com.selesse.os.FilePathSanitizer;
+import com.selesse.steam.mac.MacSteamRegistryFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 class MacSteamRegistry extends SteamRegistry {
     private static final String REGISTRY_PATH = "~/Library/Application Support/Steam/registry.vdf";
     private final Path registryFilePath;
+    private final MacSteamRegistryFile registryFile;
 
     public MacSteamRegistry() {
         registryFilePath = Path.of(FilePathSanitizer.sanitize(REGISTRY_PATH));
+        registryFile = new MacSteamRegistryFile(registryFilePath);
     }
 
     @Override
     public long getCurrentlyRunningAppId() {
         ensureRegistryFileExists();
-        try {
-            List<String> lines = Files.readAllLines(registryFilePath);
-            return lines.stream()
-                    .filter(line -> line.contains("RunningAppID"))
-                    .map(line -> {
-                        List<String> partitions = Splitter.on("\"").splitToList(line);
-                        return Long.valueOf(partitions.get(partitions.size() - 2));
-                    })
-                    .findFirst()
-                    .orElseThrow();
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to get app ID from file");
-        }
+        return registryFile.getCurrentlyRunningAppId();
     }
 
     private void ensureRegistryFileExists() {
