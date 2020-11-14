@@ -12,28 +12,29 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class WindowsGameRunningDetector {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsGameRunningDetector.class);
+class WindowsSteamRegistry extends SteamRegistry {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
     private static final String REGISTRY_COMMAND_TO_GET_APP_ID =
             "reg query HKEY_CURRENT_USER\\Software\\Valve\\Steam /v RunningAppId";
 
-    public static boolean isGameCurrentlyRunning() {
+    @Override
+    public long getCurrentlyRunningAppId() {
         try {
             String registryOutput = runProcessAndGetOutput(REGISTRY_COMMAND_TO_GET_APP_ID);
-            return appRunningBasedOnRegistryOutput(registryOutput);
+            return currentlyRunningAppIdBasedOnRegistryOutput(registryOutput);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static boolean appRunningBasedOnRegistryOutput(String registryOutput) {
+    private static long currentlyRunningAppIdBasedOnRegistryOutput(String registryOutput) {
         Pattern regex = Pattern.compile("RunningAppId\\s+REG_DWORD\\s+0x(.*)");
         Matcher matcher = regex.matcher(registryOutput);
         if (matcher.find()) {
             String appHexId = matcher.group(1);
             long runningAppId = Long.parseLong(appHexId, 16);
             LOGGER.debug("Currently running Steam app ID is {}", runningAppId);
-            return runningAppId > 0;
+            return runningAppId;
         }
         throw new RuntimeException("Could not parse output of registry");
     }
