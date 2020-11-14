@@ -9,3 +9,5 @@
 
 rootProject.name = 'steam-crossplatform-sync'
 include('app')
+include('common')
+include('steam-config-reader')

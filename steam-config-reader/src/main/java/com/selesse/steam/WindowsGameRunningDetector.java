@@ -1,6 +1,5 @@
 package com.selesse.steam;
 
-
 import com.google.common.base.Splitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
