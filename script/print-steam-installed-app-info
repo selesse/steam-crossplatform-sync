@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+TMP_FILE="/tmp/steam-ids"
+
+main() {
+  list_installed_files | write_to_script
+  execute_steamcmd
+  rm $TMP_FILE
+}
+
+list_installed_files() {
+  egrep "\"\d{6}\"" ~/Library/Application\ Support/Steam/registry.vdf | cut -f2 -d'"' | sort | uniq
+}
+
+write_to_script() {
+  rm -f $TMP_FILE
+  while read app_id; do
+    echo "app_info_print $app_id" >> $TMP_FILE
+  done
+  echo "quit" >> $TMP_FILE
+}
+
+execute_steamcmd() {
+  steamcmd +login anonymous +runscript $TMP_FILE
+}
+
+main
