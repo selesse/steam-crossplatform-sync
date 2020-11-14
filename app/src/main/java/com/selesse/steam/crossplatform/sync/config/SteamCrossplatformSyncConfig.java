@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public interface SteamCrossplatformSyncConfig {
     Path getConfigDirectory();
+
     default Path getConfigFileLocation() {
         return Path.of(getConfigDirectory().toAbsolutePath().toString(), "config.yml");
     }

@@ -6,7 +6,7 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-class LatestModifiedFileVisitor implements FileVisitor<Path>  {
+class LatestModifiedFileVisitor implements FileVisitor<Path> {
     private long latestLastModified = -1;
 
     public long getLatestLastModified() {

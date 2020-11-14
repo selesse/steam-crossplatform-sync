@@ -4,6 +4,7 @@ public class OperatingSystems {
     public enum OperatingSystem {
         WINDOWS, MAC
     }
+
     public static OperatingSystem get() {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("windows")) {

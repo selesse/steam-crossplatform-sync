@@ -7,9 +7,9 @@ import java.nio.file.StandardCopyOption;
 
 public class DirectoryCopier {
     public static void recursiveCopy(File source, File destination) throws IOException {
-        if (source.isDirectory())
+        if (source.isDirectory()) {
             copyFolder(source, destination);
-        else {
+        } else {
             createParentFolderIfNecessary(destination);
             copyFile(source, destination);
         }
@@ -25,8 +25,7 @@ public class DirectoryCopier {
                 File newFile = new File(destination.getAbsolutePath() + File.separator + file.getName());
                 if (file.isDirectory()) {
                     copyFolder(file, newFile);
-                }
-                else {
+                } else {
                     copyFile(file, newFile);
                 }
             }
