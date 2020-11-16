@@ -1,11 +1,15 @@
-package com.selesse.steam.mac;
+package com.selesse.steam.registry.mac;
 
 import com.google.common.base.Splitter;
+import com.selesse.steam.registry.implementation.RegistryObject;
+import com.selesse.steam.registry.implementation.RegistryParser;
+import com.selesse.steam.registry.implementation.RegistryStore;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MacSteamRegistryFile {
     private final List<String> registryLines;
@@ -27,5 +31,11 @@ public class MacSteamRegistryFile {
                 })
                 .findFirst()
                 .orElseThrow();
+    }
+
+    public List<Long> getInstalledAppIds() {
+        RegistryStore registryStore = RegistryParser.parse(registryLines);
+        RegistryObject object = registryStore.getObjectValue("Registry/HKCU/Software/Valve/Steam/apps");
+        return object.getKeys().stream().map(Long::valueOf).sorted().collect(Collectors.toList());
     }
 }

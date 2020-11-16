@@ -1,6 +1,9 @@
-package com.selesse.steam;
+package com.selesse.steam.registry;
 
+import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
+
+import java.util.List;
 
 public abstract class SteamRegistry {
     private static SteamRegistry instance;
@@ -19,4 +22,8 @@ public abstract class SteamRegistry {
     }
 
     public abstract long getCurrentlyRunningAppId();
+
+    public List<Long> getInstalledAppIds() {
+        return Lists.newArrayList();
+    }
 }

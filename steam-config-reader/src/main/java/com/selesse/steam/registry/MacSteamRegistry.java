@@ -1,9 +1,10 @@
-package com.selesse.steam;
+package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
-import com.selesse.steam.mac.MacSteamRegistryFile;
+import com.selesse.steam.registry.mac.MacSteamRegistryFile;
 
 import java.nio.file.Path;
+import java.util.List;
 
 class MacSteamRegistry extends SteamRegistry {
     private static final String REGISTRY_PATH = "~/Library/Application Support/Steam/registry.vdf";
@@ -21,10 +22,14 @@ class MacSteamRegistry extends SteamRegistry {
         return registryFile.getCurrentlyRunningAppId();
     }
 
+    @Override
+    public List<Long> getInstalledAppIds() {
+        return registryFile.getInstalledAppIds();
+    }
+
     private void ensureRegistryFileExists() {
         if (!registryFilePath.toFile().isFile()) {
             throw new RuntimeException("Registry file does not exist in " + registryFilePath.toAbsolutePath());
         }
     }
-
 }

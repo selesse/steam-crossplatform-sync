@@ -1,4 +1,4 @@
-package com.selesse.steam;
+package com.selesse.steam.registry;
 
 import com.google.common.base.Splitter;
 import org.slf4j.Logger;
