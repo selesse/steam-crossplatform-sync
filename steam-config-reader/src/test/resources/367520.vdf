@@ -1,0 +1,476 @@
+"367520"
+{
+	"common"
+	{
+		"name"		"Hollow Knight"
+		"type"		"Game"
+		"oslist"		"windows,macos,linux"
+		"logo"		"6f48839fe61a9041c578419d72ed47e6b3f08141"
+		"logo_small"		"6f48839fe61a9041c578419d72ed47e6b3f08141_thumb"
+		"icon"		"7b87aecda896ae747a6e40e3eb63498cb8b84df2"
+		"clienticon"		"53a67be1a52c2b76def636cb5c0c9b85dd4fa535"
+		"clienttga"		"cfa52843158c284dc3300111a207fd0003c3c538"
+		"linuxclienticon"		"e1d12f1c38986b8e6611bd1a2cf1ad86693553d4"
+		"clienticns"		"11c64bd2ab2029a644c3707882678ead2103310d"
+		"ReleaseState"		"released"
+		"osarch"		""
+		"languages"
+		{
+			"english"		"1"
+			"german"		"1"
+			"french"		"1"
+			"italian"		"1"
+			"koreana"		"1"
+			"spanish"		"1"
+			"schinese"		"1"
+			"russian"		"1"
+			"japanese"		"1"
+			"brazilian"		"1"
+		}
+		"osextended"		"macos64"
+		"metacritic_name"		"Hollow Knight"
+		"controller_support"		"full"
+		"small_capsule"
+		{
+			"english"		"capsule_231x87.jpg"
+		}
+		"header_image"
+		{
+			"english"		"header.jpg"
+		}
+		"library_assets"
+		{
+			"library_capsule"		"en"
+			"library_hero"		"en"
+			"library_logo"		"en"
+			"logo_position"
+			{
+				"pinned_position"		"BottomLeft"
+				"width_pct"		"29"
+				"height_pct"		"100"
+			}
+		}
+		"store_asset_mtime"		"1568794877"
+		"associations"
+		{
+			"0"
+			{
+				"type"		"developer"
+				"name"		"Team Cherry"
+			}
+			"1"
+			{
+				"type"		"publisher"
+				"name"		"Team Cherry"
+			}
+			"2"
+			{
+				"type"		"franchise"
+				"name"		"Hollow Knight"
+			}
+		}
+		"primary_genre"		"25"
+		"genres"
+		{
+			"0"		"1"
+			"1"		"25"
+			"2"		"23"
+		}
+		"category"
+		{
+			"category_28"		"1"
+			"category_2"		"1"
+			"category_22"		"1"
+			"category_29"		"1"
+			"category_23"		"1"
+			"category_43"		"1"
+			"category_41"		"1"
+			"category_42"		"1"
+			"category_45"		"1"
+			"category_46"		"1"
+		}
+		"supported_languages"
+		{
+			"english"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+				"full_audio"		"true"
+			}
+			"french"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"german"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"spanish"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"koreana"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"schinese"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"italian"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"brazilian"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"russian"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+			"japanese"
+			{
+				"supported"		"true"
+				"full_audio"		"true"
+				"subtitles"		"true"
+			}
+		}
+		"steam_release_date"		"1487959200"
+		"metacritic_score"		"87"
+		"metacritic_fullurl"		"https://www.metacritic.com/game/pc/hollow-knight?ftag=MCD-06-10aaa1f"
+		"community_visible_stats"		"1"
+		"community_hub_visible"		"1"
+		"gameid"		"367520"
+		"store_tags"
+		{
+			"0"		"1628"
+			"1"		"29482"
+			"2"		"1625"
+			"3"		"1756"
+			"4"		"4026"
+			"5"		"3871"
+			"6"		"492"
+			"7"		"4166"
+			"8"		"3834"
+			"9"		"4182"
+			"10"		"21"
+			"11"		"1742"
+			"12"		"6815"
+			"13"		"19"
+			"14"		"4604"
+			"15"		"6971"
+			"16"		"4726"
+			"17"		"1695"
+			"18"		"7481"
+			"19"		"3798"
+		}
+		"review_score"		"9"
+		"review_percentage"		"96"
+	}
+	"extended"
+	{
+		"developer"		"Team Cherry"
+		"publisher"		"Team Cherry"
+		"homepage"		"http://hollowknight.com"
+		"listofdlc"		"396670,598190,916000"
+	}
+	"config"
+	{
+		"contenttype"		"3"
+		"installdir"		"Hollow Knight"
+		"launch"
+		{
+			"0"
+			{
+				"executable"		"hollow_knight.exe"
+				"description"		"Launch"
+				"config"
+				{
+					"oslist"		"windows"
+				}
+			}
+			"1"
+			{
+				"executable"		"hollow_knight.app"
+				"description"		"Launch"
+				"type"		"none"
+				"config"
+				{
+					"oslist"		"macos"
+				}
+			}
+			"2"
+			{
+				"executable"		"hollow_knight.x86_64"
+				"description"		"Launch"
+				"type"		"none"
+				"config"
+				{
+					"oslist"		"linux"
+				}
+			}
+		}
+		"steamcontrollertemplateindex"		"4"
+		"steamcontrollertouchtemplateindex"		"1"
+		"steamcontrollertouchconfigdetails"
+		{
+			"1953389406"
+			{
+				"controller_type"		"controller_mobile_touch"
+				"enabled_branches"		"default"
+				"use_action_block"		"false"
+			}
+		}
+	}
+	"depots"
+	{
+		"baselanguages"		"english"
+		"hasdepotsindlc"		"1"
+		"367521"
+		{
+			"name"		"Hollow Knight Windows"
+			"config"
+			{
+				"oslist"		"windows"
+			}
+			"manifests"
+			{
+				"public"		"7100970131266256005"
+			}
+			"maxsize"		"7933142290"
+			"encryptedmanifests"
+			{
+				"beta"
+				{
+					"encrypted_gid_2"		"03998FB306F64D4A3ECE130F078A6C54"
+					"encrypted_size_2"		"108197FD8A7C21517F1D7E3179B07691"
+				}
+				"godsandglory"
+				{
+					"encrypted_gid_2"		"CD6AEF32778C09CC40FD5334ADEFA063"
+					"encrypted_size_2"		"FEF7CA6FEBC00A3699296EAE4069CF4C"
+				}
+				"pre-public-beta"
+				{
+					"encrypted_gid_2"		"ADC3CCF830F4BCFE8FB32B5B5E7A55BD"
+					"encrypted_size_2"		"A8413B2732A9390CA3241EE3FEF1F22E"
+				}
+				"private-beta-linux"
+				{
+					"encrypted_gid_2"		"B37F9787B7BD23D871259F934EA41C83"
+					"encrypted_size_2"		"E46950712B759994A2CC0F1D9526D8ED"
+				}
+				"private-beta-osx"
+				{
+					"encrypted_gid_2"		"CDC6CBB9EE6DE4C83F590C8E6342AF73"
+					"encrypted_size_2"		"CA553776E2676260136E58180A6D51C5"
+				}
+			}
+		}
+		"367522"
+		{
+			"name"		"Hollow Knight Mac"
+			"config"
+			{
+				"oslist"		"macos"
+			}
+			"manifests"
+			{
+				"public"		"3397268605819178029"
+				"public-beta"		"8135621803512637631"
+			}
+			"maxsize"		"7976787417"
+			"encryptedmanifests"
+			{
+				"beta"
+				{
+					"encrypted_gid_2"		"BCDF315CA2F104C5AD8A9AE2E0CF871D"
+					"encrypted_size_2"		"B7DB1F4BF0FD151017037716CB7623B7"
+				}
+				"godsandglory"
+				{
+					"encrypted_gid_2"		"292160306DCE07ED81875D4EFFE5893C"
+					"encrypted_size_2"		"8A5D776C023F277FCD0FD9A770B913F6"
+				}
+				"pre-public-beta"
+				{
+					"encrypted_gid_2"		"A900B57943E743EA031DB5581F2B4AD8"
+					"encrypted_size_2"		"636D79B0705CB45AF52F6288B57ED0D2"
+				}
+				"private-beta-linux"
+				{
+					"encrypted_gid_2"		"936D1543DC061C8BC5CA60E9DCB85AB0"
+					"encrypted_size_2"		"3EE92CD5F813224246347FA0F646A9B1"
+				}
+				"private-beta-osx"
+				{
+					"encrypted_gid_2"		"6AC38E8CC49006900D91CAF815756EF9"
+					"encrypted_size_2"		"9A8D53FB849871D34D24C95C438AC74F"
+				}
+				"private-test"
+				{
+					"encrypted_gid_2"		"D0B96D2955E9BB6945649D23BD0786B6"
+					"encrypted_size_2"		"74A169144444FC02C0651C1279B7BF82"
+				}
+			}
+		}
+		"367523"
+		{
+			"name"		"Hollow Knight Linux"
+			"config"
+			{
+				"oslist"		"linux"
+			}
+			"manifests"
+			{
+				"public"		"4631363637747835650"
+				"public-beta"		"5306787488895766048"
+			}
+			"maxsize"		"7931619556"
+			"encryptedmanifests"
+			{
+				"beta"
+				{
+					"encrypted_gid_2"		"56BC92E11D0D6236E1FCBD9FBDBA86A6"
+					"encrypted_size_2"		"0D41EDBB1D70A5831C61A5C703D684C3"
+				}
+				"godsandglory"
+				{
+					"encrypted_gid_2"		"C959D58DA9240747F17B5869767FA9BA"
+					"encrypted_size_2"		"86353E7E1B789071FF81A7D409858BE3"
+				}
+				"pre-public-beta"
+				{
+					"encrypted_gid_2"		"35C5E47A15A7CE925EC18446B66F6BC8"
+					"encrypted_size_2"		"0904DD0E670413F12B71F1A914F98732"
+				}
+				"private-beta-linux"
+				{
+					"encrypted_gid_2"		"B6AF8621EA8B3D9267BD493BE2B81D9B"
+					"encrypted_size_2"		"E137DA7612694E00D0E6DEAFFAF689AE"
+				}
+				"private-beta-osx"
+				{
+					"encrypted_gid_2"		"A1754B2C29B7720D09E48381EBBF582A"
+					"encrypted_size_2"		"C38E0758BD4D6414C31DBF5293FBD053"
+				}
+				"private-test"
+				{
+					"encrypted_gid_2"		"7605901C5584B430AAF5BCF8D88F36CB"
+					"encrypted_size_2"		"AA16B9639E8A515FB7D7CF9BAE77DC37"
+				}
+			}
+		}
+		"branches"
+		{
+			"public"
+			{
+				"buildid"		"4296065"
+				"timeupdated"		"1572404859"
+			}
+			"beta"
+			{
+				"buildid"		"2019758"
+				"description"		"Internal beta testing"
+				"pwdrequired"		"1"
+				"timeupdated"		"1502256445"
+			}
+			"godsandglory"
+			{
+				"buildid"		"3073265"
+				"description"		""
+				"pwdrequired"		"1"
+				"timeupdated"		"1535527791"
+			}
+			"pre-public-beta"
+			{
+				"buildid"		"2258941"
+				"description"		"Early Public Testing"
+				"pwdrequired"		"1"
+				"timeupdated"		"1509872727"
+			}
+			"private-beta-linux"
+			{
+				"buildid"		"2019758"
+				"description"		"Internal Beta Linux"
+				"pwdrequired"		"1"
+				"timeupdated"		"1502256486"
+			}
+			"private-beta-osx"
+			{
+				"buildid"		"2019758"
+				"description"		"Internal Beta OSX"
+				"pwdrequired"		"1"
+				"timeupdated"		"1502256500"
+			}
+			"private-test"
+			{
+				"buildid"		"3994293"
+				"description"		"Temporary Testing"
+				"pwdrequired"		"1"
+				"timeupdated"		"1562650553"
+			}
+			"public-beta"
+			{
+				"buildid"		"3994305"
+				"description"		""
+				"timeupdated"		"1562650752"
+			}
+		}
+	}
+	"ufs"
+	{
+		"quota"		"2000000"
+		"maxnumfiles"		"10"
+		"savefiles"
+		{
+			"0"
+			{
+				"root"		"WinAppDataLocalLow"
+				"path"		"Team Cherry/Hollow Knight"
+				"pattern"		"*.dat"
+				"platforms"
+				{
+					"1"		"Windows"
+				}
+			}
+			"1"
+			{
+				"root"		"MacHome"
+				"path"		"/Library/Application Support/unity.Team Cherry.Hollow Knight"
+				"pattern"		"*.dat"
+				"platforms"
+				{
+					"1"		"MacOS"
+				}
+			}
+			"2"
+			{
+				"root"		"LinuxHome"
+				"path"		".config/unity3d/Team Cherry/Hollow Knight"
+				"pattern"		"*.dat"
+				"platforms"
+				{
+					"1"		"Linux"
+				}
+			}
+		}
+	}
+}
