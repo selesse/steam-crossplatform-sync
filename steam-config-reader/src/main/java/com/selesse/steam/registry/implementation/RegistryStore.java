@@ -11,7 +11,15 @@ public class RegistryStore {
         this.rootObject = rootObject;
     }
 
-    public RegistryObject getObjectValue(String path) {
+    public RegistryObject getObjectValueAsObject(String path) {
+        return (RegistryObject) getObjectValue(path);
+    }
+
+    public RegistryString getObjectValueAsString(String path) {
+        return (RegistryString) getObjectValue(path);
+    }
+
+    public RegistryValue getObjectValue(String path) {
         List<String> parts = Splitter.on("/").splitToList(path);
 
         RegistryObject currentObject = rootObject;
@@ -20,6 +28,8 @@ public class RegistryStore {
             RegistryValue registryValue = currentObject.get(part);
             if (registryValue instanceof RegistryObject) {
                 currentObject = (RegistryObject) registryValue;
+            } else {
+                return registryValue;
             }
         }
 

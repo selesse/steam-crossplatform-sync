@@ -1,9 +1,6 @@
 package com.selesse.steam.registry.mac;
 
-import com.google.common.base.Splitter;
-import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryParser;
-import com.selesse.steam.registry.implementation.RegistryStore;
+import com.selesse.steam.registry.implementation.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,30 +9,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MacSteamRegistryFile {
-    private final List<String> registryLines;
+    private final RegistryStore registryStore;
 
     public MacSteamRegistryFile(Path registryFilePath) {
         try {
-            this.registryLines = Files.readAllLines(registryFilePath);
+            List<String> lines = Files.readAllLines(registryFilePath);
+            this.registryStore = RegistryParser.parse(lines);
         } catch (IOException e) {
             throw new RuntimeException("Unable to read registry file " + registryFilePath.toAbsolutePath());
         }
     }
 
     public Long getCurrentlyRunningAppId() {
-        return registryLines.stream()
-                .filter(line -> line.contains("RunningAppID"))
-                .map(line -> {
-                    List<String> partitions = Splitter.on("\"").splitToList(line);
-                    return Long.valueOf(partitions.get(partitions.size() - 2));
-                })
-                .findFirst()
-                .orElseThrow();
+        RegistryString value = registryStore.getObjectValueAsString("Registry/HKCU/Software/Valve/Steam/RunningAppID");
+        return Long.parseLong(value.getValue());
     }
 
     public List<Long> getInstalledAppIds() {
-        RegistryStore registryStore = RegistryParser.parse(registryLines);
-        RegistryObject object = registryStore.getObjectValue("Registry/HKCU/Software/Valve/Steam/apps");
+        RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
         return object.getKeys().stream().map(Long::valueOf).sorted().collect(Collectors.toList());
     }
 }

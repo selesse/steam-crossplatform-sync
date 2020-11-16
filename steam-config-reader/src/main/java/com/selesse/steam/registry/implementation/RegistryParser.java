@@ -48,8 +48,8 @@ public class RegistryParser {
 
     private static RegistryString parseRegistryString(String line) {
         List<String> strings = Splitter.on("\t").omitEmptyStrings().splitToList(line);
-        String key = strings.get(0);
-        String value = strings.get(1);
+        String key = extractKeyName(strings.get(0));
+        String value = extractKeyName(strings.get(1));
         return new RegistryString(key, value);
     }
 }
