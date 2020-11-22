@@ -1,7 +1,22 @@
 plugins {
+    id "de.undercouch.download" version "4.1.1"
     id 'java-library'
 }
 
 dependencies {
     implementation(project(':common'))
 }
+
+task downloadSteamCmd(type: Download) {
+    src 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz'
+    dest buildDir
+    onlyIfModified true
+}
+
+jar {
+    into('bin') {
+        from downloadSteamCmd.outputFiles.collect { tarTree(it) }
+    }
+}
+
+jar.dependsOn downloadSteamCmd
