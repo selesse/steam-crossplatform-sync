@@ -11,3 +11,11 @@ rootProject.name = 'steam-crossplatform-sync'
 include('app')
 include('common')
 include('steam-config-reader')
+
+rootProject.children.each { project ->
+    String fileBaseName = project.name
+    project.projectDir = new File(settingsDir, "${fileBaseName}")
+    project.buildFileName = "${fileBaseName}.gradle"
+    assert project.projectDir.isDirectory()
+    assert project.buildFile.isFile()
+}
