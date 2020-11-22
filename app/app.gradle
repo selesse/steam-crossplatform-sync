@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1')
-    compile('org.xerial:sqlite-jdbc:3.32.3.2')
-    compile(project(':steam-config-reader'))
-    compile(project(':common'))
+    implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1')
+    implementation('org.xerial:sqlite-jdbc:3.32.3.2')
+    implementation(project(':steam-config-reader'))
+    implementation(project(':common'))
 }
 
 application {
