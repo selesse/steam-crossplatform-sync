@@ -13,6 +13,18 @@ public class SteamGameMetadata {
         this.installed = installed;
     }
 
+    public long getGameId() {
+        return gameId;
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

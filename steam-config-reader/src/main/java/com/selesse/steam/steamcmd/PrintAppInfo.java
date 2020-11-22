@@ -1,11 +1,11 @@
 package com.selesse.steam.steamcmd;
 
+import com.google.common.collect.Maps;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PrintAppInfo {
     public RegistryStore getRegistryStore(Long appId) {
@@ -22,8 +22,12 @@ public class PrintAppInfo {
     }
 
     Map<Long, RegistryStore> getRegistryStores(PrintAppInfoExecutor executor, List<Long> appIds) {
+        Map<Long, RegistryStore> registryStoreMap = Maps.newHashMap();
         Map<Long, List<String>> outputPerAppId = executor.runPrintAppInfoProcesses(appIds);
-        return outputPerAppId.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> RegistryParser.parse(e.getValue())));
+        for (Map.Entry<Long, List<String>> longListEntry : outputPerAppId.entrySet()) {
+            RegistryStore registryStore = RegistryParser.parseOmittingFirstLevel(longListEntry.getValue());
+            registryStoreMap.put(longListEntry.getKey(), registryStore);
+        }
+        return registryStoreMap;
     }
 }

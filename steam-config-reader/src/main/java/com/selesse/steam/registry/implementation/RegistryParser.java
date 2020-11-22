@@ -10,6 +10,12 @@ public class RegistryParser {
         return new RegistryStore((RegistryObject) object);
     }
 
+    public static RegistryStore parseOmittingFirstLevel(List<String> lines) {
+        RegistryValue object = parseValue(lines);
+        RegistryObject firstLevelKey = (RegistryObject) object;
+        return new RegistryStore((RegistryObject) firstLevelKey.get(firstLevelKey.getKeys().get(0)));
+    }
+
     private static RegistryValue parseValue(List<String> blockScope) {
         RegistryObject registryObject = new RegistryObject();
         for (int currentLineNumber = 0; currentLineNumber < blockScope.size();) {

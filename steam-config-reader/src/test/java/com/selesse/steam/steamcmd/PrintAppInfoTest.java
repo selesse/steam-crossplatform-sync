@@ -54,13 +54,13 @@ public class PrintAppInfoTest {
                         Lists.newArrayList(hollowKnightId, oxygenNotIncludedId));
 
         RegistryStore hollowKnightStore = registryStores.get(hollowKnightId);
-        assertThat(getApplicationName(hollowKnightId, hollowKnightStore)).isEqualTo("Hollow Knight");
+        assertThat(getApplicationName(hollowKnightStore)).isEqualTo("Hollow Knight");
 
         RegistryStore oxygenNotIncludedStore = registryStores.get(oxygenNotIncludedId);
-        assertThat(getApplicationName(oxygenNotIncludedId, oxygenNotIncludedStore)).isEqualTo("Oxygen Not Included");
+        assertThat(getApplicationName(oxygenNotIncludedStore)).isEqualTo("Oxygen Not Included");
     }
 
-    private String getApplicationName(Long appId, RegistryStore store) {
-        return store.getObjectValueAsString(appId + "/common/name").getValue();
+    private String getApplicationName(RegistryStore store) {
+        return store.getObjectValueAsString("common/name").getValue();
     }
 }
