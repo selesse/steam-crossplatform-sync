@@ -2,6 +2,7 @@ package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.steam.registry.mac.MacSteamRegistryFile;
+import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,17 +15,22 @@ class MacSteamRegistry extends SteamRegistry {
     public MacSteamRegistry() {
         registryFilePath = Path.of(FilePathSanitizer.sanitize(REGISTRY_PATH));
         registryFile = new MacSteamRegistryFile(registryFilePath);
+        ensureRegistryFileExists();
     }
 
     @Override
     public long getCurrentlyRunningAppId() {
-        ensureRegistryFileExists();
         return registryFile.getCurrentlyRunningAppId();
     }
 
     @Override
     public List<Long> getInstalledAppIds() {
         return registryFile.getInstalledAppIds();
+    }
+
+    @Override
+    public List<SteamGameMetadata> getGameMetadata() {
+        return registryFile.getGameMetadata();
     }
 
     private void ensureRegistryFileExists() {

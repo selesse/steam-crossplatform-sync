@@ -2,6 +2,7 @@ package com.selesse.steam.registry;
 
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 
 import java.util.List;
 
@@ -24,6 +25,10 @@ public abstract class SteamRegistry {
     public abstract long getCurrentlyRunningAppId();
 
     public List<Long> getInstalledAppIds() {
+        return Lists.newArrayList();
+    }
+
+    public List<SteamGameMetadata> getGameMetadata() {
         return Lists.newArrayList();
     }
 }

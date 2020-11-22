@@ -1,10 +1,12 @@
 package com.selesse.steam.registry.mac;
 
 import com.google.common.io.Resources;
+import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,5 +56,13 @@ public class MacSteamRegistryFileTest {
                 (long) 653530,
                 (long) 734070
         );
+    }
+
+    @Test
+    public void canReadGameMetadata() {
+        MacSteamRegistryFile steamRegistryFile = new MacSteamRegistryFile(testRegistryPath);
+        List<SteamGameMetadata> gameMetadata = steamRegistryFile.getGameMetadata();
+
+        assertThat(gameMetadata).contains(new SteamGameMetadata(367520, "Hollow Knight", true));
     }
 }
