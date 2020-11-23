@@ -12,11 +12,3 @@ task downloadSteamCmd(type: Download) {
     dest buildDir
     onlyIfModified true
 }
-
-jar {
-    into('bin') {
-        from downloadSteamCmd.outputFiles.collect { tarTree(it) }
-    }
-}
-
-jar.dependsOn downloadSteamCmd
