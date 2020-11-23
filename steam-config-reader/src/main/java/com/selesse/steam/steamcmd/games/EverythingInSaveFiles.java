@@ -14,7 +14,8 @@ public class EverythingInSaveFiles implements SaveFile {
 
     @Override
     public boolean applies() {
-        return registry.getObjectValueAsObject("savefiles").getKeys().size() > 1;
+        return registry.pathExists("savefiles") &&
+                registry.getObjectValueAsObject("savefiles").getKeys().size() > 1;
     }
 
     @Override

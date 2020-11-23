@@ -11,19 +11,27 @@ public class UserFileSystemPath {
         this.path = path;
     }
 
-    public String getPath() {
+    public String getRoot() {
+        return root;
+    }
+
+    public String getRawPath() {
         return path;
     }
 
+    public String getPath() {
+        return path.replace("/{64BitSteamID}", "");
+    }
+
     public String getSymbolPath() {
-        String convert = SteamPathConverter.convert(root);
-        if (path.startsWith("/") || convert.endsWith("/")) {
-            return convert + path;
+        String convertedRoot = SteamPathConverter.convert(root);
+        if (path.startsWith("/") || convertedRoot.endsWith("/")) {
+            return convertedRoot + getPath();
         }
-        return convert + "/" + path;
+        return convertedRoot + "/" + getPath();
     }
 
     public String getLiteralPath() {
-        return FilePathSanitizer.sanitize(root) + "/" + path;
+        return FilePathSanitizer.sanitize(root) + "/" + getPath();
     }
 }

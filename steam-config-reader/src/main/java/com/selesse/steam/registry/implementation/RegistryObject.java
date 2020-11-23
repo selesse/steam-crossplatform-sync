@@ -50,4 +50,22 @@ public class RegistryObject extends RegistryValue {
 
         return currentObject;
     }
+
+    public boolean pathExists(String path) {
+        List<String> parts = Splitter.on("/").splitToList(path);
+
+        RegistryObject currentObject = this;
+
+        for (String part : parts) {
+            RegistryValue registryValue = currentObject.get(part);
+            if (registryValue == null) {
+                return false;
+            }
+            if (registryValue instanceof RegistryObject) {
+                currentObject = (RegistryObject) registryValue;
+            }
+        }
+
+        return true;
+    }
 }

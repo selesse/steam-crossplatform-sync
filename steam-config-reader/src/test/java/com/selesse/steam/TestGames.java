@@ -3,6 +3,7 @@ package com.selesse.steam;
 import com.google.common.io.Resources;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
+import com.selesse.steam.steamcmd.games.UserFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ public enum TestGames {
     HOLLOW_KNIGHT(367520),
     OXYGEN_NOT_INCLUDED(457140),
     WARGROOVE(607050),
+    SLAY_THE_SPIRE(646570),
     ;
 
     private final int gameId;
@@ -21,11 +23,15 @@ public enum TestGames {
         this.gameId = gameId;
     }
 
-    public RegistryStore getUserFileSystemStore() {
-        return new RegistryStore(getRegistryStore().getObjectValueAsObject("ufs"));
+    public UserFileSystem getUserFileSystem() {
+        return new UserFileSystem(getUserFileSystemStore(), getGameRegistryStore());
     }
 
-    private RegistryStore getRegistryStore() {
+    private RegistryStore getUserFileSystemStore() {
+        return new RegistryStore(getGameRegistryStore().getObjectValueAsObject("ufs"));
+    }
+
+    private RegistryStore getGameRegistryStore() {
         return RegistryParser.parseOmittingFirstLevel(registryFileContents());
     }
 

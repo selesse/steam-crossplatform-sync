@@ -1,0 +1,533 @@
+"646570"
+{
+	"common"
+	{
+		"name"		"Slay the Spire"
+		"type"		"Game"
+		"ReleaseState"		"released"
+		"oslist"		"windows,macos,linux"
+		"osarch"		""
+		"logo"		"6ecbf741b482a476d7d809ba3e3fea028b805b67"
+		"logo_small"		"6ecbf741b482a476d7d809ba3e3fea028b805b67_thumb"
+		"icon"		"33ea124ea8c03a9ce7012d34c3b348a351612fca"
+		"clienticon"		"825fd1d1d886ee62f7265d5a88c63b82423623a7"
+		"clienttga"		"ac0ed48848f2d4f43c4fd16c2b0b40a64725c800"
+		"linuxclienticon"		"1d8b4c30443273cd103e205241911bd6593142ef"
+		"clienticns"		"369eb6651ecea98da92ed69535737401f7411832"
+		"languages"
+		{
+			"english"		"1"
+			"german"		"1"
+			"french"		"1"
+			"italian"		"1"
+			"koreana"		"1"
+			"spanish"		"1"
+			"schinese"		"1"
+			"tchinese"		"1"
+			"russian"		"1"
+			"thai"		"1"
+			"japanese"		"1"
+			"polish"		"1"
+			"dutch"		"1"
+			"norwegian"		"1"
+			"turkish"		"1"
+			"brazilian"		"1"
+			"greek"		"1"
+			"ukrainian"		"1"
+		}
+		"osextended"		"macos64,macosnotarized"
+		"metacritic_name"		"Slay the Spire"
+		"controller_support"		"full"
+		"small_capsule"
+		{
+			"english"		"capsule_231x87.jpg"
+		}
+		"header_image"
+		{
+			"english"		"header.jpg"
+		}
+		"library_assets"
+		{
+			"library_capsule"		"en"
+			"library_hero"		"en"
+			"library_logo"		"en"
+			"logo_position"
+			{
+				"pinned_position"		"CenterCenter"
+				"width_pct"		"32"
+				"height_pct"		"100"
+			}
+		}
+		"store_asset_mtime"		"1560552398"
+		"associations"
+		{
+			"0"
+			{
+				"type"		"developer"
+				"name"		"Mega Crit Games"
+			}
+			"1"
+			{
+				"type"		"publisher"
+				"name"		"Mega Crit Games"
+			}
+		}
+		"primary_genre"		"2"
+		"genres"
+		{
+			"0"		"23"
+			"1"		"2"
+		}
+		"category"
+		{
+			"category_2"		"1"
+			"category_22"		"1"
+			"category_15"		"1"
+			"category_25"		"1"
+			"category_23"		"1"
+			"category_30"		"1"
+			"category_28"		"1"
+			"category_29"		"1"
+			"category_41"		"1"
+			"category_42"		"1"
+			"category_43"		"1"
+			"category_45"		"1"
+			"category_46"		"1"
+		}
+		"supported_languages"
+		{
+			"english"
+			{
+				"supported"		"true"
+			}
+			"schinese"
+			{
+				"supported"		"true"
+			}
+			"french"
+			{
+				"supported"		"true"
+			}
+			"german"
+			{
+				"supported"		"true"
+			}
+			"koreana"
+			{
+				"supported"		"true"
+			}
+			"russian"
+			{
+				"supported"		"true"
+			}
+			"japanese"
+			{
+				"supported"		"true"
+			}
+			"polish"
+			{
+				"supported"		"true"
+			}
+			"ukrainian"
+			{
+				"supported"		"true"
+			}
+			"spanish"
+			{
+				"supported"		"true"
+			}
+			"italian"
+			{
+				"supported"		"true"
+			}
+			"dutch"
+			{
+				"supported"		"true"
+			}
+			"tchinese"
+			{
+				"supported"		"true"
+			}
+			"turkish"
+			{
+				"supported"		"true"
+			}
+			"thai"
+			{
+				"supported"		"true"
+			}
+			"brazilian"
+			{
+				"supported"		"true"
+			}
+			"vietnamese"
+			{
+				"supported"		"true"
+			}
+		}
+		"steam_release_date"		"1548258600"
+		"metacritic_score"		"89"
+		"metacritic_fullurl"		"https://www.metacritic.com/game/pc/slay-the-spire?ftag=MCD-06-10aaa1f"
+		"community_visible_stats"		"1"
+		"workshop_visible"		"1"
+		"community_hub_visible"		"1"
+		"gameid"		"646570"
+		"store_tags"
+		{
+			"0"		"1091588"
+			"1"		"791774"
+			"2"		"1666"
+			"3"		"1716"
+			"4"		"32322"
+			"5"		"1677"
+			"6"		"9"
+			"7"		"4182"
+			"8"		"3959"
+			"9"		"4711"
+			"10"		"492"
+			"11"		"4026"
+			"12"		"1720"
+			"13"		"122"
+			"14"		"11123"
+			"15"		"1756"
+			"16"		"3871"
+			"17"		"1684"
+			"18"		"5125"
+			"19"		"597"
+		}
+		"review_score"		"9"
+		"review_percentage"		"97"
+	}
+	"extended"
+	{
+		"absolutemousecoordinates"		"1"
+		"developer"		"Mega Crit Games"
+		"publisher"		"Mega Crit Games"
+		"homepage"		"https://www.megacrit.com/"
+		"listofdlc"		"877620"
+	}
+	"config"
+	{
+		"installdir"		"SlayTheSpire"
+		"launch"
+		{
+			"0"
+			{
+				"executable"		"SlayTheSpire.exe"
+				"type"		"default"
+				"config"
+				{
+					"oslist"		"windows"
+				}
+			}
+			"1"
+			{
+				"executable"		"SlayTheSpire.app/Contents/MacOS/SlayTheSpire"
+				"workingdir"		"SlayTheSpire.app/Contents/Resources"
+				"type"		"default"
+				"config"
+				{
+					"oslist"		"macos"
+				}
+			}
+			"2"
+			{
+				"executable"		"SlayTheSpire"
+				"type"		"default"
+				"config"
+				{
+					"oslist"		"linux"
+				}
+			}
+			"3"
+			{
+				"executable"		"jre/bin/javaw.exe"
+				"arguments"		"-jar mts-launcher.jar"
+				"description"		"With Mods"
+				"type"		"option1"
+				"config"
+				{
+					"oslist"		"windows"
+				}
+			}
+			"4"
+			{
+				"executable"		"jre/bin/java"
+				"arguments"		"-jar mts-launcher.jar"
+				"description"		"With Mods"
+				"type"		"option1"
+				"config"
+				{
+					"oslist"		"linux"
+				}
+			}
+			"5"
+			{
+				"executable"		"SlayTheSpire.app/Contents/Resources/jre/bin/java"
+				"arguments"		"-jar mts-launcher.jar"
+				"workingdir"		"SlayTheSpire.app/Contents/Resources"
+				"description"		"With Mods"
+				"type"		"option1"
+				"config"
+				{
+					"oslist"		"macos"
+				}
+			}
+			"6"
+			{
+				"executable"		"jre/bin/javaw.exe"
+				"arguments"		"-Dfile.encoding=UTF-8 -jar desktop-1.0.jar"
+				"description"		"With Troubleshoot Mode"
+				"type"		"option2"
+				"config"
+				{
+					"oslist"		"windows"
+					"betakey"		"troubleshoot"
+				}
+			}
+		}
+		"steamcontrollertemplateindex"		"1"
+		"steamcontrollerconfigdetails"
+		{
+			"1430797951"
+			{
+				"controller_type"		"controller_xbox360"
+				"enabled_branches"		"beta"
+				"use_action_block"		"false"
+			}
+		}
+		"steamconfigurator3rdpartynative"		"13"
+		"steamcontrollertouchtemplateindex"		"8"
+	}
+	"depots"
+	{
+		"hasdepotsindlc"		"1"
+		"228983"
+		{
+			"name"		"VC 2010 Redist"
+			"config"
+			{
+				"oslist"		"windows"
+			}
+			"maxsize"		"19265607"
+			"depotfromapp"		"228980"
+			"sharedinstall"		"1"
+		}
+		"646572"
+		{
+			"name"		"Slay the Spire Mac"
+			"config"
+			{
+				"oslist"		"macos"
+			}
+			"manifests"
+			{
+				"public"		"1592298180007864001"
+				"beta"		"6449237528334769069"
+				"libgdx199"		"7770116369383932685"
+				"libgdx199.main"		"5795701333277926274"
+				"v1.0"		"7319089068348395687"
+				"v1.1"		"3617333436099423266"
+				"v2.0"		"351696857751837501"
+				"v2.0-libgdx199"		"1983985345892215513"
+				"v2.1-libgdx199"		"5795701333277926274"
+			}
+			"maxsize"		"534988673"
+		}
+		"646573"
+		{
+			"name"		"Slay the Spire Linux"
+			"config"
+			{
+				"oslist"		"linux"
+			}
+			"manifests"
+			{
+				"public"		"5107268169578184195"
+				"beta"		"6818760950721170919"
+				"libgdx199"		"8111523600890456668"
+				"libgdx199.main"		"2280122038259438315"
+				"v1.0"		"8799515757060005247"
+				"v1.1"		"5633882224927666729"
+				"v2.0"		"6851025362056392343"
+				"v2.0-libgdx199"		"1134310460298075941"
+				"v2.1-libgdx199"		"2280122038259438315"
+			}
+			"maxsize"		"573120670"
+		}
+		"646574"
+		{
+			"name"		"Slay the Spire Windows32"
+			"config"
+			{
+				"oslist"		"windows"
+				"osarch"		"32"
+			}
+			"manifests"
+			{
+				"public"		"4374169003586597147"
+				"beta"		"5000119382122220736"
+				"libgdx199"		"3362928617083541679"
+				"libgdx199.main"		"2322583664619091715"
+				"v1.0"		"8339101085447413865"
+				"v1.1"		"9115183077437336396"
+				"v2.0"		"1119750935350682287"
+				"v2.0-libgdx199"		"2940249989527424988"
+				"v2.1-libgdx199"		"2322583664619091715"
+			}
+			"maxsize"		"537773990"
+		}
+		"646571"
+		{
+			"name"		"Slay the Spire Windows"
+			"config"
+			{
+				"oslist"		"windows"
+				"osarch"		"64"
+			}
+			"manifests"
+			{
+				"public"		"1422583810106792525"
+				"beta"		"6474466874357887978"
+				"libgdx199"		"1073251493052491051"
+				"libgdx199.main"		"4426218651848742258"
+				"v1.0"		"4956283508573119646"
+				"v1.1"		"567139547025568628"
+				"v2.0"		"8509792829081755455"
+				"v2.0-libgdx199"		"840064049560657359"
+				"v2.1-libgdx199"		"4426218651848742258"
+			}
+			"maxsize"		"541257074"
+		}
+		"877621"
+		{
+			"name"		"Slay the Spire - Soundtrack Depot"
+			"dlcappid"		"877620"
+			"manifests"
+			{
+				"public"		"1616206291221819177"
+			}
+			"maxsize"		"153829851"
+			"depotfromapp"		"877620"
+		}
+		"workshopdepot"		"646570"
+		"branches"
+		{
+			"public"
+			{
+				"buildid"		"5353427"
+				"timeupdated"		"1596226139"
+			}
+			"beta"
+			{
+				"buildid"		"5845025"
+				"description"		"Beta branch for testing new content and risky fixes. Unstable"
+				"timeupdated"		"1605677461"
+			}
+			"libgdx199"
+			{
+				"buildid"		"5845086"
+				"description"		"Updated game engine version (BETA BRANCH)"
+				"timeupdated"		"1605677469"
+			}
+			"libgdx199.main"
+			{
+				"buildid"		"5353516"
+				"description"		"Updated game engine version (MAIN BRANCH)"
+				"timeupdated"		"1596226123"
+			}
+			"troubleshoot"
+			{
+				"buildid"		"5353427"
+				"description"		"For troubleshooting game issues."
+				"timeupdated"		"1596227044"
+			}
+			"v1.0"
+			{
+				"buildid"		"3495375"
+				"description"		"2019-23-01"
+				"timeupdated"		"1562010477"
+			}
+			"v1.1"
+			{
+				"buildid"		"4021395"
+				"description"		"2019-17-07"
+				"timeupdated"		"1579031304"
+			}
+			"v2.0"
+			{
+				"buildid"		"4614548"
+				"description"		"2020-27-01"
+				"timeupdated"		"1590444764"
+			}
+			"v2.0-libgdx199"
+			{
+				"buildid"		"4614333"
+				"description"		"2020-27-01 Updated game engine version (MAIN BRANCH)"
+				"timeupdated"		"1590444753"
+			}
+			"v2.1"
+			{
+				"buildid"		"5353427"
+				"description"		"2020-30-07"
+				"timeupdated"		"1596227057"
+			}
+			"v2.1-libgdx199"
+			{
+				"buildid"		"5353516"
+				"description"		"2020-30-07 Updated game engine version (MAIN BRANCH)"
+				"timeupdated"		"1596227065"
+			}
+		}
+	}
+	"ufs"
+	{
+		"quota"		"100000000000"
+		"maxnumfiles"		"10000"
+		"savefiles"
+		{
+			"0"
+			{
+				"root"		"gameinstall"
+				"path"		"preferences"
+				"pattern"		"*"
+			}
+			"2"
+			{
+				"root"		"gameinstall"
+				"path"		"betaPreferences"
+				"pattern"		"*"
+			}
+			"3"
+			{
+				"root"		"gameinstall"
+				"path"		"saves"
+				"pattern"		"*"
+			}
+		}
+		"rootoverrides"
+		{
+			"0"
+			{
+				"root"		"gameinstall"
+				"os"		"MacOS"
+				"oscompare"		"="
+				"useinstead"		"gameinstall"
+				"addpath"		"SlayTheSpire.app/Contents/Resources/"
+			}
+		}
+	}
+	"localization"
+	{
+		"richpresence"
+		{
+			"english"
+			{
+				"tokens"
+				{
+					"#status"		"%status%"
+				}
+			}
+		}
+	}
+}

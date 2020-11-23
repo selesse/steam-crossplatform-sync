@@ -3,10 +3,12 @@ package com.selesse.steam.steamcmd.games;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
 public class UserFileSystem {
-    private final RegistryStore registry;
+    private final RegistryStore userFileSystemRegistry;
+    private final RegistryStore gameRegistry;
 
-    public UserFileSystem(RegistryStore userFileSystemRegistry) {
-        this.registry = userFileSystemRegistry;
+    public UserFileSystem(RegistryStore userFileSystemRegistry, RegistryStore gameRegistry) {
+        this.userFileSystemRegistry = userFileSystemRegistry;
+        this.gameRegistry = gameRegistry;
     }
 
     public String getMacInstallationPath() {
@@ -18,6 +20,6 @@ public class UserFileSystem {
     }
 
     private SaveFile getSaveFile() {
-        return SaveFilesFactory.determineSaveFile(registry);
+        return SaveFilesFactory.determineSaveFile(userFileSystemRegistry, gameRegistry);
     }
 }

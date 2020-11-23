@@ -18,4 +18,8 @@ public class RegistryStore {
     public RegistryValue getObjectValue(String path) {
         return rootObject.getObjectValue(path);
     }
+
+    public boolean pathExists(String path) {
+        return rootObject.pathExists(path);
+    }
 }

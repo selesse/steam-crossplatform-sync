@@ -5,21 +5,25 @@ import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 
 public class SaveFilesRootOverrides implements SaveFile {
-    private final RegistryStore store;
+    private final RegistryStore ufsStore;
+    private final RegistryStore gameRegistryStore;
 
-    public SaveFilesRootOverrides(RegistryStore store) {
-        this.store = store;
+    public SaveFilesRootOverrides(RegistryStore ufsStore, RegistryStore gameRegistryStore) {
+        this.ufsStore = ufsStore;
+        this.gameRegistryStore = gameRegistryStore;
     }
 
     @Override
     public boolean applies() {
-        return store.getObjectValueAsObject("savefiles").getKeys().size() == 1 &&
-                store.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
+        return ufsStore.pathExists("savefiles") &&
+                ufsStore.pathExists("rootoverrides") &&
+                ufsStore.getObjectValueAsObject("savefiles").getKeys().size() == 1 &&
+                ufsStore.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
     }
 
     @Override
     public UserFileSystemPath getMacInfo() {
-        RegistryObject rootOverrides = store.getObjectValueAsObject("rootoverrides");
+        RegistryObject rootOverrides = ufsStore.getObjectValueAsObject("rootoverrides");
         RegistryObject macConfig = null;
         for (String objectKeys : rootOverrides.getKeys()) {
             RegistryObject nonWindowsConfig = rootOverrides.getObjectValueAsObject(objectKeys);
@@ -31,19 +35,39 @@ public class SaveFilesRootOverrides implements SaveFile {
             throw new IllegalArgumentException("Could not find Mac config");
         }
         String root = macConfig.getObjectValueAsString("useinstead").getValue();
+        String path = getRawWindowsInfo().getRawPath();
         RegistryString addpath = macConfig.getObjectValueAsString("addpath");
         if (addpath != null) {
             String append = addpath.getValue();
             root = root + append;
         }
-        return new UserFileSystemPath(root, getWindowsInfo().getPath());
+        RegistryObject transforms = macConfig.getObjectValueAsObject("pathtransforms/0");
+        if (transforms != null) {
+            String find = transforms.getObjectValueAsString("find").getValue();
+            String replace = transforms.getObjectValueAsString("replace").getValue();
+
+            path = path.replace(find, replace);
+        }
+        return new UserFileSystemPath(root, computePath(path));
     }
 
     @Override
     public UserFileSystemPath getWindowsInfo() {
-        RegistryObject objectValueAsObject = store.getObjectValueAsObject("savefiles/0");
+        UserFileSystemPath rawWindowsInfo = getRawWindowsInfo();
+        return new UserFileSystemPath(rawWindowsInfo.getRoot(), computePath(rawWindowsInfo.getRawPath()));
+    }
+
+    private UserFileSystemPath getRawWindowsInfo() {
+        RegistryObject objectValueAsObject = ufsStore.getObjectValueAsObject("savefiles/0");
         String root = objectValueAsObject.getObjectValueAsString("root").getValue();
         String path = objectValueAsObject.getObjectValueAsString("path").getValue();
         return new UserFileSystemPath(root, path);
+    }
+
+    private String computePath(String path) {
+        if (gameRegistryStore.getObjectValueAsString("common/name").getValue().equals("Oxygen Not Included")) {
+            return path.replace("cloud_save_files", "save_files");
+        }
+        return path;
     }
 }
