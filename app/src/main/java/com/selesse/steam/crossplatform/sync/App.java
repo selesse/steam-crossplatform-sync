@@ -19,6 +19,8 @@ public class App {
             new SyncGameFilesService(config).run();
         } else if (arguments.contains("--print-games")) {
             new GamesFilePrinter().run();
+        } else if (arguments.contains("--generate-games")) {
+            new GamesFileGenerator(config).run();
         } else {
             boolean fast = arguments.contains("--fast");
             new Daemon(config, fast).run();
