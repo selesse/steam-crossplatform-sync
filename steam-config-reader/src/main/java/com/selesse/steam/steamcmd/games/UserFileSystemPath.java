@@ -20,7 +20,9 @@ public class UserFileSystemPath {
     }
 
     public String getPath() {
-        return path.replace("/{64BitSteamID}", "");
+        return path.replace("/{64BitSteamID}/", "")
+                .replace("/{64BitSteamID}", "");
+
     }
 
     public String getSymbolPath() {

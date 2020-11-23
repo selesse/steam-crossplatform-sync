@@ -15,6 +15,7 @@ public enum TestGames {
     OXYGEN_NOT_INCLUDED(457140),
     WARGROOVE(607050),
     SLAY_THE_SPIRE(646570),
+    TORCHLIGHT_II(200710),
     ;
 
     private final int gameId;

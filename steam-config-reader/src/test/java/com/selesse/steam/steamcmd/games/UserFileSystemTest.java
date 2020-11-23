@@ -50,4 +50,16 @@ public class UserFileSystemTest {
         assertThat(userFileSystem.getMacInstallationPath())
                 .isEqualTo("~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files");
     }
+
+    @Test
+    public void canPrintTorchlightII() {
+        TestGames torchlight2 = TestGames.TORCHLIGHT_II;
+        UserFileSystem userFileSystem = torchlight2.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%USERPROFILE%/Documents/my games/runic games/torchlight 2/save");
+        assertThat(userFileSystem.getMacInstallationPath())
+                .isEqualTo("~/Library/Application Support/Steam/steamapps/common/" +
+                        "Torchlight II/my games/runic games/torchlight 2/save");
+    }
 }
