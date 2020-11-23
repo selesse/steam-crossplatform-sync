@@ -11,15 +11,17 @@ public class SyncableGame {
     private final String name;
     private final String windows;
     private final String mac;
+    private final Long gameId;
 
-    private SyncableGame(String name, String windows, String mac) {
+    private SyncableGame(String name, String windows, String mac, long gameId) {
         this.name = name;
         this.windows = windows;
         this.mac = mac;
+        this.gameId = gameId;
     }
 
     public static SyncableGame fromRaw(SyncableGameRaw raw) {
-        return new SyncableGame(raw.name, raw.windows, raw.mac);
+        return new SyncableGame(raw.name, raw.windows, raw.mac, raw.gameId);
     }
 
     public Path getLocalPath() {
