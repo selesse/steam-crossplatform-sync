@@ -43,4 +43,8 @@ public class SyncableGame {
     public String getName() {
         return name;
     }
+
+    public Long getGameId() {
+        return gameId;
+    }
 }

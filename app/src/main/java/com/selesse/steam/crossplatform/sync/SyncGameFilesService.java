@@ -15,7 +15,7 @@ public class SyncGameFilesService {
         this.config = config;
     }
 
-    public void run() {
+    public void runForAllGames() {
         GameConfig gameList = new GameLoader().loadGames(config);
         gameList.getGames().forEach(game -> {
             Path localPath = game.getLocalPath();
@@ -23,6 +23,18 @@ public class SyncGameFilesService {
 
             LOGGER.info("Checking {}", game.getName());
             GameSyncer.sync(localPath, cloudSyncPath);
+        });
+    }
+
+    public void run(long runningGameId) {
+        GameConfig gameList = new GameLoader().loadGames(config);
+        gameList.getGames().forEach(game -> {
+            Path localPath = game.getLocalPath();
+            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+
+            if (game.getGameId() == runningGameId) {
+                GameSyncer.sync(localPath, cloudSyncPath);
+            }
         });
     }
 }

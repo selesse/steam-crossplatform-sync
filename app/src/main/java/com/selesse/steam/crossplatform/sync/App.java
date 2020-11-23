@@ -16,7 +16,7 @@ public class App {
 
         SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
         if (arguments.contains("--sync")) {
-            new SyncGameFilesService(config).run();
+            new SyncGameFilesService(config).runForAllGames();
         } else if (arguments.contains("--print-games")) {
             new GamesFilePrinter().run();
         } else if (arguments.contains("--generate-games")) {
