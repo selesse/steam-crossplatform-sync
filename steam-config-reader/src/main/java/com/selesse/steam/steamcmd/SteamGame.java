@@ -13,6 +13,9 @@ public class SteamGame {
     }
 
     public String getName() {
+        if (metadata.getName().isBlank()) {
+            return config.getGameName();
+        }
         return metadata.getName();
     }
 

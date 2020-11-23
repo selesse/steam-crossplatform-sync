@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MacSteamRegistryFile {
@@ -36,18 +37,15 @@ public class MacSteamRegistryFile {
         RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
         List<SteamGameMetadata> steamGames = Lists.newArrayList();
         for (String gameIdString : object.getKeys()) {
-            RegistryValue registryObject = object.get(gameIdString);
-            if (registryObject instanceof RegistryObject) {
-                RegistryObject registryValue = (RegistryObject) registryObject;
-                if (registryValue.getKeys().contains("name")) {
-                    RegistryValue nameValue = registryValue.get("name");
-                    String name = ((RegistryString) nameValue).getValue();
-                    RegistryValue installedValue = registryValue.get("installed");
-                    boolean installed = ((RegistryString) installedValue).getValue().equals("1");
-                    long gameId = Long.parseLong(gameIdString);
-                    SteamGameMetadata steamGameMetadata = new SteamGameMetadata(gameId, name, installed);
-                    steamGames.add(steamGameMetadata);
-                }
+            RegistryObject registryObject = object.getObjectValueAsObject(gameIdString);
+            if (registryObject.pathExists("installed")) {
+                RegistryString nameValue = registryObject.getObjectValueAsString("name");
+                String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
+                RegistryString installedValue = registryObject.getObjectValueAsString("installed");
+                boolean installed = installedValue.getValue().equals("1");
+                long gameId = Long.parseLong(gameIdString);
+                SteamGameMetadata steamGameMetadata = new SteamGameMetadata(gameId, name, installed);
+                steamGames.add(steamGameMetadata);
             }
         }
         return steamGames;

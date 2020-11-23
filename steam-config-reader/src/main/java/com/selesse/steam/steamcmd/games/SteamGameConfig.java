@@ -9,6 +9,10 @@ public class SteamGameConfig {
         this.registryStore = registryStore;
     }
 
+    public String getGameName() {
+        return registryStore.getObjectValueAsString("common/name").getValue();
+    }
+
     public String getMacInstallationPath() {
         return new UserFileSystem(getUserFileSystemRegistry(), registryStore).getMacInstallationPath();
     }
