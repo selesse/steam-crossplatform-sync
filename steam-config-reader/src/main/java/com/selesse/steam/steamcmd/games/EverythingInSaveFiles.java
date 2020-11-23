@@ -5,17 +5,15 @@ import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.registry.implementation.RegistryValue;
 
-public class EverythingInSaveFiles implements SaveFile {
-    private final RegistryStore registry;
-
-    public EverythingInSaveFiles(RegistryStore userFileSystemRegistry) {
-        this.registry = userFileSystemRegistry;
+public class EverythingInSaveFiles extends SaveFile {
+    public EverythingInSaveFiles(RegistryStore gameRegistry) {
+        super(gameRegistry);
     }
 
     @Override
     public boolean applies() {
-        return registry.pathExists("savefiles") &&
-                registry.getObjectValueAsObject("savefiles").getKeys().size() > 1;
+        return ufs.pathExists("savefiles") &&
+                ufs.getObjectValueAsObject("savefiles").getKeys().size() > 1;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class EverythingInSaveFiles implements SaveFile {
     }
 
     private RegistryObject getSaveFile(String platform) {
-        RegistryObject saveFiles = registry.getObjectValueAsObject("savefiles");
+        RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
         for (String saveFile : saveFiles.getKeys()) {
             RegistryValue registryValue = saveFiles.get(saveFile);
             if (registryValue instanceof RegistryObject) {

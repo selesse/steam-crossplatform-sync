@@ -14,11 +14,11 @@ public class SteamGameConfig {
     }
 
     public String getMacInstallationPath() {
-        return new UserFileSystem(getUserFileSystemRegistry(), registryStore).getMacInstallationPath();
+        return new UserFileSystem(registryStore).getMacInstallationPath();
     }
 
     public String getWindowsInstallationPath() {
-        return new UserFileSystem(getUserFileSystemRegistry(), registryStore).getWindowsInstallationPath();
+        return new UserFileSystem(registryStore).getWindowsInstallationPath();
     }
 
     public boolean hasUserFileSystem() {

@@ -6,32 +6,28 @@ import com.selesse.steam.registry.implementation.RegistryStore;
 
 import java.util.Optional;
 
-public class GameInstallSaveFile implements SaveFile {
-    private final RegistryStore store;
-    private final RegistryStore gameRegistry;
-
-    public GameInstallSaveFile(RegistryStore store, RegistryStore gameRegistry) {
-        this.store = store;
-        this.gameRegistry = gameRegistry;
+public class GameInstallSaveFile extends SaveFile {
+    public GameInstallSaveFile(RegistryStore gameRegistry) {
+        super(gameRegistry);
     }
 
     @Override
     public boolean applies() {
         return gameRegistry.pathExists("config/installdir") &&
-                store.pathExists("savefiles/0/root") &&
+                ufs.pathExists("savefiles/0/root") &&
                 hasGameInstallInProperties();
     }
 
     private boolean hasGameInstallInProperties() {
-        return (store.pathExists("rootoverrides/0/useinstead") &&
-                store.getObjectValueAsString("rootoverrides/0/useinstead").getValue().equals("gameinstall"))
-                || store.getObjectValueAsString("savefiles/0/root").getValue().equals("gameinstall");
+        return (ufs.pathExists("rootoverrides/0/useinstead") &&
+                ufs.getObjectValueAsString("rootoverrides/0/useinstead").getValue().equals("gameinstall"))
+                || ufs.getObjectValueAsString("savefiles/0/root").getValue().equals("gameinstall");
     }
 
     @Override
     public UserFileSystemPath getMacInfo() {
         RegistryObject macObject = null;
-        RegistryObject rootOverrides = store.getObjectValueAsObject("rootoverrides");
+        RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
         for (String key : rootOverrides.getKeys()) {
             RegistryObject osObject = rootOverrides.getObjectValueAsObject(key);
             if (osObject.getObjectValueAsString("os").getValue().equals("macos")) {
@@ -41,7 +37,7 @@ public class GameInstallSaveFile implements SaveFile {
         String root;
         String path;
         if (isSlayTheSpire()) {
-            String macSpecial = store.getObjectValueAsString("rootoverrides/0/addpath").getValue();
+            String macSpecial = ufs.getObjectValueAsString("rootoverrides/0/addpath").getValue();
             root = computeRoot(OperatingSystems.OperatingSystem.MAC) + "/" + macSpecial;
         } else {
             RegistryObject macRegistryObject = Optional.ofNullable(macObject).orElseThrow();
@@ -66,10 +62,10 @@ public class GameInstallSaveFile implements SaveFile {
         String path;
         if (isSlayTheSpire()) {
             root = computeRoot(OperatingSystems.OperatingSystem.WINDOWS);
-            path = store.getObjectValueAsString("savefiles/3/path").getValue();
+            path = ufs.getObjectValueAsString("savefiles/3/path").getValue();
         } else {
-            root = store.getObjectValueAsString("savefiles/0/root").getValue();
-            path = store.getObjectValueAsString("savefiles/0/path").getValue();
+            root = ufs.getObjectValueAsString("savefiles/0/root").getValue();
+            path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
         }
         return new UserFileSystemPath(root, path);
     }

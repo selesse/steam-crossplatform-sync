@@ -3,19 +3,17 @@ package com.selesse.steam.steamcmd.games;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
-public class OnlyWindowsSaveFile implements SaveFile {
-    private final RegistryStore registryStore;
-
-    public OnlyWindowsSaveFile(RegistryStore registryStore) {
-        this.registryStore = registryStore;
+public class OnlyWindowsSaveFile extends SaveFile {
+    public OnlyWindowsSaveFile(RegistryStore gameRegistry) {
+        super(gameRegistry);
     }
 
     @Override
     public boolean applies() {
-        boolean hasSaveFiles = registryStore.pathExists("savefiles");
-        boolean hasOverrides = registryStore.pathExists("overrides");
+        boolean hasSaveFiles = ufs.pathExists("savefiles");
+        boolean hasOverrides = ufs.pathExists("overrides");
         if (hasSaveFiles && !hasOverrides) {
-            RegistryObject saveFiles = registryStore.getObjectValueAsObject("savefiles");
+            RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
             return saveFiles.getKeys().size() == 1;
         }
         return false;
@@ -30,8 +28,8 @@ public class OnlyWindowsSaveFile implements SaveFile {
 
     @Override
     public UserFileSystemPath getWindowsInfo() {
-        String root = registryStore.getObjectValueAsString("savefiles/0/root").getValue();
-        String path = registryStore.getObjectValueAsString("savefiles/0/path").getValue();
+        String root = ufs.getObjectValueAsString("savefiles/0/root").getValue();
+        String path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
         return new UserFileSystemPath(root, path);
     }
 }

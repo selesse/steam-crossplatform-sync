@@ -26,11 +26,7 @@ public enum TestGames {
     }
 
     public UserFileSystem getUserFileSystem() {
-        return new UserFileSystem(getUserFileSystemStore(), getGameRegistryStore());
-    }
-
-    private RegistryStore getUserFileSystemStore() {
-        return new RegistryStore(getGameRegistryStore().getObjectValueAsObject("ufs"));
+        return new UserFileSystem(getGameRegistryStore());
     }
 
     private RegistryStore getGameRegistryStore() {

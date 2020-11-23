@@ -4,26 +4,22 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 
-public class SaveFilesRootOverrides implements SaveFile {
-    private final RegistryStore ufsStore;
-    private final RegistryStore gameRegistryStore;
-
-    public SaveFilesRootOverrides(RegistryStore ufsStore, RegistryStore gameRegistryStore) {
-        this.ufsStore = ufsStore;
-        this.gameRegistryStore = gameRegistryStore;
+public class SaveFilesRootOverrides extends SaveFile {
+    public SaveFilesRootOverrides(RegistryStore gameRegistry) {
+        super(gameRegistry);
     }
 
     @Override
     public boolean applies() {
-        return ufsStore.pathExists("savefiles") &&
-                ufsStore.pathExists("rootoverrides") &&
-                ufsStore.getObjectValueAsObject("savefiles").getKeys().size() == 1 &&
-                ufsStore.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
+        return ufs.pathExists("savefiles") &&
+                ufs.pathExists("rootoverrides") &&
+                ufs.getObjectValueAsObject("savefiles").getKeys().size() == 1 &&
+                ufs.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
     }
 
     @Override
     public UserFileSystemPath getMacInfo() {
-        RegistryObject rootOverrides = ufsStore.getObjectValueAsObject("rootoverrides");
+        RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
         RegistryObject macConfig = null;
         for (String objectKeys : rootOverrides.getKeys()) {
             RegistryObject nonWindowsConfig = rootOverrides.getObjectValueAsObject(objectKeys);
@@ -58,14 +54,14 @@ public class SaveFilesRootOverrides implements SaveFile {
     }
 
     private UserFileSystemPath getRawWindowsInfo() {
-        RegistryObject objectValueAsObject = ufsStore.getObjectValueAsObject("savefiles/0");
+        RegistryObject objectValueAsObject = ufs.getObjectValueAsObject("savefiles/0");
         String root = objectValueAsObject.getObjectValueAsString("root").getValue();
         String path = objectValueAsObject.getObjectValueAsString("path").getValue();
         return new UserFileSystemPath(root, path);
     }
 
     private String computePath(String path) {
-        if (gameRegistryStore.getObjectValueAsString("common/name").getValue().equals("Oxygen Not Included")) {
+        if (gameRegistry.getObjectValueAsString("common/name").getValue().equals("Oxygen Not Included")) {
             return path.replace("cloud_save_files", "save_files");
         }
         return path;
