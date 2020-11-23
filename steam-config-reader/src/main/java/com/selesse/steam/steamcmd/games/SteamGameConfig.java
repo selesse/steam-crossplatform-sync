@@ -28,4 +28,8 @@ public class SteamGameConfig {
     private RegistryStore getUserFileSystemRegistry() {
         return new RegistryStore(registryStore.getObjectValueAsObject("ufs"));
     }
+
+    public boolean isGame() {
+        return registryStore.getObjectValueAsString("common/type").getValue().equals("Game");
+    }
 }

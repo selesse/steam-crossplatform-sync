@@ -38,4 +38,8 @@ public class SteamGame {
     public String getMacInstallationPath() {
         return config.getMacInstallationPath();
     }
+
+    public boolean isGame() {
+        return config.isGame();
+    }
 }

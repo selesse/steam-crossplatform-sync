@@ -16,14 +16,16 @@ public class GamesFilePrinter {
     public void run() {
         List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory());
         for (SteamGame steamGame : steamGames) {
-            String installed = steamGame.isInstalled() ? "installed" : "not installed";
-            System.out.println(steamGame.getName() + " (" + steamGame.getId() + ") " + installed);
-            if (steamGame.hasUserCloud()) {
-                try {
-                    System.out.println("Windows path: " + steamGame.getWindowsInstallationPath());
-                    System.out.println("Mac path: " + steamGame.getMacInstallationPath());
-                } catch (RuntimeException e) {
-                    System.err.println("Unable to install locations for " + steamGame.getName());
+            if (steamGame.isGame()) {
+                String installed = steamGame.isInstalled() ? "installed" : "not installed";
+                System.out.println(steamGame.getName() + " (" + steamGame.getId() + ") " + installed);
+                if (steamGame.hasUserCloud()) {
+                    try {
+                        System.out.println("Windows path: " + steamGame.getWindowsInstallationPath());
+                        System.out.println("Mac path: " + steamGame.getMacInstallationPath());
+                    } catch (RuntimeException e) {
+                        System.err.println("Unable to print install locations for " + steamGame.getName());
+                    }
                 }
             }
         }
