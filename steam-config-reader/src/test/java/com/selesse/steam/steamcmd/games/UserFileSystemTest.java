@@ -52,6 +52,17 @@ public class UserFileSystemTest {
     }
 
     @Test
+    public void canPrintLegendOfGrimrock() {
+        TestGames oxygenNotIncluded = TestGames.LEGEND_OF_GRIMROCK;
+        UserFileSystem userFileSystem = oxygenNotIncluded.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%USERPROFILE%/Documents/Almost Human/Legend of Grimrock");
+        assertThat(userFileSystem.getMacInstallationPath())
+                .isEqualTo("~/Library/Application Support/Almost Human/Legend of Grimrock");
+    }
+
+    @Test
     public void canPrintTorchlightII() {
         TestGames torchlight2 = TestGames.TORCHLIGHT_II;
         UserFileSystem userFileSystem = torchlight2.getUserFileSystem();

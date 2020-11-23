@@ -8,6 +8,10 @@ public class SaveFilesFactory {
         if (gameInstallSaveFile.applies()) {
             return gameInstallSaveFile;
         }
+        OnlyWindowsSaveFile onlyWindowsSaveFile = new OnlyWindowsSaveFile(ufsStore);
+        if (onlyWindowsSaveFile.applies()) {
+            return onlyWindowsSaveFile;
+        }
         EverythingInSaveFiles everythingInSaveFiles = new EverythingInSaveFiles(ufsStore);
         if (everythingInSaveFiles.applies()) {
             return everythingInSaveFiles;

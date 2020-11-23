@@ -1,0 +1,251 @@
+"207170"
+{
+	"common"
+	{
+		"name"		"Legend of Grimrock"
+		"type"		"Game"
+		"logo"		"5898cd32c949e03f95a5333c2399508b1a95aa4a"
+		"logo_small"		"5898cd32c949e03f95a5333c2399508b1a95aa4a_thumb"
+		"icon"		"c10a0441101d642bc5e59d2a6c9bb14bce7daaa5"
+		"clienttga"		"fd8e8bd4727998f36c7524f35c5b4b0a97eac07d"
+		"clienticon"		"f8d4cb5f64ddb5c58d8920582572d00077b07ab5"
+		"oslist"		"windows,macos"
+		"clienticns"		"0eb85594f4b0f71e8bb18c8777a711c89b6025c1"
+		"osarch"		""
+		"osextended"		"macos64"
+		"metacritic_name"		"Legend of Grimrock"
+		"small_capsule"
+		{
+			"english"		"capsule_231x87.jpg"
+		}
+		"header_image"
+		{
+			"english"		"header.jpg"
+		}
+		"store_asset_mtime"		"1373650940"
+		"associations"
+		{
+			"0"
+			{
+				"type"		"developer"
+				"name"		"Almost Human Games"
+			}
+			"1"
+			{
+				"type"		"publisher"
+				"name"		"Almost Human Games"
+			}
+		}
+		"primary_genre"		"23"
+		"genres"
+		{
+			"0"		"25"
+			"1"		"23"
+			"2"		"3"
+		}
+		"category"
+		{
+			"category_2"		"1"
+			"category_22"		"1"
+			"category_30"		"1"
+			"category_17"		"1"
+		}
+		"supported_languages"
+		{
+			"english"
+			{
+				"supported"		"1"
+			}
+		}
+		"steam_release_date"		"1334163600"
+		"metacritic_score"		"82"
+		"metacritic_fullurl"		"https://www.metacritic.com/game/pc/legend-of-grimrock?ftag=MCD-06-10aaa1f"
+		"community_visible_stats"		"1"
+		"workshop_visible"		"1"
+		"community_hub_visible"		"1"
+		"gameid"		"207170"
+		"store_tags"
+		{
+			"0"		"1720"
+			"1"		"122"
+			"2"		"492"
+			"3"		"7569"
+			"4"		"1684"
+			"5"		"3916"
+			"6"		"21"
+			"7"		"4182"
+			"8"		"10695"
+			"9"		"1664"
+			"10"		"3839"
+			"11"		"4161"
+			"12"		"4166"
+			"13"		"1669"
+			"14"		"4004"
+			"15"		"4026"
+			"16"		"19"
+			"17"		"4747"
+			"18"		"1708"
+			"19"		"8122"
+		}
+		"review_score"		"8"
+		"review_percentage"		"94"
+	}
+	"extended"
+	{
+		"developer"		"Almost Human Games"
+		"gamedir"		"Legend of Grimrock"
+		"homepage"		"http://www.grimrock.net/"
+		"icon"		""
+		"installscript"		"installscript.vdf"
+		"noservers"		"1"
+		"order"		"1"
+		"primarycache"		"207171"
+		"serverbrowsername"		""
+		"state"		"eStateAvailable"
+		"validoslist"		"windows,macos"
+		"publisher"		"Almost Human Games"
+		"gamemanualurl"		"https://store.steampowered.com/manual/207170/"
+	}
+	"config"
+	{
+		"launch"
+		{
+			"0"
+			{
+				"executable"		"grimrock.exe"
+				"config"
+				{
+					"oslist"		"windows"
+				}
+			}
+			"1"
+			{
+				"executable"		"Legend of Grimrock.app"
+				"config"
+				{
+					"oslist"		"macos"
+				}
+			}
+			"2"
+			{
+				"executable"		"Grimrock.bin.x86"
+				"config"
+				{
+					"oslist"		"linux"
+				}
+			}
+		}
+		"contenttype"		"3"
+		"installdir"		"Legend of Grimrock"
+		"installscriptoverride"		"1"
+	}
+	"install"
+	{
+		"run process"
+		{
+			"directx"
+			{
+				"hasrunkey"		"HKEY_LOCAL_MACHINE\\Software\\Valve\\Steam\\Apps\\207170"
+				"process 1"		"%INSTALLDIR%\\DirectX\\DXSETUP.exe"
+				"command 1"		"/silent"
+				"nocleanup"		"1"
+			}
+			"vcredist2010"
+			{
+				"hasrunkey"		"HKEY_LOCAL_MACHINE\\Software\\Valve\\Steam\\Apps\\207170"
+				"process 1"		"%INSTALLDIR%\\vcredist\\vcredist_x86.exe"
+				"command 1"		"/q"
+				"nocleanup"		"1"
+			}
+		}
+	}
+	"depots"
+	{
+		"overridescddb"		"1"
+		"207171"
+		{
+			"name"		"Legend of Grimrock PC depot"
+			"systemdefined"		"1"
+			"config"
+			{
+				"oslist"		"windows"
+			}
+			"manifests"
+			{
+				"public"		"5152770129304629740"
+			}
+			"maxsize"		"755087112"
+		}
+		"207172"
+		{
+			"name"		"Legend of Grimrock OSX depot"
+			"config"
+			{
+				"oslist"		"macos"
+			}
+			"systemdefined"		"1"
+			"manifests"
+			{
+				"public"		"1651808683534870682"
+			}
+			"maxsize"		"708770991"
+		}
+		"207173"
+		{
+			"name"		"Legend of Grimrock Linux depot"
+			"config"
+			{
+				"oslist"		"linux"
+			}
+			"systemdefined"		"1"
+			"manifests"
+			{
+				"public"		"624953888229434405"
+			}
+			"maxsize"		"688798852"
+		}
+		"markdlcdepots"		"0"
+		"branches"
+		{
+			"public"
+			{
+				"buildid"		"687244"
+			}
+			"beta"
+			{
+				"buildid"		"687244"
+				"description"		"Public Beta"
+			}
+			"linux_beta"
+			{
+				"buildid"		"687244"
+				"description"		""
+			}
+			"mac_beta"
+			{
+				"buildid"		"687244"
+				"description"		""
+			}
+		}
+	}
+	"ufs"
+	{
+		"quota"		"1000000000"
+		"maxnumfiles"		"1000"
+		"ignoreexternalfiles"		"1"
+		"hidecloudui"		"1"
+		"savefiles"
+		{
+			"0"
+			{
+				"root"		"WinMyDocuments"
+				"path"		"/Almost Human/Legend of Grimrock"
+				"pattern"		"*.sav"
+				"platforms"
+				{
+					"1"		"Windows"
+				}
+			}
+		}
+	}
+}
