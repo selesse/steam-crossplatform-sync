@@ -8,10 +8,6 @@ public class SaveFilesFactory {
         if (gameInstallSaveFile.applies()) {
             return gameInstallSaveFile;
         }
-        OnlyWindowsSaveFile onlyWindowsSaveFile = new OnlyWindowsSaveFile(ufsStore);
-        if (onlyWindowsSaveFile.applies()) {
-            return onlyWindowsSaveFile;
-        }
         EverythingInSaveFiles everythingInSaveFiles = new EverythingInSaveFiles(ufsStore);
         if (everythingInSaveFiles.applies()) {
             return everythingInSaveFiles;
@@ -19,6 +15,10 @@ public class SaveFilesFactory {
         SaveFilesRootOverrides saveFilesRootOverrides = new SaveFilesRootOverrides(ufsStore, gameRegistry);
         if (saveFilesRootOverrides.applies()) {
             return saveFilesRootOverrides;
+        }
+        OnlyWindowsSaveFile onlyWindowsSaveFile = new OnlyWindowsSaveFile(ufsStore);
+        if (onlyWindowsSaveFile.applies()) {
+            return onlyWindowsSaveFile;
         }
         throw new UnableToParseSaveException(gameRegistry.getObjectValueAsString("common/name").getValue());
     }

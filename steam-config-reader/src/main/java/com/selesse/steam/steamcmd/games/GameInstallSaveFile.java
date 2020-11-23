@@ -38,14 +38,13 @@ public class GameInstallSaveFile implements SaveFile {
                 macObject = osObject;
             }
         }
-        RegistryObject macRegistryObject = Optional.ofNullable(macObject).orElseThrow();
         String root;
         String path;
         if (isSlayTheSpire()) {
             String macSpecial = store.getObjectValueAsString("rootoverrides/0/addpath").getValue();
             root = computeRoot(OperatingSystems.OperatingSystem.MAC) + "/" + macSpecial;
-            path = getWindowsInfo().getPath();
         } else {
+            RegistryObject macRegistryObject = Optional.ofNullable(macObject).orElseThrow();
             if (macRegistryObject.pathExists("useinstead")) {
                 String useInsteadValue = macRegistryObject.getObjectValueAsString("useinstead").getValue();
                 if (useInsteadValue.equals("gameinstall")) {
@@ -56,8 +55,8 @@ public class GameInstallSaveFile implements SaveFile {
             } else {
                 root = macRegistryObject.getObjectValueAsString("root").getValue();
             }
-            path = getWindowsInfo().getPath();
         }
+        path = getWindowsInfo().getPath();
         return new UserFileSystemPath(root, path);
     }
 
