@@ -13,8 +13,6 @@
         <file>${logging_directory}/steam-crossplatform-sync.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${logging_directory}/steam-crossplatform-sync.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <append>true</append>
         <immediateFlush>true</immediateFlush>
