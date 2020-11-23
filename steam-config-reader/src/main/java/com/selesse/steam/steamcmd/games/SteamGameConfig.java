@@ -22,7 +22,7 @@ public class SteamGameConfig {
     }
 
     public boolean hasUserFileSystem() {
-        return registryStore.getObjectValueAsObject("ufs") != null;
+        return registryStore.getObjectValueAsObject("ufs") != null && registryStore.pathExists("ufs/savefiles");
     }
 
     private RegistryStore getUserFileSystemRegistry() {
