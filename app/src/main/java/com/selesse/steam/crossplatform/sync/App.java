@@ -18,7 +18,7 @@ public class App {
         if (arguments.contains("--sync")) {
             new SyncGameFilesService(config).runForAllGames();
         } else if (arguments.contains("--print-games")) {
-            new GamesFilePrinter().run();
+            new GamesFilePrinter(config).run();
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(config).run();
         } else {

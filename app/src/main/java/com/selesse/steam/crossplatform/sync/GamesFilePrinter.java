@@ -1,13 +1,20 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.Games;
+import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.steamcmd.SteamGame;
 
 import java.util.List;
 
 public class GamesFilePrinter {
+    private final SteamCrossplatformSyncConfig config;
+
+    public GamesFilePrinter(SteamCrossplatformSyncConfig config) {
+        this.config = config;
+    }
+
     public void run() {
-        List<SteamGame> steamGames = Games.loadInstalledGames();
+        List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory());
         for (SteamGame steamGame : steamGames) {
             String installed = steamGame.isInstalled() ? "installed" : "not installed";
             System.out.println(steamGame.getName() + " (" + steamGame.getId() + ") " + installed);

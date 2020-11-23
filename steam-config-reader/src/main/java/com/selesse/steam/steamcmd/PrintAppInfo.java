@@ -1,13 +1,26 @@
 package com.selesse.steam.steamcmd;
 
 import com.google.common.collect.Maps;
+import com.selesse.steam.RegistryStores;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class PrintAppInfo {
+    private final Path cacheDirectory;
+
+    public PrintAppInfo() {
+        this.cacheDirectory = null;
+    }
+
+    public PrintAppInfo(Path cacheDirectory) {
+        this.cacheDirectory = cacheDirectory;
+    }
+
     public RegistryStore getRegistryStore(Long appId) {
         return getRegistryStore(new PrintAppInfoExecutor(), appId);
     }
@@ -23,10 +36,28 @@ public class PrintAppInfo {
 
     Map<Long, RegistryStore> getRegistryStores(PrintAppInfoExecutor executor, List<Long> appIds) {
         Map<Long, RegistryStore> registryStoreMap = Maps.newHashMap();
-        Map<Long, List<String>> outputPerAppId = executor.runPrintAppInfoProcesses(appIds);
-        for (Map.Entry<Long, List<String>> longListEntry : outputPerAppId.entrySet()) {
-            RegistryStore registryStore = RegistryParser.parseOmittingFirstLevel(longListEntry.getValue());
-            registryStoreMap.put(longListEntry.getKey(), registryStore);
+
+        if (cacheDirectory != null) {
+            for (Long gameId : appIds) {
+                Optional<List<String>> contents = RegistryStores.readCache(cacheDirectory, gameId);
+                contents.ifPresent(
+                        lines -> registryStoreMap.put(gameId, RegistryParser.parseOmittingFirstLevel(lines))
+                );
+            }
+        }
+        appIds.removeAll(registryStoreMap.keySet());
+
+        if (!appIds.isEmpty()) {
+            Map<Long, List<String>> outputPerAppId = executor.runPrintAppInfoProcesses(appIds);
+            for (Map.Entry<Long, List<String>> longListEntry : outputPerAppId.entrySet()) {
+                long gameId = longListEntry.getKey();
+                List<String> gameRegistryLines = longListEntry.getValue();
+                if (cacheDirectory != null) {
+                    RegistryStores.cacheRegistryStore(cacheDirectory, gameId, gameRegistryLines);
+                }
+                RegistryStore registryStore = RegistryParser.parseOmittingFirstLevel(longListEntry.getValue());
+                registryStoreMap.put(longListEntry.getKey(), registryStore);
+            }
         }
         return registryStoreMap;
     }

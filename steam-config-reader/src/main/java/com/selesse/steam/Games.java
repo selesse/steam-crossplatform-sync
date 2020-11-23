@@ -8,16 +8,17 @@ import com.selesse.steam.steamcmd.SteamGame;
 import com.selesse.steam.steamcmd.games.SteamGameConfig;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Games {
-    public static List<SteamGame> loadInstalledGames() {
+    public static List<SteamGame> loadInstalledGames(Path configDirectory) {
         List<SteamGame> steamGames = Lists.newArrayList();
 
         List<SteamGameMetadata> gameMetadata = SteamRegistry.getInstance().getGameMetadata();
-        PrintAppInfo printAppInfo = new PrintAppInfo();
+        PrintAppInfo printAppInfo = new PrintAppInfo(getCacheDirectory(configDirectory));
         Map<Long, RegistryStore> registryStores =
                 printAppInfo.getRegistryStores(
                         gameMetadata.stream().map(SteamGameMetadata::getGameId).collect(Collectors.toList())
@@ -29,5 +30,9 @@ public class Games {
             steamGames.add(new SteamGame(metadata, new SteamGameConfig(registryStore)));
         }
         return steamGames;
+    }
+
+    private static Path getCacheDirectory(Path configDirectory) {
+        return Path.of(configDirectory.toAbsolutePath().toString(), "/cache");
     }
 }
