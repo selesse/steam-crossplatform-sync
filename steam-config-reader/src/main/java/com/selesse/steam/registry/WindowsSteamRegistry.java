@@ -1,30 +1,77 @@
 package com.selesse.steam.registry;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.selesse.processes.ProcessRunner;
+import com.selesse.steam.registry.implementation.RegistryString;
+import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 class WindowsSteamRegistry extends SteamRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
     private static final String REGISTRY_COMMAND_TO_GET_APP_ID =
             "reg query HKEY_CURRENT_USER\\Software\\Valve\\Steam /v RunningAppId";
+    private static final Pattern dwordPattern = Pattern.compile("([a-zA-Z0-9]+)\\s+REG_DWORD\\s+0x(.*)");
 
     @Override
     public long getCurrentlyRunningAppId() {
-        try {
-            String registryOutput = runProcessAndGetOutput(REGISTRY_COMMAND_TO_GET_APP_ID);
-            return currentlyRunningAppIdBasedOnRegistryOutput(registryOutput);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        String registryOutput =
+                new ProcessRunner(Splitter.on(" ").splitToList(REGISTRY_COMMAND_TO_GET_APP_ID)).runAndGetOutput();
+        return currentlyRunningAppIdBasedOnRegistryOutput(registryOutput);
+    }
+
+    @Override
+    public List<Long> getInstalledAppIds() {
+        return Lists.newArrayList();
+    }
+
+    @Override
+    public List<SteamGameMetadata> getGameMetadata() {
+        List<SteamGameMetadata> steamGames = Lists.newArrayList();
+
+        ProcessRunner processRunner =
+                new ProcessRunner("reg", "query", "HKEY_CURRENT_USER\\Software\\Valve\\Steam\\apps");
+        List<String> apps = Splitter.on("\n").omitEmptyStrings().splitToList(processRunner.runAndGetOutput());
+        for (String app : apps) {
+            List<String> registryQuery = Splitter.on("\\").splitToList(app);
+            long gameId = Long.parseLong(registryQuery.get(registryQuery.size() - 1));
+
+            ProcessRunner subProcessRunner = new ProcessRunner("reg", "query", app);
+            String appRegistryOutput = subProcessRunner.runAndGetOutput();
+            List<String> registryLines = Splitter.on("\n").splitToList(appRegistryOutput);
+            List<RegistryString> registryStrings = registryLines.stream()
+                    .filter(this::isKeyValueRegistryLine)
+                    .map(String::trim)
+                    .map(WindowsSteamRegistry::extractKeyValue)
+                    .collect(Collectors.toList());
+            String name = registryStrings.stream()
+                    .filter(x -> x.getName().equalsIgnoreCase("name"))
+                    .map(RegistryString::getValue).findFirst().orElse("");
+            boolean installed = registryStrings.stream()
+                    .filter(x -> x.getName().equalsIgnoreCase("installed"))
+                    .map(x -> x.getValue().equals("1")).findFirst().orElse(false);
+
+            steamGames.add(new SteamGameMetadata(gameId, name, installed));
         }
+        return steamGames;
+    }
+
+    private boolean isKeyValueRegistryLine(String line) {
+        return dwordPattern.matcher(line).find();
+    }
+
+    private static RegistryString extractKeyValue(String line) {
+        Matcher matcher = dwordPattern.matcher(line);
+        matcher.find();
+        String key = matcher.group(1);
+        String value = matcher.group(2);
+        return new RegistryString(key, value);
     }
 
     private static long currentlyRunningAppIdBasedOnRegistryOutput(String registryOutput) {
@@ -37,21 +84,5 @@ class WindowsSteamRegistry extends SteamRegistry {
             return runningAppId;
         }
         throw new RuntimeException("Could not parse output of registry");
-    }
-
-    private static String runProcessAndGetOutput(String command) throws IOException {
-        List<String> commandParameters = Splitter.on(" ").splitToList(command);
-        ProcessBuilder builder = new ProcessBuilder(commandParameters);
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        InputStream is = process.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        StringBuilder output = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
-        }
-        return output.toString();
     }
 }

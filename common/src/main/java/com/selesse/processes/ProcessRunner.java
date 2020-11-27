@@ -3,11 +3,16 @@ package com.selesse.processes;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class ProcessRunner {
     private final ProcessBuilder processBuilder;
 
     public ProcessRunner(String... args) {
+        processBuilder = new ProcessBuilder(args);
+    }
+
+    public ProcessRunner(List<String> args) {
         processBuilder = new ProcessBuilder(args);
     }
 

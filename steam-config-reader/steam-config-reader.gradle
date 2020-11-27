@@ -8,7 +8,8 @@ dependencies {
 }
 
 task downloadSteamCmd(type: Download) {
-    src 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz'
+    src(['https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz',
+            'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip'])
     dest buildDir
     onlyIfModified true
 }
