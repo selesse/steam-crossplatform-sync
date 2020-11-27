@@ -8,7 +8,9 @@ import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.daemon.Daemon;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class App {
     public static void main(String[] args) {
@@ -19,6 +21,11 @@ public class App {
             new SyncGameFilesService(config).runForAllGames();
         } else if (arguments.contains("--print-games")) {
             new GamesFilePrinter(config).run();
+        } else if (arguments.contains("--print-game")) {
+            int index = arguments.indexOf("--print-game");
+            List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+            Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
+            new GamesFilePrinter(config).run(gameIds);
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(config).run();
         } else {

@@ -14,6 +14,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Games {
+    public static SteamGame loadGame(Path configDirectory, Long gameId) {
+        PrintAppInfo printAppInfo = new PrintAppInfo(getCacheDirectory(configDirectory));
+        RegistryStore registryStore = printAppInfo.getRegistryStore(gameId);
+        SteamGameMetadata metadata = SteamRegistry.getInstance().getGameMetadata(gameId);
+        return new SteamGame(metadata, new SteamGameConfig(registryStore));
+    }
+
     public static List<SteamGame> loadInstalledGames(Path configDirectory) {
         List<SteamGame> steamGames = Lists.newArrayList();
 
