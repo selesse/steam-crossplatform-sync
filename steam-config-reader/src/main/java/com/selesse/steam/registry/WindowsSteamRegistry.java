@@ -28,7 +28,15 @@ class WindowsSteamRegistry extends SteamRegistry {
 
     @Override
     public List<Long> getInstalledAppIds() {
-        return Lists.newArrayList();
+        return getGameMetadata().stream()
+                .filter(SteamGameMetadata::isInstalled)
+                .map(SteamGameMetadata::getGameId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public SteamGameMetadata getGameMetadata(Long gameId) {
+        return getMetadataFromGame("HKEY_CURRENT_USER\\Software\\Valve\\Steam\\apps\\" + gameId, gameId);
     }
 
     @Override
@@ -38,28 +46,32 @@ class WindowsSteamRegistry extends SteamRegistry {
         ProcessRunner processRunner =
                 new ProcessRunner("reg", "query", "HKEY_CURRENT_USER\\Software\\Valve\\Steam\\apps");
         List<String> apps = Splitter.on("\n").omitEmptyStrings().splitToList(processRunner.runAndGetOutput());
-        for (String app : apps) {
-            List<String> registryQuery = Splitter.on("\\").splitToList(app);
+        for (String registryAppKey : apps) {
+            List<String> registryQuery = Splitter.on("\\").splitToList(registryAppKey);
             long gameId = Long.parseLong(registryQuery.get(registryQuery.size() - 1));
 
-            ProcessRunner subProcessRunner = new ProcessRunner("reg", "query", app);
-            String appRegistryOutput = subProcessRunner.runAndGetOutput();
-            List<String> registryLines = Splitter.on("\n").splitToList(appRegistryOutput);
-            List<RegistryString> registryStrings = registryLines.stream()
-                    .filter(this::isKeyValueRegistryLine)
-                    .map(String::trim)
-                    .map(WindowsSteamRegistry::extractKeyValue)
-                    .collect(Collectors.toList());
-            String name = registryStrings.stream()
-                    .filter(x -> x.getName().equalsIgnoreCase("name"))
-                    .map(RegistryString::getValue).findFirst().orElse("");
-            boolean installed = registryStrings.stream()
-                    .filter(x -> x.getName().equalsIgnoreCase("installed"))
-                    .map(x -> x.getValue().equals("1")).findFirst().orElse(false);
-
-            steamGames.add(new SteamGameMetadata(gameId, name, installed));
+            steamGames.add(getMetadataFromGame(registryAppKey, gameId));
         }
         return steamGames;
+    }
+
+    private SteamGameMetadata getMetadataFromGame(String app, long gameId) {
+        ProcessRunner subProcessRunner = new ProcessRunner("reg", "query", app);
+        String appRegistryOutput = subProcessRunner.runAndGetOutput();
+        List<String> registryLines = Splitter.on("\n").splitToList(appRegistryOutput);
+        List<RegistryString> registryStrings = registryLines.stream()
+                .filter(this::isKeyValueRegistryLine)
+                .map(String::trim)
+                .map(WindowsSteamRegistry::extractKeyValue)
+                .collect(Collectors.toList());
+        String name = registryStrings.stream()
+                .filter(x -> x.getName().equalsIgnoreCase("name"))
+                .map(RegistryString::getValue).findFirst().orElse("");
+        boolean installed = registryStrings.stream()
+                .filter(x -> x.getName().equalsIgnoreCase("installed"))
+                .map(x -> x.getValue().equals("1")).findFirst().orElse(false);
+
+        return new SteamGameMetadata(gameId, name, installed);
     }
 
     private boolean isKeyValueRegistryLine(String line) {

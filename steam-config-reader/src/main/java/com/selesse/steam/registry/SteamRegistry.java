@@ -19,4 +19,5 @@ public abstract class SteamRegistry {
     public abstract long getCurrentlyRunningAppId();
     public abstract List<Long> getInstalledAppIds();
     public abstract List<SteamGameMetadata> getGameMetadata();
+    public abstract SteamGameMetadata getGameMetadata(Long gameId);
 }

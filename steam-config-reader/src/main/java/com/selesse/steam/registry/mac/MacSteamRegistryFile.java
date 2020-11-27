@@ -50,4 +50,14 @@ public class MacSteamRegistryFile {
         }
         return steamGames;
     }
+
+    public SteamGameMetadata getGameMetadata(Long gameId) {
+        RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
+        RegistryObject registryObject = object.getObjectValueAsObject("" + gameId);
+        RegistryString nameValue = registryObject.getObjectValueAsString("name");
+        String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
+        RegistryString installedValue = registryObject.getObjectValueAsString("installed");
+        boolean installed = installedValue.getValue().equals("1");
+        return new SteamGameMetadata(gameId, name, installed);
+    }
 }

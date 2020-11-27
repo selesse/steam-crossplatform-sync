@@ -33,6 +33,11 @@ class MacSteamRegistry extends SteamRegistry {
         return registryFile.getGameMetadata();
     }
 
+    @Override
+    public SteamGameMetadata getGameMetadata(Long gameId) {
+        return registryFile.getGameMetadata(gameId);
+    }
+
     private void ensureRegistryFileExists() {
         if (!registryFilePath.toFile().isFile()) {
             throw new RuntimeException("Registry file does not exist in " + registryFilePath.toAbsolutePath());
