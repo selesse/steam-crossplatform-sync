@@ -16,7 +16,8 @@ class PrintAppInfoExecutor {
         String output = processRunner.runAndGetOutput();
         List<String> lines = Splitter.on("\n").splitToList(output);
         int firstLine = lines.indexOf(String.format("\"%d\"", appId));
-        return lines.subList(firstLine, lines.size());
+        int lastLine = lines.lastIndexOf("}") + 1;
+        return lines.subList(firstLine, lastLine);
     }
 
     public Map<Long, List<String>> runPrintAppInfoProcesses(List<Long> appIds) {
