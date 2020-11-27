@@ -31,20 +31,16 @@ public class GamesFileGenerator {
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 
         for (SteamGame steamGame : steamGames) {
-            if (steamGame.hasUserCloud()) {
-                try {
-                    String windowsPath = steamGame.getWindowsInstallationPath();
-                    String macPath = steamGame.getMacInstallationPath();
+            if (steamGame.hasUserCloud() && steamGame.hasComputedInstallationPath()) {
+                String windowsPath = steamGame.getWindowsInstallationPath();
+                String macPath = steamGame.getMacInstallationPath();
 
-                    SyncableGameRaw syncableGame = new SyncableGameRaw();
-                    syncableGame.mac = macPath;
-                    syncableGame.windows = windowsPath;
-                    syncableGame.name = steamGame.getName();
-                    syncableGame.gameId = steamGame.getId();
-                    syncableGames.add(syncableGame);
-                } catch (RuntimeException e) {
-                    LOGGER.error("Unable to get install locations for {}", steamGame.getName(), e);
-                }
+                SyncableGameRaw syncableGame = new SyncableGameRaw();
+                syncableGame.mac = macPath;
+                syncableGame.windows = windowsPath;
+                syncableGame.name = steamGame.getName();
+                syncableGame.gameId = steamGame.getId();
+                syncableGames.add(syncableGame);
             }
         }
 
