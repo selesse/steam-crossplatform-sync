@@ -40,6 +40,22 @@ public class SteamGame {
     }
 
     public boolean isGame() {
-        return config.isGame();
+        return config.loaded() && config.isGame();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d)", getName(), getId());
+    }
+
+    public boolean hasComputedInstallationPath() {
+        boolean windows, mac;
+        try {
+            windows = getWindowsInstallationPath() != null;
+            mac = getMacInstallationPath() != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
+        return windows && mac;
     }
 }

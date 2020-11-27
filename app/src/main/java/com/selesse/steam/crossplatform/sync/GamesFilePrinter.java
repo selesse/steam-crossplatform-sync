@@ -32,11 +32,11 @@ public class GamesFilePrinter {
             String installed = steamGame.isInstalled() ? "installed" : "not installed";
             System.out.println(steamGame.getName() + " (" + steamGame.getId() + ") " + installed);
             if (steamGame.hasUserCloud()) {
-                try {
+                if (steamGame.hasComputedInstallationPath()) {
                     System.out.println("Windows path: " + steamGame.getWindowsInstallationPath());
                     System.out.println("Mac path: " + steamGame.getMacInstallationPath());
-                } catch (RuntimeException e) {
-                    System.err.println("Unable to print install locations for " + steamGame.getName());
+                } else {
+                    System.out.println("Did not compute installation path for " + steamGame);
                 }
             }
         }
