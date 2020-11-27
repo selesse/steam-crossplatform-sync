@@ -3,8 +3,11 @@ package com.selesse.steam.registry.implementation;
 import com.google.common.base.Splitter;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class RegistryParser {
+    private static final Pattern lineMatchingPattern = Pattern.compile("\t*\".+?\"\t*\".*\"");
+
     public static RegistryStore parse(List<String> lines) {
         RegistryValue object = parseValue(lines);
         return new RegistryStore((RegistryObject) object);
@@ -49,7 +52,7 @@ public class RegistryParser {
     }
 
     private static boolean isString(String line) {
-        return Splitter.on("\t").omitEmptyStrings().splitToList(line).size() == 2;
+        return lineMatchingPattern.matcher(line).find();
     }
 
     private static RegistryString parseRegistryString(String line) {
