@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
@@ -18,6 +20,18 @@ task localRelease(type: Copy) {
     from shadowJar.outputs
     into file("release")
 }
+
+task localOsRelease(type: Copy) {
+    from shadowJar.outputs
+    into {
+        OperatingSystem os = DefaultNativePlatform.currentOperatingSystem
+        if (os.windows) {
+            return file(System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\startup")
+        }
+    }
+}
+
+localRelease.dependsOn localOsRelease
 
 shadowJar {
     mainClassName = 'com.selesse.steam.crossplatform.sync.App'
