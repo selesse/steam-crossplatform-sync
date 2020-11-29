@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.selesse.steamgametracker</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>@JAVA_HOME@/bin/java</string>
+        <string>-jar</string>
+        <string>@PROGRAM_HOME@/app-all.jar</string>
+    </array>
+    <key>StandardOutPath</key>
+    <string>@PROGRAM_HOME@/plist.log</string>
+    <key>StandardErrorPath</key>
+    <string>@PROGRAM_HOME@/plist.log</string>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>

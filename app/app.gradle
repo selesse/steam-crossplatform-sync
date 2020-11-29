@@ -1,3 +1,4 @@
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
@@ -16,6 +17,12 @@ application {
     mainClass = 'com.selesse.steam.crossplatform.sync.App'
 }
 
+ext {
+    os = DefaultNativePlatform.currentOperatingSystem
+    macConfigDirectory = (java.util.Optional.ofNullable(System.getenv("XDG_CONFIG_HOME"))
+            .orElse(System.getProperty("user.home") + "/.config")) + "/steam-crossplatform-sync";
+}
+
 task localRelease(type: Copy) {
     from shadowJar.outputs
     into file("release")
@@ -24,9 +31,19 @@ task localRelease(type: Copy) {
 task localOsRelease(type: Copy) {
     from shadowJar.outputs
     into {
-        OperatingSystem os = DefaultNativePlatform.currentOperatingSystem
-        if (os.windows) {
+        if (project.ext.os.windows) {
             return file(System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\startup")
+        } else if (project.ext.os.macOsX) {
+            copy {
+                from file('plist/com.selesse.steam-crossplatform-sync.plist.template')
+                into "${System.getProperty("user.home")}/Library/LaunchAgents/"
+                rename { filename -> filename.replace('.template', '') }
+                filter(ReplaceTokens, tokens: [
+                        "PROGRAM_HOME": project.ext.macConfigDirectory,
+                        'JAVA_HOME'   : System.getenv("JAVA_HOME")
+                ])
+            }
+            file(project.ext.macConfigDirectory)
         }
     }
 }
