@@ -40,7 +40,7 @@ public class PrintAppInfoTest {
         PrintAppInfo appInfo = new PrintAppInfo();
         RegistryStore registryStore = appInfo.getRegistryStore(new LocalFileReaderAppInfo(), appId);
 
-        RegistryString appName = registryStore.getObjectValueAsString(appId + "/common/name");
+        RegistryString appName = registryStore.getObjectValueAsString("common/name");
         assertThat(appName.getValue()).isEqualTo("Oxygen Not Included");
     }
 
