@@ -1,9 +1,10 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
 import com.selesse.steam.GameRunningDetector;
+import com.selesse.steam.Games;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.steamcmd.SteamGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,14 +13,14 @@ public class GameMonitor implements Runnable {
 
     private final SteamCrossplatformSyncConfig config;
     private boolean gameIsRunning;
-    private SteamGameMetadata runningGameMetadata;
+    private SteamGame runningGame;
 
     public GameMonitor(SteamCrossplatformSyncConfig config) {
         this.gameIsRunning = GameRunningDetector.isGameCurrentlyRunning();
-        if (gameIsRunning) {
-            this.runningGameMetadata = GameRunningDetector.getCurrentlyRunningGameMetadata();
-        }
         this.config = config;
+        if (gameIsRunning) {
+            this.runningGame = Games.loadGame(config.getConfigDirectory(), runningGame.getId());
+        }
     }
 
     @Override
@@ -28,14 +29,19 @@ public class GameMonitor implements Runnable {
 
         if (gameIsRunningRightNow != gameIsRunning) {
             if (!gameIsRunningRightNow) {
-                LOGGER.info("Game just closed - running sync service for {}", runningGameMetadata.getName());
-                new SyncGameFilesService(config).run(runningGameMetadata.getGameId());
+                LOGGER.info("Game just closed - running sync service for {}", runningGame.getName());
+                new SyncGameFilesService(config).run(runningGame.getId());
+                runningGame = null;
             } else {
-                runningGameMetadata = GameRunningDetector.getCurrentlyRunningGameMetadata();
-                LOGGER.info("{} just launched", runningGameMetadata.getName());
+                runningGame = loadGame(GameRunningDetector.getCurrentlyRunningGameId());
+                LOGGER.info("{} just launched", runningGame.getName());
             }
 
             gameIsRunning = gameIsRunningRightNow;
         }
+    }
+
+    private SteamGame loadGame(long gameId) {
+        return Games.loadGame(config.getConfigDirectory(), gameId);
     }
 }

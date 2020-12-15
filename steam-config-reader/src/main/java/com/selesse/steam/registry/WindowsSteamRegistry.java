@@ -5,8 +5,6 @@ import com.google.common.collect.Lists;
 import com.selesse.processes.ProcessRunner;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,7 +12,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 class WindowsSteamRegistry extends SteamRegistry {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
     private static final String REGISTRY_COMMAND_TO_GET_APP_ID =
             "reg query HKEY_CURRENT_USER\\Software\\Valve\\Steam /v RunningAppId";
     private static final Pattern dwordPattern = Pattern.compile("([a-zA-Z0-9]+)\\s+REG_DWORD\\s+0x(.*)");
@@ -91,9 +88,7 @@ class WindowsSteamRegistry extends SteamRegistry {
         Matcher matcher = regex.matcher(registryOutput);
         if (matcher.find()) {
             String appHexId = matcher.group(1);
-            long runningAppId = Long.parseLong(appHexId, 16);
-            LOGGER.debug("Currently running Steam app ID is {}", runningAppId);
-            return runningAppId;
+            return Long.parseLong(appHexId, 16);
         }
         throw new RuntimeException("Could not parse output of registry");
     }
