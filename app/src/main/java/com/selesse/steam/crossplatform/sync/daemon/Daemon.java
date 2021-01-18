@@ -18,12 +18,14 @@ public class Daemon implements Runnable {
 
     public void run() {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+        int period = 1;
         TimeUnit timeUnitFrequency = TimeUnit.MINUTES;
         if (fast) {
+            period = 5;
             timeUnitFrequency = TimeUnit.SECONDS;
         }
         ScheduledFuture<?> scheduledFuture =
-                executorService.scheduleAtFixedRate(new GameMonitor(config), 0, 5, timeUnitFrequency);
+                executorService.scheduleAtFixedRate(new GameMonitor(config), 0, period, timeUnitFrequency);
 
         try {
             scheduledFuture.get();
