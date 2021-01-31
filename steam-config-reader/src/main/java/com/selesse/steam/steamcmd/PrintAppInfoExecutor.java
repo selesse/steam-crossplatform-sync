@@ -4,17 +4,26 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.selesse.processes.ProcessRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 class PrintAppInfoExecutor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrintAppInfoExecutor.class);
+
     public List<String> runPrintAppInfoProcess(Long appId) {
         ProcessRunner processRunner = new ProcessRunner(
                 "steamcmd", "+login", "anonymous", "+app_info_print", appId.toString(), "+quit"
         );
         String output = processRunner.runAndGetOutput();
         List<String> lines = Splitter.on("\n").splitToList(output);
+        if (lines.contains("No app info for AppID " + appId + " found, requesting...")) {
+            LOGGER.info("App {} wasn't found, requesting update from Steam", appId);
+            lines = retryAfterRequestingAppInfo(appId);
+        }
         int firstLine = lines.indexOf(String.format("\"%d\"", appId));
         int lastLine = lines.lastIndexOf("}") + 1;
         return lines.subList(firstLine, lastLine);
@@ -47,6 +56,22 @@ class PrintAppInfoExecutor {
         }
 
         return outputPerAppId;
+    }
+
+    private List<String> retryAfterRequestingAppInfo(Long appId) {
+        ProcessRunner updateAppProcess = new ProcessRunner(
+                "steamcmd", "+login", "anonymous", "+app_info_request", appId.toString(), "+quit"
+        );
+        updateAppProcess.runAndGetOutput();
+        try {
+            TimeUnit.MILLISECONDS.sleep(500);
+        } catch (InterruptedException ignored) {
+        }
+        ProcessRunner processRunner = new ProcessRunner(
+                "steamcmd", "+login", "anonymous", "+app_info_print", appId.toString(), "+quit"
+        );
+        String output = processRunner.runAndGetOutput();
+        return Splitter.on("\n").splitToList(output);
     }
 
     private int findNextEndBlock(int startingPosition, List<String> outputLines) {
