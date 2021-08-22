@@ -29,10 +29,11 @@ public class GameMonitor implements Runnable {
             long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
 
             if (runningGame == null) {
-                // This isn't great, need to modify this to be resilient for load failures.
-                // If we can't load a game, at the very least we should have an ID we can print and use here.
-                runningGame = loadGame(currentGameId).orElseThrow();
-                LOGGER.info("Game launched: {}", runningGame.getName());
+                Optional<SteamGame> steamGameMaybe = loadGame(currentGameId);
+                steamGameMaybe.ifPresentOrElse(steamGame -> {
+                    runningGame = steamGame;
+                    LOGGER.info("Game launched: {}", runningGame.getName());
+                }, () -> LOGGER.info("Game launched with ID {}", currentGameId));
             }
             else if (currentGameId != runningGame.getId()) {
                 Optional<SteamGame> currentSteamGame = loadGame(currentGameId);
