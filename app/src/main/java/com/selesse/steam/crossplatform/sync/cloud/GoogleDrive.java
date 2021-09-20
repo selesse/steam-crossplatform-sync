@@ -5,6 +5,7 @@ import com.selesse.os.OperatingSystems;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class GoogleDrive {
     public static Optional<Path> getDriveRoot() {
@@ -25,7 +26,9 @@ public class GoogleDrive {
             }
             return Optional.of(Path.of(result));
         } catch (SQLException ignored) {
-            return Optional.empty();
+            return Stream.of(defaultPath(), reasonableRename())
+                    .filter(x -> x.toFile().isDirectory())
+                    .findFirst();
         }
     }
 
@@ -45,5 +48,13 @@ public class GoogleDrive {
 
     private static Connection getConnectionToDb(Path dbPath) throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath().toString());
+    }
+
+    private static Path defaultPath() {
+        return Path.of(System.getProperty("user.home"), "Google Drive");
+    }
+
+    private static Path reasonableRename() {
+        return Path.of(System.getProperty("user.home"), "drive");
     }
 }
