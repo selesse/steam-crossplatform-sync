@@ -46,6 +46,19 @@ task localOsRelease(type: Copy) {
             file(project.ext.macConfigDirectory)
         }
     }
+
+    doLast {
+        if (project.ext.os.macOsX) {
+            exec {
+                executable 'launchctl'
+                args('unload', "${System.properties['user.home']}/Library/LaunchAgents/com.selesse.steam-crossplatform-sync.plist")
+            }
+            exec {
+                executable 'launchctl'
+                args('load', "${System.properties['user.home']}/Library/LaunchAgents/com.selesse.steam-crossplatform-sync.plist")
+            }
+        }
+    }
 }
 
 localRelease.dependsOn localOsRelease
