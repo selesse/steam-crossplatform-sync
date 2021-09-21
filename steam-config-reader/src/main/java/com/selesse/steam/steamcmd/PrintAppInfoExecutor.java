@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 class PrintAppInfoExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintAppInfoExecutor.class);
@@ -21,8 +20,8 @@ class PrintAppInfoExecutor {
         String output = processRunner.runAndGetOutput();
         List<String> lines = Splitter.on("\n").splitToList(output);
         if (lines.contains("No app info for AppID " + appId + " found, requesting...")) {
-            LOGGER.info("App {} wasn't found, requesting update from Steam", appId);
-            lines = retryAfterRequestingAppInfo(appId);
+            LOGGER.info("App {} wasn't found, using interactive app info print", appId);
+            return new AppInfoPrintInteractive().runPrintAppInfoProcess(appId);
         }
         int firstLine = lines.indexOf(String.format("\"%d\"", appId));
         int lastLine = lines.lastIndexOf("}") + 1;
@@ -56,22 +55,6 @@ class PrintAppInfoExecutor {
         }
 
         return outputPerAppId;
-    }
-
-    private List<String> retryAfterRequestingAppInfo(Long appId) {
-        ProcessRunner updateAppProcess = new ProcessRunner(
-                "steamcmd", "+login", "anonymous", "+app_info_request", appId.toString(), "+quit"
-        );
-        updateAppProcess.runAndGetOutput();
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-        } catch (InterruptedException ignored) {
-        }
-        ProcessRunner processRunner = new ProcessRunner(
-                "steamcmd", "+login", "anonymous", "+app_info_print", appId.toString(), "+quit"
-        );
-        String output = processRunner.runAndGetOutput();
-        return Splitter.on("\n").splitToList(output);
     }
 
     private int findNextEndBlock(int startingPosition, List<String> outputLines) {
