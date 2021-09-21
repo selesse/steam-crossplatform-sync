@@ -43,7 +43,18 @@ public class GoogleDrive {
     }
 
     private static Path dbPathRelativeToDriveRoot(Path base) {
+        return Stream.of(newSyncConfigPath(base), legacySyncConfigPath(base))
+                .filter(path -> path.toFile().isFile())
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private static Path legacySyncConfigPath(Path base) {
         return Path.of(base.toAbsolutePath().toString(), "Google", "Drive", "user_default", "sync_config.db");
+    }
+
+    private static Path newSyncConfigPath(Path base) {
+        return Path.of(base.toAbsolutePath().toString(), "Google", "DriveFS", "migration", "bns_config", "user_default", "sync_config.db");
     }
 
     private static Connection getConnectionToDb(Path dbPath) throws SQLException {
