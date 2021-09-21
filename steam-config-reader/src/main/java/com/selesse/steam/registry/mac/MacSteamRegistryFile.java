@@ -1,7 +1,12 @@
 package com.selesse.steam.registry.mac;
 
 import com.google.common.collect.Lists;
-import com.selesse.steam.registry.implementation.*;
+import com.selesse.steam.AppListFetcher;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.registry.implementation.RegistryObject;
+import com.selesse.steam.registry.implementation.RegistryParser;
+import com.selesse.steam.registry.implementation.RegistryStore;
+import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 
 import java.io.IOException;
@@ -54,10 +59,16 @@ public class MacSteamRegistryFile {
     public SteamGameMetadata getGameMetadata(Long gameId) {
         RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
         RegistryObject registryObject = object.getObjectValueAsObject("" + gameId);
-        RegistryString nameValue = registryObject.getObjectValueAsString("name");
-        String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
-        RegistryString installedValue = registryObject.getObjectValueAsString("installed");
-        boolean installed = installedValue.getValue().equals("1");
-        return new SteamGameMetadata(gameId, name, installed);
+        if (registryObject != null) {
+            RegistryString nameValue = registryObject.getObjectValueAsString("name");
+            String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
+            RegistryString installedValue = registryObject.getObjectValueAsString("installed");
+            boolean installed = installedValue.getValue().equals("1");
+            return new SteamGameMetadata(gameId, name, installed);
+        } else {
+            SteamAppList appList = AppListFetcher.fetchAppList();
+            SteamApp app = appList.getAppById(gameId);
+            return new SteamGameMetadata(gameId, app.name, false);
+        }
     }
 }
