@@ -7,13 +7,11 @@ import java.util.List;
 
 public abstract class SteamRegistry {
     public static SteamRegistry getInstance() {
-        if (OperatingSystems.get() == OperatingSystems.OperatingSystem.MAC) {
-            return new MacSteamRegistry();
-        } else if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
-            return new WindowsSteamRegistry();
-        } else {
-            throw new IllegalArgumentException("No SteamRegistry defined for " + OperatingSystems.get());
-        }
+        return switch (OperatingSystems.get()) {
+            case MAC -> new MacSteamRegistry();
+            case WINDOWS -> new WindowsSteamRegistry();
+            case LINUX -> new LinuxSteamRegistry();
+        };
     }
 
     public abstract long getCurrentlyRunningAppId();

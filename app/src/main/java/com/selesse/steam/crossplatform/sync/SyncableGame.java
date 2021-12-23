@@ -26,7 +26,7 @@ public class SyncableGame {
 
     public Path getLocalPath() {
         return switch (OperatingSystems.get()) {
-            case MAC -> Path.of(FilePathSanitizer.sanitize(mac));
+            case MAC, LINUX -> Path.of(FilePathSanitizer.sanitize(mac));
             case WINDOWS -> Path.of(FilePathSanitizer.sanitize(windows));
         };
     }

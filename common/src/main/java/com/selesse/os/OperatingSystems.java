@@ -2,7 +2,7 @@ package com.selesse.os;
 
 public class OperatingSystems {
     public enum OperatingSystem {
-        WINDOWS, MAC
+        WINDOWS, MAC, LINUX
     }
 
     public static OperatingSystem get() {
@@ -11,6 +11,8 @@ public class OperatingSystems {
             return OperatingSystem.WINDOWS;
         } else if (osName.contains("darwin") || osName.contains("mac os")) {
             return OperatingSystem.MAC;
+        } else if (osName.contains("linux")) {
+            return OperatingSystem.LINUX;
         }
         throw new IllegalArgumentException("Unsupported OS: " + osName);
     }

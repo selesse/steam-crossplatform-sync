@@ -5,7 +5,7 @@ import com.selesse.os.OperatingSystems;
 public class SteamCrossplatformSync {
     public static SteamCrossplatformSyncConfig loadConfiguration() {
         return switch (OperatingSystems.get()) {
-            case MAC -> new SteamCrossplatformSyncMacConfig();
+            case MAC, LINUX -> new SteamCrossplatformSyncMacConfig();
             case WINDOWS -> new SteamCrossPlatformSyncWindowsConfig();
         };
     }

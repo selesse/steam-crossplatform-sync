@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class GoogleDrive {
     public static Optional<Path> getDriveRoot() {
         Path localDbPath = switch (OperatingSystems.get()) {
-            case MAC -> defaultMacPath();
+            case MAC, LINUX -> defaultMacPath();
             case WINDOWS -> defaultWindowsPath();
         };
 
