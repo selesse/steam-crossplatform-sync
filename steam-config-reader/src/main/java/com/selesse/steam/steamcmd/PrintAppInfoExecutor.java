@@ -3,6 +3,7 @@ package com.selesse.steam.steamcmd;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.selesse.os.OperatingSystems;
 import com.selesse.processes.ProcessRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,13 @@ class PrintAppInfoExecutor {
         String output = processRunner.runAndGetOutput();
         List<String> lines = Splitter.on("\n").splitToList(output);
         if (lines.contains("No app info for AppID " + appId + " found, requesting...")) {
-            LOGGER.info("App {} wasn't found, using interactive app info print", appId);
-            return new AppInfoPrintInteractive().runPrintAppInfoProcess(appId);
+            if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
+                LOGGER.info("Fetching app info from remote for {}", appId);
+                return new RemoteAppInfoFetcher().fetch(appId);
+            } else {
+                LOGGER.info("App {} wasn't found, using interactive app info print", appId);
+                return new AppInfoPrintInteractive().runPrintAppInfoProcess(appId);
+            }
         }
         int firstLine = lines.indexOf(String.format("\"%d\"", appId));
         int lastLine = lines.lastIndexOf("}") + 1;
