@@ -22,7 +22,7 @@ public class GamesFilePrinter {
 
     public void run(Long... gameIds) {
         for (Long gameId : gameIds) {
-            SteamGame steamGame = Games.loadGame(config.getConfigDirectory(), gameId);
+            SteamGame steamGame = Games.loadGame(config.getCacheDirectory(), gameId);
             printSteamGame(steamGame);
         }
     }

@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.daemon.Daemon;
+import com.selesse.steam.crossplatform.sync.server.AppInfoServer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,8 @@ public class App {
             new GamesFilePrinter(config).run(gameIds);
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(config).run();
+        } else if (arguments.contains("--app-info-server")) {
+            new AppInfoServer(config).run();
         } else {
             boolean fast = arguments.contains("--fast");
             new Daemon(config, fast).run();

@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Games {
-    public static SteamGame loadGame(Path configDirectory, Long gameId) {
-        PrintAppInfo printAppInfo = new PrintAppInfo(getCacheDirectory(configDirectory));
+    public static SteamGame loadGame(Path cacheDirectory, Long gameId) {
+        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory);
         RegistryStore registryStore = printAppInfo.getRegistryStore(gameId);
         SteamGameMetadata metadata = SteamRegistry.getInstance().getGameMetadata(gameId);
         return new SteamGame(metadata, new SteamGameConfig(registryStore));
     }
 
-    public static List<SteamGame> loadInstalledGames(Path configDirectory) {
+    public static List<SteamGame> loadInstalledGames(Path cacheDirectory) {
         List<SteamGame> steamGames = Lists.newArrayList();
 
         List<SteamGameMetadata> gameMetadata = SteamRegistry.getInstance().getGameMetadata();
-        PrintAppInfo printAppInfo = new PrintAppInfo(getCacheDirectory(configDirectory));
+        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory);
         Map<Long, RegistryStore> registryStores =
                 printAppInfo.getRegistryStores(
                         gameMetadata.stream().map(SteamGameMetadata::getGameId).collect(Collectors.toList())
@@ -37,9 +37,5 @@ public class Games {
             steamGames.add(new SteamGame(metadata, new SteamGameConfig(registryStore)));
         }
         return steamGames;
-    }
-
-    private static Path getCacheDirectory(Path configDirectory) {
-        return Path.of(configDirectory.toAbsolutePath().toString(), "/cache");
     }
 }

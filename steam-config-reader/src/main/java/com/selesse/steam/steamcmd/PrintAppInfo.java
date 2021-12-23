@@ -21,6 +21,18 @@ public class PrintAppInfo {
         this.cacheDirectory = cacheDirectory;
     }
 
+    public List<String> asVdfString(Long appId) {
+        Optional<List<String>> appLines = Optional.empty();
+        if (cacheDirectory != null) {
+            appLines = RegistryStores.readCache(cacheDirectory, appId);
+        }
+        return appLines.orElseGet(() -> {
+            List<String> lines = new PrintAppInfoExecutor().runPrintAppInfoProcess(appId);
+            cacheDirectoryMaybe().ifPresent(x -> RegistryStores.cacheRegistryStore(x, appId, lines));
+            return lines;
+        });
+    }
+
     public RegistryStore getRegistryStore(Long appId) {
         return getRegistryStore(new PrintAppInfoExecutor(), appId);
     }

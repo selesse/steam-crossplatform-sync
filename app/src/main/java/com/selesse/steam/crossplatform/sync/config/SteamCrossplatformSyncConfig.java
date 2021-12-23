@@ -13,6 +13,10 @@ public interface SteamCrossplatformSyncConfig {
         return Path.of(getConfigDirectory().toAbsolutePath().toString(), "config.yml");
     }
 
+    default Path getCacheDirectory() {
+        return Path.of(getConfigDirectory().toAbsolutePath().toString(), "/cache");
+    }
+
     /**
      * @return The absolute path to where we should be syncing games config files to, which
      * incorporates {@link #getCloudStorageRelativeWritePath()}}

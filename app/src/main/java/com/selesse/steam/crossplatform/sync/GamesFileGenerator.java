@@ -8,8 +8,6 @@ import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.steamcmd.SteamGame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class GamesFileGenerator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GamesFileGenerator.class);
     private final SteamCrossplatformSyncConfig config;
 
     public GamesFileGenerator(SteamCrossplatformSyncConfig config) {
@@ -26,7 +23,7 @@ public class GamesFileGenerator {
 
     public void run() {
         Path gamesConfigPath = config.getGamesFile();
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory());
+        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory());
 
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 

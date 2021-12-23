@@ -9,6 +9,7 @@ plugins {
 dependencies {
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1')
     implementation('org.xerial:sqlite-jdbc:3.32.3.2')
+    implementation('com.sparkjava:spark-core:2.9.3')
     implementation(project(':steam-config-reader'))
     implementation(project(':common'))
 }
