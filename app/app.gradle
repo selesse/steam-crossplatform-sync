@@ -1,9 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-plugins {
-    id 'application'
+plugins { id 'application'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.hidetake.ssh' version '2.10.1'
 }
 
 dependencies {
@@ -22,6 +22,32 @@ ext {
     os = DefaultNativePlatform.currentOperatingSystem
     macConfigDirectory = (java.util.Optional.ofNullable(System.getenv("XDG_CONFIG_HOME"))
             .orElse(System.getProperty("user.home") + "/.config")) + "/steam-crossplatform-sync";
+
+    propertiesFile = new File("${project.rootDir}/.env")
+    remoteProperties = new Properties()
+    if (propertiesFile.exists()) {
+        propertiesFile.withInputStream { remoteProperties.load(it) }
+    }
+}
+
+remotes {
+    webServer {
+
+        host = System.getenv().getOrDefault("SCPS_HOST", remoteProperties['HOST'])
+        user = System.getProperty("user.name")
+        identity = new File(System.getProperty("user.home") + "/.ssh/id_rsa")
+    }
+}
+
+task remoteRelease {
+    doLast {
+        ssh.run {
+            session(remotes.webServer) {
+                put from: shadowJar.outputs.files, into: '/opt/steam-crossplatform-sync/'
+                execute "sudo /bin/systemctl restart steam-app-info-print"
+            }
+        }
+    }
 }
 
 task localRelease(type: Copy) {
@@ -63,6 +89,7 @@ task localOsRelease(type: Copy) {
 }
 
 localRelease.dependsOn localOsRelease
+remoteRelease.dependsOn shadowJar
 
 shadowJar {
     mainClassName = 'com.selesse.steam.crossplatform.sync.App'

@@ -1,0 +1,24 @@
+# Steam app info print service
+#
+# Meant to be accompanied with a Gradle task to restart the service remotely via ssh
+#
+# Setup steps:
+# 1. Create /opt/steam-crossplatform-sync, give your user permission to write to it
+# 2. Copy this file into /etc/systemd/system
+# 3. Give your user permission to restart the service in /etc/sudoers.d/, like so:
+#    $ sudo cat /etc/sudoers.d/alex
+#    alex ALL = (root) NOPASSWD: /bin/systemctl restart steam-app-info-print
+
+[Unit]
+Description=Steam App Info Print Service
+
+[Service]
+User=alex
+ExecStart=/usr/bin/java -jar /opt/steam-crossplatform-sync/app-all.jar --app-info-server
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
