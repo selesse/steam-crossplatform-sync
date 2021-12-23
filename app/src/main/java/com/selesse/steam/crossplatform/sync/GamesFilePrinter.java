@@ -14,7 +14,7 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory());
+        List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory(), config.getRemoteAppInfoUrl());
         for (SteamGame steamGame : steamGames) {
             printSteamGame(steamGame);
         }
@@ -22,7 +22,7 @@ public class GamesFilePrinter {
 
     public void run(Long... gameIds) {
         for (Long gameId : gameIds) {
-            SteamGame steamGame = Games.loadGame(config.getCacheDirectory(), gameId);
+            SteamGame steamGame = Games.loadGame(config.getCacheDirectory(), config.getRemoteAppInfoUrl(), gameId);
             printSteamGame(steamGame);
         }
     }

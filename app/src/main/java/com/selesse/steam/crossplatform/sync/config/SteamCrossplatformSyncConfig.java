@@ -45,4 +45,10 @@ public interface SteamCrossplatformSyncConfig {
                 .map(Path::of)
                 .orElse(Path.of(getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
+
+    default String getRemoteAppInfoUrl() {
+        return ConfigLoader.loadIfExists(getConfigFileLocation())
+                .map(ConfigRaw::getRemoteAppInfoUrl)
+                .orElseThrow();
+    }
 }

@@ -23,7 +23,7 @@ public class GamesFileGenerator {
 
     public void run() {
         Path gamesConfigPath = config.getGamesFile();
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory());
+        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory(), config.getRemoteAppInfoUrl());
 
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 

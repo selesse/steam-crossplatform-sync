@@ -12,13 +12,16 @@ import java.util.Optional;
 
 public class PrintAppInfo {
     private final Path cacheDirectory;
+    private final String remoteAppInfoUrl;
 
     public PrintAppInfo() {
         this.cacheDirectory = null;
+        this.remoteAppInfoUrl = null;
     }
 
-    public PrintAppInfo(Path cacheDirectory) {
+    public PrintAppInfo(Path cacheDirectory, String remoteAppInfoUrl) {
         this.cacheDirectory = cacheDirectory;
+        this.remoteAppInfoUrl = remoteAppInfoUrl;
     }
 
     public List<String> asVdfString(Long appId) {
@@ -27,18 +30,18 @@ public class PrintAppInfo {
             appLines = RegistryStores.readCache(cacheDirectory, appId);
         }
         return appLines.orElseGet(() -> {
-            List<String> lines = new PrintAppInfoExecutor().runPrintAppInfoProcess(appId);
+            List<String> lines = new PrintAppInfoExecutor(remoteAppInfoUrl).runPrintAppInfoProcess(appId);
             cacheDirectoryMaybe().ifPresent(x -> RegistryStores.cacheRegistryStore(x, appId, lines));
             return lines;
         });
     }
 
     public RegistryStore getRegistryStore(Long appId) {
-        return getRegistryStore(new PrintAppInfoExecutor(), appId);
+        return getRegistryStore(new PrintAppInfoExecutor(remoteAppInfoUrl), appId);
     }
 
     public Map<Long, RegistryStore> getRegistryStores(List<Long> appIds) {
-        return getRegistryStores(new PrintAppInfoExecutor(), appIds);
+        return getRegistryStores(new PrintAppInfoExecutor(remoteAppInfoUrl), appIds);
     }
 
     RegistryStore getRegistryStore(PrintAppInfoExecutor executor, Long appId) {

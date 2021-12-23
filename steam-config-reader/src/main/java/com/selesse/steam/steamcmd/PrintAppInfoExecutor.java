@@ -13,6 +13,11 @@ import java.util.Map;
 
 class PrintAppInfoExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintAppInfoExecutor.class);
+    private final String remoteAppInfoUrl;
+
+    public PrintAppInfoExecutor(String remoteAppInfoUrl) {
+        this.remoteAppInfoUrl = remoteAppInfoUrl;
+    }
 
     public List<String> runPrintAppInfoProcess(Long appId) {
         ProcessRunner processRunner = new ProcessRunner(
@@ -23,7 +28,7 @@ class PrintAppInfoExecutor {
         if (lines.contains("No app info for AppID " + appId + " found, requesting...")) {
             if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
                 LOGGER.info("Fetching app info from remote for {}", appId);
-                return new RemoteAppInfoFetcher().fetch(appId);
+                return new RemoteAppInfoFetcher(remoteAppInfoUrl).fetch(appId);
             } else {
                 LOGGER.info("App {} wasn't found, using interactive app info print", appId);
                 return new AppInfoPrintInteractive().runPrintAppInfoProcess(appId);

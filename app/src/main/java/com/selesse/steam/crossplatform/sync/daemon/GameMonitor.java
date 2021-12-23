@@ -19,7 +19,11 @@ public class GameMonitor implements Runnable {
     public GameMonitor(SteamCrossplatformSyncConfig config) {
         this.config = config;
         if (GameRunningDetector.isGameCurrentlyRunning()) {
-            this.runningGame = Games.loadGame(config.getConfigDirectory(), runningGame.getId());
+            this.runningGame = Games.loadGame(
+                    config.getConfigDirectory(),
+                    config.getRemoteAppInfoUrl(),
+                    GameRunningDetector.getCurrentlyRunningGameId()
+            );
         }
     }
 
@@ -52,7 +56,7 @@ public class GameMonitor implements Runnable {
 
     private Optional<SteamGame> loadGame(long gameId) {
         try {
-            return Optional.of(Games.loadGame(config.getConfigDirectory(), gameId));
+            return Optional.of(Games.loadGame(config.getCacheDirectory(), config.getRemoteAppInfoUrl(), gameId));
         } catch (RuntimeException e) {
             LOGGER.error("Error trying to load gameId {}", gameId, e);
             return Optional.empty();

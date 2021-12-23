@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Games {
-    public static SteamGame loadGame(Path cacheDirectory, Long gameId) {
-        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory);
+    public static SteamGame loadGame(Path cacheDirectory, String remoteAppInfoUrl, Long gameId) {
+        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory, remoteAppInfoUrl);
         RegistryStore registryStore = printAppInfo.getRegistryStore(gameId);
         SteamGameMetadata metadata = SteamRegistry.getInstance().getGameMetadata(gameId);
         return new SteamGame(metadata, new SteamGameConfig(registryStore));
     }
 
-    public static List<SteamGame> loadInstalledGames(Path cacheDirectory) {
+    public static List<SteamGame> loadInstalledGames(Path cacheDirectory, String remoteAppInfoUrl) {
         List<SteamGame> steamGames = Lists.newArrayList();
 
         List<SteamGameMetadata> gameMetadata = SteamRegistry.getInstance().getGameMetadata();
-        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory);
+        PrintAppInfo printAppInfo = new PrintAppInfo(cacheDirectory, remoteAppInfoUrl);
         Map<Long, RegistryStore> registryStores =
                 printAppInfo.getRegistryStores(
                         gameMetadata.stream().map(SteamGameMetadata::getGameId).collect(Collectors.toList())

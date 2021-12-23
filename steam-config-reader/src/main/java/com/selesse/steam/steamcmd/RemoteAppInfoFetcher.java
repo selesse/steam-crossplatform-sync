@@ -9,12 +9,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RemoteAppInfoFetcher {
+    private final String remoteAppInfoUrl;
+
+    public RemoteAppInfoFetcher(String remoteAppInfoUrl) {
+        this.remoteAppInfoUrl = remoteAppInfoUrl;
+    }
+
     public List<String> fetch(Long appId) {
         try {
-            String server = System.getenv().get("APP_INFO_PRINT_HOST");
             HttpClient httpClient = HttpClient.newHttpClient();
             var request = HttpRequest.newBuilder(
-                    URI.create(server + "/app-info/" + appId)
+                    URI.create(remoteAppInfoUrl + "/app-info/" + appId)
             ).build();
             var response = httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
             return response.body().collect(Collectors.toList());
