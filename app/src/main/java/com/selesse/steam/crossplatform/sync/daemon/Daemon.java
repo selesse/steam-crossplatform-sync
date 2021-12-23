@@ -26,6 +26,7 @@ public class Daemon implements Runnable {
         }
         ScheduledFuture<?> scheduledFuture =
                 executorService.scheduleAtFixedRate(new GameMonitor(config), 0, period, timeUnitFrequency);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> new GameMonitor(config).run()));
 
         try {
             scheduledFuture.get();
