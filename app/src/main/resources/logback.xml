@@ -5,7 +5,7 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
         <encoder>
-            <pattern>%date %thread %highlight(%-5level) %cyan(%logger{36}) - %boldWhite(%msg) %n</pattern>
+            <pattern>%date %thread %highlight(%-5level) %cyan(%logger{0}) - %boldWhite(%msg) %n</pattern>
         </encoder>
     </appender>
 
@@ -17,7 +17,7 @@
         <append>true</append>
         <immediateFlush>true</immediateFlush>
         <encoder>
-            <pattern>%date %thread %-5level %logger - %msg%n</pattern>
+            <pattern>%date %thread %-5level %logger{0} - %msg%n</pattern>
         </encoder>
     </appender>
 
