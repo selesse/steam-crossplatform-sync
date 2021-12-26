@@ -15,6 +15,10 @@ public class RegistryObject extends RegistryValue {
     }
 
     public RegistryValue get(String part) {
+        // Deal with registry lookups in case insensitive ways (e.g. for OS X)
+        if (values.containsKey(part.toLowerCase())) {
+            return values.get(part.toLowerCase());
+        }
         return values.get(part);
     }
 
