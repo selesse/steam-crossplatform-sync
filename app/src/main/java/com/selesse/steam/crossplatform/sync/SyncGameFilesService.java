@@ -20,13 +20,7 @@ public class SyncGameFilesService {
 
     public void runForAllGames() {
         GameConfig gameList = new GameLoader().loadGames(config);
-        gameList.getGames().forEach(game -> {
-            Path localPath = game.getLocalPath();
-            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
-
-            LOGGER.info("Checking {}", game.getName());
-            GameSyncer.sync(localPath, cloudSyncPath);
-        });
+        gameList.getGames().forEach(this::sync);
     }
 
     public void run(long runningGameId) {
@@ -36,12 +30,19 @@ public class SyncGameFilesService {
     public void run(Long[] gameIds) {
         List<Long> gamesToSync = Arrays.stream(gameIds).collect(Collectors.toList());
         GameConfig gameList = new GameLoader().loadGames(config);
-        gameList.getGames().stream()
-                .filter(game -> gamesToSync.contains(game.getGameId()))
-                .forEach(game -> {
-                    Path localPath = game.getLocalPath();
-                    Path cloudSyncPath = game.getLocalCloudSyncPath(config);
-                    GameSyncer.sync(localPath, cloudSyncPath);
-                });
+        for (Long gameId : gamesToSync) {
+            gameList.getGame(gameId).ifPresentOrElse(
+                    this::sync,
+                    () -> LOGGER.warn("Could not find game config for game with ID {}", gameId)
+            );
+        }
+    }
+
+    private void sync(SyncableGame game) {
+        Path localPath = game.getLocalPath();
+        Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+
+        LOGGER.info("Checking {}", game.getName());
+        GameSyncer.sync(localPath, cloudSyncPath);
     }
 }

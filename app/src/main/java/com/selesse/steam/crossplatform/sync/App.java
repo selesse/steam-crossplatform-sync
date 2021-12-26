@@ -21,7 +21,7 @@ public class App {
         if (arguments.contains("--sync")) {
             int index = arguments.indexOf("--sync");
             List<String> argList = Arrays.stream(args).collect(Collectors.toList());
-            if (argList.isEmpty()) {
+            if (argList.size() == 1) {
                 new SyncGameFilesService(config).runForAllGames();
             } else {
                 Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
