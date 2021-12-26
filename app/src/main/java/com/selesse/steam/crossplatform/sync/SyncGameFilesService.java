@@ -39,10 +39,14 @@ public class SyncGameFilesService {
     }
 
     private void sync(SyncableGame game) {
-        Path localPath = game.getLocalPath();
-        Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+        if (game.isSupportedOnThisOs()) {
+            Path localPath = game.getLocalPath();
+            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
 
-        LOGGER.info("Checking {}", game.getName());
-        GameSyncer.sync(localPath, cloudSyncPath);
+            LOGGER.info("Checking {}", game.getName());
+            GameSyncer.sync(localPath, cloudSyncPath);
+        } else {
+            LOGGER.info("Did not check {} because it is unsupported on this OS", game.getName());
+        }
     }
 }

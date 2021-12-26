@@ -47,4 +47,11 @@ public class SyncableGame {
     public Long getGameId() {
         return gameId;
     }
+
+    public boolean isSupportedOnThisOs() {
+        return switch (OperatingSystems.get()) {
+            case MAC, LINUX -> mac != null;
+            case WINDOWS -> windows != null;
+        };
+    }
 }
