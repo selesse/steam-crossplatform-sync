@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SyncGameFilesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncGameFilesService.class);
@@ -27,14 +30,18 @@ public class SyncGameFilesService {
     }
 
     public void run(long runningGameId) {
-        GameConfig gameList = new GameLoader().loadGames(config);
-        gameList.getGames().forEach(game -> {
-            Path localPath = game.getLocalPath();
-            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+        run(new Long[] { runningGameId });
+    }
 
-            if (game.getGameId() == runningGameId) {
-                GameSyncer.sync(localPath, cloudSyncPath);
-            }
-        });
+    public void run(Long[] gameIds) {
+        List<Long> gamesToSync = Arrays.stream(gameIds).collect(Collectors.toList());
+        GameConfig gameList = new GameLoader().loadGames(config);
+        gameList.getGames().stream()
+                .filter(game -> gamesToSync.contains(game.getGameId()))
+                .forEach(game -> {
+                    Path localPath = game.getLocalPath();
+                    Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+                    GameSyncer.sync(localPath, cloudSyncPath);
+                });
     }
 }

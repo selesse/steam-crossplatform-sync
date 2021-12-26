@@ -19,7 +19,14 @@ public class App {
 
         SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
         if (arguments.contains("--sync")) {
-            new SyncGameFilesService(config).runForAllGames();
+            int index = arguments.indexOf("--sync");
+            List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+            if (argList.isEmpty()) {
+                new SyncGameFilesService(config).runForAllGames();
+            } else {
+                Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
+                new SyncGameFilesService(config).run(gameIds);
+            }
         } else if (arguments.contains("--print-games")) {
             new GamesFilePrinter(config).run();
         } else if (arguments.contains("--print-game")) {
