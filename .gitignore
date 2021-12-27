@@ -7,3 +7,4 @@ build
 out/
 release/
 .env
+log/
