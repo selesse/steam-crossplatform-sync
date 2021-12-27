@@ -17,6 +17,7 @@ public class Daemon implements Runnable {
     }
 
     public void run() {
+        LOGGER.info("Initializing game monitor daemon");
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
         int period = 1;
         TimeUnit timeUnitFrequency = TimeUnit.MINUTES;
