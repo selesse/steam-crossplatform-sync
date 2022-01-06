@@ -2,7 +2,7 @@ subprojects {
     apply plugin: 'java-library'
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -13,5 +13,11 @@ subprojects {
         implementation('ch.qos.logback:logback-classic:1.2.3')
         api('com.google.guava:guava:29.0-jre')
         implementation('org.fusesource.jansi:jansi:1.18')
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(15)
+        }
     }
 }
