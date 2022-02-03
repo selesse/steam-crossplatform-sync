@@ -61,6 +61,6 @@ public class ProcessRunner {
                 .map(path -> Path.of(path.toString(), programName))
                 .filter(Files::exists)
                 .filter(Files::isExecutable)
-                .findFirst().orElseThrow(RuntimeException::new);
+                .findFirst().orElseThrow(() -> new RuntimeException("Could not find " + programName + " in $PATH"));
     }
 }
