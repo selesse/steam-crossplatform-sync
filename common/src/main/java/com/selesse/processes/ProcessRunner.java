@@ -47,9 +47,13 @@ public class ProcessRunner {
     private void replaceRelativePathWithAbsolutePath() {
         List<String> existingArguments = processBuilder.command();
         String programName = existingArguments.get(0);
-        String pathEnvironmentVariable = processBuilder.environment().get("PATH");
+        String pathEnvironmentVariable;
         if (OperatingSystems.get() != OperatingSystems.OperatingSystem.WINDOWS) {
-            pathEnvironmentVariable += File.pathSeparator + "/usr/local/bin";
+            pathEnvironmentVariable = System.getenv("PATH") + File.pathSeparator + "/usr/local/bin";
+        } else {
+            String pathVariable =
+                    System.getenv().keySet().stream().filter(x -> x.equalsIgnoreCase("path")).findFirst().orElseThrow();
+            pathEnvironmentVariable = System.getenv(pathVariable);
         }
         Path filePath = findAbsolutePathOfProgramInPath(programName, pathEnvironmentVariable);
         existingArguments.set(0, filePath.toString());
@@ -58,9 +62,24 @@ public class ProcessRunner {
     private Path findAbsolutePathOfProgramInPath(String programName, String pathEnvironmentVariable) {
         return Stream.of(pathEnvironmentVariable.split(Pattern.quote(File.pathSeparator)))
                 .map(Paths::get)
-                .map(path -> Path.of(path.toString(), programName))
-                .filter(Files::exists)
-                .filter(Files::isExecutable)
+                .map(path -> {
+                    if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
+                        return prioritizeExeProgramNameIfExists(programName, path);
+                    } else {
+                        return Path.of(path.toString(), programName);
+                    }
+                })
+                .filter(path -> Files.exists(path) && Files.isExecutable(path))
                 .findFirst().orElseThrow(() -> new RuntimeException("Could not find " + programName + " in $PATH"));
+    }
+
+    private Path prioritizeExeProgramNameIfExists(String programName, Path path) {
+        Path pathWithExe = Path.of(path.toString(), programName + ".exe");
+        Path pathWithoutExe = Path.of(path.toString(), programName);
+        if (Files.exists(pathWithExe)) {
+            return pathWithExe;
+        } else {
+            return pathWithoutExe;
+        }
     }
 }
