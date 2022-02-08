@@ -44,7 +44,9 @@ public class GameMonitor implements Runnable {
                 SteamGame newGame = currentSteamGame.orElse(null);
                 String newGameName = currentSteamGame.map(SteamGame::getName).orElse("" + currentGameId);
                 LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGameName);
+                LOGGER.info("Game closed: {}", runningGame.getName());
                 runningGame = newGame;
+                LOGGER.info("Game launched: {}", newGameName);
             }
         } else if (runningGame != null) {
             LOGGER.info("Game closed: {}", runningGame.getName());
