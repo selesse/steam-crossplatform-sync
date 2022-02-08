@@ -1,5 +1,7 @@
 package com.selesse.steam;
 
+import com.google.common.base.Joiner;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,11 +25,19 @@ public class RegistryStores {
         Path file = Path.of(cacheDirectory.toAbsolutePath().toString(), "/" + gameId + ".vdf");
         if (file.toFile().exists()) {
             try {
-                return Optional.of(Files.readAllLines(file));
+                List<String> lines = Files.readAllLines(file);
+                if (isEmptyCache(gameId, lines)) {
+                    return Optional.empty();
+                }
+                return Optional.of(lines);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         return Optional.empty();
+    }
+
+    private static boolean isEmptyCache(long gameId, List<String> lines) {
+        return lines.size() == 3 && Joiner.on(" ").join(lines).equals("\"" + gameId + "\" { }");
     }
 }
