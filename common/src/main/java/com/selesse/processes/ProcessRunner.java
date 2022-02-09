@@ -1,5 +1,6 @@
 package com.selesse.processes;
 
+import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 
 import java.io.BufferedReader;
@@ -56,7 +57,9 @@ public class ProcessRunner {
             pathEnvironmentVariable = System.getenv(pathVariable);
         }
         Path filePath = findAbsolutePathOfProgramInPath(programName, pathEnvironmentVariable);
-        existingArguments.set(0, filePath.toString());
+        List<String> copyOfArguments = Lists.newArrayList(existingArguments);
+        copyOfArguments.set(0, filePath.toString());
+        processBuilder.command(copyOfArguments);
     }
 
     private Path findAbsolutePathOfProgramInPath(String programName, String pathEnvironmentVariable) {
