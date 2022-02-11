@@ -18,13 +18,6 @@ public class GameMonitor implements Runnable {
 
     public GameMonitor(SteamCrossplatformSyncConfig config) {
         this.config = config;
-        if (GameRunningDetector.isGameCurrentlyRunning()) {
-            this.runningGame = Games.loadGame(
-                    config.getConfigDirectory(),
-                    config.getRemoteAppInfoUrl(),
-                    GameRunningDetector.getCurrentlyRunningGameId()
-            );
-        }
     }
 
     @Override
