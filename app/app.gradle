@@ -33,7 +33,6 @@ ext {
 
 remotes {
     webServer {
-
         host = System.getenv().getOrDefault("SCPS_HOST", remoteProperties['HOST'])
         user = System.getProperty("user.name")
         identity = new File(System.getProperty("user.home") + "/.ssh/id_rsa")
@@ -87,6 +86,45 @@ task localOsRelease(type: Copy) {
             }
         }
     }
+}
+
+task killingExistingWindowsDaemon() {
+    doLast {
+        // Ugh, here's how this works: Find the javaw process, if it exists, kill it.
+        def result = null
+        new ByteArrayOutputStream().withStream { os ->
+            exec {
+                executable('wmic')
+                args('process', 'where', 'name=\'javaw.exe\'', 'get', 'CommandLine,ProcessId')
+                standardOutput = os
+            }
+            result = os.toString()
+        }
+        def outputJar = localOsRelease.outputs.files.asFileTree.toList().find { it.name.contains(shadowJar.archiveFileName.get()) }
+        if (result != null && result != "No Instance(s) Available.") {
+            def commandAndPid = result.split("\n")[1].split("\"").collect { it.trim() }.grep { it.length() > 0 }
+            if (commandAndPid.size() == 4 && commandAndPid.get(2).equalsIgnoreCase(outputJar.toString())) {
+                exec {
+                    executable('taskkill')
+                    args('/pid', commandAndPid.get(3), '/f')
+                }
+            }
+        }
+    }
+}
+
+task forkWindowsDaemon(dependsOn: killingExistingWindowsDaemon) {
+    doLast {
+        ProcessBuilder processBuilder = new ProcessBuilder().command(
+                System.getenv("JAVA_HOME") + File.separator + "bin" + File.separator + 'javaw.exe',
+                "-jar",
+                localOsRelease.outputs.files.asFileTree.toList().find { it.name.contains(shadowJar.archiveFileName.get()) }.toString())
+        def process = processBuilder.start()
+    }
+}
+
+if (project.ext.os.windows) {
+    localOsRelease.finalizedBy(forkWindowsDaemon)
 }
 
 localRelease.dependsOn localOsRelease
