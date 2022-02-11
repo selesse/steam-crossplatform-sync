@@ -1,7 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-plugins { id 'application'
+plugins {
+    id 'application'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'org.hidetake.ssh' version '2.10.1'
 }
