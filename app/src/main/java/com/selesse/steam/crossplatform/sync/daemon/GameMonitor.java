@@ -27,30 +27,31 @@ public class GameMonitor implements Runnable {
 
     @Override
     public void run() {
-        if (GameRunningDetector.isGameCurrentlyRunning()) {
-            long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
+        synchronized (this) {
+            if (GameRunningDetector.isGameCurrentlyRunning()) {
+                long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
 
-            if (runningGame == null) {
-                Optional<SteamGame> steamGameMaybe = loadGame(currentGameId);
-                steamGameMaybe.ifPresentOrElse(steamGame -> {
-                    runningGame = steamGame;
-                    onGameLaunch(runningGame);
-                }, () -> LOGGER.info("Game launched with ID {}", currentGameId));
-            }
-            else if (currentGameId != runningGame.getId()) {
-                Optional<SteamGame> currentSteamGame = loadGame(currentGameId);
-                SteamGame newGame = currentSteamGame.orElse(null);
-                String newGameName = currentSteamGame.map(SteamGame::getName).orElse("" + currentGameId);
-                LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGameName);
+                if (runningGame == null) {
+                    Optional<SteamGame> steamGameMaybe = loadGame(currentGameId);
+                    steamGameMaybe.ifPresentOrElse(steamGame -> {
+                        runningGame = steamGame;
+                        onGameLaunch(runningGame);
+                    }, () -> LOGGER.info("Game launched with ID {}", currentGameId));
+                } else if (currentGameId != runningGame.getId()) {
+                    Optional<SteamGame> currentSteamGame = loadGame(currentGameId);
+                    SteamGame newGame = currentSteamGame.orElse(null);
+                    String newGameName = currentSteamGame.map(SteamGame::getName).orElse("" + currentGameId);
+                    LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGameName);
+                    LOGGER.info("Game closed: {}", runningGame.getName());
+                    runningGame = newGame;
+                    onGameLaunch(newGame);
+                }
+            } else if (runningGame != null) {
                 LOGGER.info("Game closed: {}", runningGame.getName());
-                runningGame = newGame;
-                onGameLaunch(newGame);
+                LOGGER.info("Running sync service for {}", runningGame.getName());
+                new SyncGameFilesService(config).run(runningGame.getId());
+                runningGame = null;
             }
-        } else if (runningGame != null) {
-            LOGGER.info("Game closed: {}", runningGame.getName());
-            LOGGER.info("Running sync service for {}", runningGame.getName());
-            new SyncGameFilesService(config).run(runningGame.getId());
-            runningGame = null;
         }
     }
 
