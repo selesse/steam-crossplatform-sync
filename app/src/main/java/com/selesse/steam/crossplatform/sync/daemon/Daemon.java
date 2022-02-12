@@ -25,11 +25,12 @@ public class Daemon implements Runnable {
             period = 5;
             timeUnitFrequency = TimeUnit.SECONDS;
         }
+        GameMonitor command = new GameMonitor(config);
         ScheduledFuture<?> scheduledFuture =
-                executorService.scheduleAtFixedRate(new GameMonitor(config), 0, period, timeUnitFrequency);
+                executorService.scheduleAtFixedRate(command, 0, period, timeUnitFrequency);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down game monitor daemon");
-            new GameMonitor(config).run();
+            command.run();
         }));
 
         try {
