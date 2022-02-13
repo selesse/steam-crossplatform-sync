@@ -4,6 +4,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.selesse.processes.ProcessRunner;
 import com.selesse.steam.registry.implementation.RegistryString;
+import com.selesse.steam.registry.windows.GetCurrentlyRunningGameIdViaRegistry;
+import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,20 +17,16 @@ import java.util.stream.Collectors;
 
 class WindowsSteamRegistry extends SteamRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
-    private static final String REGISTRY_COMMAND_TO_GET_APP_ID =
-            "reg query HKEY_CURRENT_USER\\Software\\Valve\\Steam /v RunningAppId";
     private static final Pattern dwordPattern = Pattern.compile("([a-zA-Z0-9]+)\\s+REG_DWORD\\s+0x(.*)");
 
     @Override
     public long getCurrentlyRunningAppId() {
-        String registryOutput =
-                new ProcessRunner(Splitter.on(" ").splitToList(REGISTRY_COMMAND_TO_GET_APP_ID)).runAndGetOutput();
-        long registryValue = currentlyRunningAppIdBasedOnRegistryOutput(registryOutput);
+        long registryValue = GetCurrentlyRunningGameIdViaRegistry.get();
         if (registryValue == 0 && hasGameOverlayProcessRunning()) {
             // For whatever reason, sometimes Steam's registry value is incorrectly set to 0.
             // This makes us more robust at the expense of being slightly more expensive to run.
             LOGGER.info("Steam's registry said the app ID was 0, but we detected the GameOverlay");
-            return getGameOverlayGameId();
+            return GetGameIdFromGameOverlay.get();
         }
         return registryValue;
     }
@@ -94,35 +92,8 @@ class WindowsSteamRegistry extends SteamRegistry {
         return new RegistryString(key, value);
     }
 
-    private static long currentlyRunningAppIdBasedOnRegistryOutput(String registryOutput) {
-        Pattern regex = Pattern.compile("RunningAppId\\s+REG_DWORD\\s+0x(.*)");
-        Matcher matcher = regex.matcher(registryOutput);
-        if (matcher.find()) {
-            String appHexId = matcher.group(1);
-            return Long.parseLong(appHexId, 16);
-        }
-        throw new RuntimeException("Could not parse output of registry");
-    }
-
     private boolean hasGameOverlayProcessRunning() {
         return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive)
                 .anyMatch(process -> process.info().command().orElseThrow().contains("Steam\\GameOverlayUI"));
-    }
-
-    private long getGameOverlayGameId() {
-        List<String> command = Lists.newArrayList("wmic", "process", "where", "name='GameOverlayUI.exe'", "get", "CommandLine");
-        String commandLineOutput = new ProcessRunner(command).runAndGetOutput();
-        List<String> lines = Splitter.on("\n").splitToList(commandLineOutput);
-        try {
-            String arguments = lines.get(2);
-            Pattern regex = Pattern.compile("-gameid (\\d+) ");
-            Matcher matcher = regex.matcher(arguments);
-            //noinspection ResultOfMethodCallIgnored
-            matcher.find();
-            String gameId = matcher.group(1);
-            return Long.parseLong(gameId);
-        } catch (RuntimeException e) {
-            return 0;
-        }
     }
 }
