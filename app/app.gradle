@@ -102,11 +102,15 @@ task killingExistingWindowsDaemon() {
         }
         def outputJar = localOsRelease.outputs.files.asFileTree.toList().find { it.name.contains(shadowJar.archiveFileName.get()) }
         if (result != null && result != "No Instance(s) Available.") {
-            def commandAndPid = result.split("\n")[1].split("\"").collect { it.trim() }.grep { it.length() > 0 }
-            if (commandAndPid.size() == 4 && commandAndPid.get(2).equalsIgnoreCase(outputJar.toString())) {
-                exec {
-                    executable('taskkill')
-                    args('/pid', commandAndPid.get(3), '/f')
+            def results = result.split("\n").grep { it.trim().length() > 0 }[1..-1]
+            for (String process in results) {
+                def processName = process.split("\"")[-2].trim()
+                def pid = process.split("\"")[-1].trim()
+                if (processName.equalsIgnoreCase(outputJar.toString())) {
+                    exec {
+                        executable('taskkill')
+                        args('/pid', pid, '/f')
+                    }
                 }
             }
         }
