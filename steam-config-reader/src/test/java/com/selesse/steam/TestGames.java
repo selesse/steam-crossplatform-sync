@@ -1,6 +1,6 @@
 package com.selesse.steam;
 
-import com.google.common.io.Resources;
+import com.selesse.os.Resources;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.steamcmd.games.UserFileSystem;
@@ -25,6 +25,10 @@ public enum TestGames {
         this.gameId = gameId;
     }
 
+    public int getGameId() {
+        return gameId;
+    }
+
     public UserFileSystem getUserFileSystem() {
         return new UserFileSystem(getGameRegistryStore());
     }
@@ -34,7 +38,7 @@ public enum TestGames {
     }
 
     private List<String> registryFileContents() {
-        Path fakeFilePath = Path.of(Resources.getResource(gameId + ".vdf").getPath());
+        Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
         try {
             return Files.readAllLines(fakeFilePath);
         } catch (IOException e) {

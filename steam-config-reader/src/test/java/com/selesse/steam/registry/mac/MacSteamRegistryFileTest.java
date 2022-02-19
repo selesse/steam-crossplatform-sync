@@ -1,6 +1,6 @@
 package com.selesse.steam.registry.mac;
 
-import com.google.common.io.Resources;
+import com.selesse.os.Resources;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class MacSteamRegistryFileTest {
 
     @Before
     public void setup() {
-        testRegistryPath = Path.of(Resources.getResource("registry.vdf").getPath());
+        testRegistryPath = Resources.getResource("registry.vdf");
     }
 
     @Test

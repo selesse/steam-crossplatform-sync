@@ -1,6 +1,6 @@
 package com.selesse.steam.steamcmd;
 
-import com.google.common.io.Resources;
+import com.selesse.os.Resources;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import org.assertj.core.util.Lists;
@@ -24,7 +24,7 @@ public class PrintAppInfoTest {
 
         @Override
         public List<String> runPrintAppInfoProcess(Long appId) {
-            Path fakeFilePath = Path.of(Resources.getResource(appId + ".vdf").getPath());
+            Path fakeFilePath = Resources.getResource(appId + ".vdf");
             try {
                 return Files.readAllLines(fakeFilePath);
             } catch (IOException e) {
