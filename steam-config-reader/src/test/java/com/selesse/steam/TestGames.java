@@ -25,7 +25,7 @@ public enum TestGames {
         this.gameId = gameId;
     }
 
-    public int getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
