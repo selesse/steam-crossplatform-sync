@@ -3,7 +3,7 @@ package com.selesse.steam;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.CharStreams;
-import com.selesse.steam.registry.mac.SteamAppList;
+import com.selesse.steam.applist.SteamAppList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

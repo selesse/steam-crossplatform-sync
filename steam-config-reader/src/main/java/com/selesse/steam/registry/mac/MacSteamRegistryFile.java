@@ -2,7 +2,8 @@ package com.selesse.steam.registry.mac;
 
 import com.google.common.collect.Lists;
 import com.selesse.steam.AppListFetcher;
-import com.selesse.steam.SteamApp;
+import com.selesse.steam.applist.SteamApp;
+import com.selesse.steam.applist.SteamAppList;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;

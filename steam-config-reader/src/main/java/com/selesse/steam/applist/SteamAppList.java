@@ -1,6 +1,4 @@
-package com.selesse.steam.registry.mac;
-
-import com.selesse.steam.SteamApp;
+package com.selesse.steam.applist;
 
 import java.util.List;
 

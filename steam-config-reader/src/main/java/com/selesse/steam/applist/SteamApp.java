@@ -1,4 +1,4 @@
-package com.selesse.steam;
+package com.selesse.steam.applist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
