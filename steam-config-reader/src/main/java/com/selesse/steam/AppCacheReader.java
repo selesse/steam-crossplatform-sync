@@ -1,6 +1,7 @@
 package com.selesse.steam;
 
 import com.selesse.steam.appcache.*;
+import com.selesse.steam.registry.SteamRegistry;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -24,6 +25,10 @@ public class AppCacheReader {
     private static final List<Byte> SPECIAL_BYTES = List.of(
             BEGIN_OBJECT, STRING, INT_32, FLOAT_32, POINTER, WIDESTRING, COLOR, INT_64, END_OBJECT
     );
+
+    public AppCache load() {
+        return load(SteamRegistry.getInstance().getAppCachePath());
+    }
 
     public AppCache load(Path path) {
         try {
