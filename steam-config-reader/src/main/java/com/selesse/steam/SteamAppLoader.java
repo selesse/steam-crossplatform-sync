@@ -8,6 +8,10 @@ import com.selesse.steam.registry.implementation.RegistryString;
 public class SteamAppLoader {
     private static AppCache appCache;
 
+    public static void primeAppCache(AppCache appCache) {
+        SteamAppLoader.appCache = appCache;
+    }
+
     public static SteamApp load(Long gameId) {
         App rawApp = loadAppCache().getById(gameId);
 
