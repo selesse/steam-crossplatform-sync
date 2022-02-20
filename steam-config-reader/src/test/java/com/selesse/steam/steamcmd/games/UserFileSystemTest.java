@@ -92,4 +92,13 @@ public class UserFileSystemTest {
         assertThat(userFileSystem.getLinuxInstallationPath())
                 .isEqualTo("~/.local/share/UnrailedGame/GameState/AllPlayers/SaveGames");
     }
+
+    @Test
+    public void canPrintOriAndTheWillOfTheWisps() {
+        TestGames ori = TestGames.ORI_AND_THE_WILL_OF_THE_WISPS;
+        UserFileSystem userFileSystem = ori.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%USERPROFILE%/AppData/Local/Ori and the Will of The Wisps");
+    }
 }

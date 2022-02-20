@@ -21,6 +21,7 @@ public enum TestGames {
     TORCHLIGHT_II(200710),
     INSCRYPTION(1092790),
     UNRAILED(1016920),
+    ORI_AND_THE_WILL_OF_THE_WISPS(1057090)
     ;
 
     private final int gameId;
