@@ -1,0 +1,487 @@
+"1092790"
+{
+	"common"
+	{
+		"associations"
+		{
+			"0"
+			{
+				"name"		"Daniel Mullins Games"
+				"type"		"developer"
+			}
+			"1"
+			{
+				"name"		"Devolver Digital"
+				"type"		"publisher"
+			}
+			"2"
+			{
+				"name"		"Devolver Digital"
+				"type"		"franchise"
+			}
+		}
+		"category"
+		{
+			"category_2"		"1"
+			"category_22"		"1"
+			"category_23"		"1"
+			"category_29"		"1"
+			"category_45"		"1"
+			"category_46"		"1"
+		}
+		"clienticon"		"0f06afca5503683fe12bfaee26a6a3f13df27c87"
+		"clienttga"		"74824317094412eddcea18355548988e7ae7e78a"
+		"community_hub_visible"		"1"
+		"community_visible_stats"		"1"
+		"gameid"		"1092790"
+		"genres"
+		{
+			"0"		"25"
+			"1"		"23"
+			"2"		"2"
+		}
+		"header_image"
+		{
+			"english"		"header.jpg"
+		}
+		"icon"		"25c02dcbabe97febe787797195099325a4d47935"
+		"languages"
+		{
+			"brazilian"		"1"
+			"english"		"1"
+			"french"		"1"
+			"german"		"1"
+			"italian"		"1"
+			"japanese"		"1"
+			"koreana"		"1"
+			"russian"		"1"
+			"schinese"		"1"
+			"spanish"		"1"
+			"tchinese"		"1"
+			"turkish"		"1"
+		}
+		"library_assets"
+		{
+			"library_capsule"		"en"
+			"library_hero"		"en"
+			"library_logo"		"en"
+			"logo_position"
+			{
+				"height_pct"		"100"
+				"pinned_position"		"BottomLeft"
+				"width_pct"		"56.00933488914817"
+			}
+		}
+		"logo"		"92af712fe5fb4abf4fe7937075221964e8cbd1c8"
+		"logo_small"		"92af712fe5fb4abf4fe7937075221964e8cbd1c8_thumb"
+		"name"		"Inscryption"
+		"osarch"		""
+		"osextended"		""
+		"oslist"		"windows"
+		"primary_genre"		"23"
+		"releasestate"		"released"
+		"review_percentage"		"97"
+		"review_score"		"9"
+		"small_capsule"
+		{
+			"english"		"capsule_231x87.jpg"
+		}
+		"steam_deck_compatibility"
+		{
+			"category"		"2"
+			"configuration"
+			{
+				"non_deck_display_glyphs"		"0"
+				"primary_player_is_controller_slot_0"		"0"
+				"recommended_runtime"		"proton-stable"
+				"requires_h264"		"0"
+				"requires_internet_for_setup"		"0"
+				"requires_internet_for_singleplayer"		"0"
+				"requires_manual_keyboard_invoke"		"0"
+				"requires_non_controller_launcher_nav"		"0"
+				"small_text"		"0"
+				"supported_input"		"other"
+			}
+			"test_timestamp"		"1644969600"
+			"tested_build_id"		"7584684"
+			"tests"
+			{
+				"0"
+				{
+					"display"		"3"
+					"token"		"#SteamDeckVerified_TestResult_DefaultControllerConfigNotFullyFunctional"
+				}
+				"1"
+				{
+					"display"		"4"
+					"token"		"#SteamDeckVerified_TestResult_ControllerGlyphsMatchDeckDevice"
+				}
+				"2"
+				{
+					"display"		"4"
+					"token"		"#SteamDeckVerified_TestResult_InterfaceTextIsLegible"
+				}
+				"3"
+				{
+					"display"		"4"
+					"token"		"#SteamDeckVerified_TestResult_DefaultConfigurationIsPerformant"
+				}
+			}
+		}
+		"steam_release_date"		"1634655924"
+		"store_asset_mtime"		"1632501352"
+		"store_tags"
+		{
+			"0"		"791774"
+			"1"		"1666"
+			"10"		"1710"
+			"11"		"1716"
+			"12"		"13782"
+			"13"		"1698"
+			"14"		"3839"
+			"15"		"4191"
+			"16"		"3871"
+			"17"		"18594"
+			"18"		"3964"
+			"19"		"21"
+			"2"		"1742"
+			"3"		"32322"
+			"4"		"1667"
+			"5"		"4342"
+			"6"		"3959"
+			"7"		"5186"
+			"8"		"1664"
+			"9"		"9"
+		}
+		"supported_languages"
+		{
+			"brazilian"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"english"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"french"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"german"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"italian"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"japanese"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"koreana"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"russian"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"schinese"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"spanish"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"tchinese"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+			"turkish"
+			{
+				"subtitles"		"true"
+				"supported"		"true"
+			}
+		}
+		"type"		"Game"
+	}
+	"extended"
+	{
+		"developer"		"Daniel Mullins Games"
+		"homepage"		"https://www.inscryption-game.com"
+		"publisher"		"Devolver Digital"
+	}
+	"config"
+	{
+		"installdir"		"Inscryption"
+		"launch"
+		{
+			"0"
+			{
+				"config"
+				{
+					"oslist"		"windows"
+				}
+				"executable"		"Inscryption.exe"
+				"type"		"none"
+			}
+			"1"
+			{
+				"config"
+				{
+					"betakey"		"mac-linux-beta"
+					"oslist"		"macos"
+				}
+				"executable"		"Inscryption.app"
+				"type"		"default"
+			}
+			"2"
+			{
+				"config"
+				{
+					"betakey"		"mac-linux-beta"
+					"oslist"		"linux"
+				}
+				"executable"		"Inscryption.x86"
+				"type"		"default"
+			}
+		}
+	}
+	"depots"
+	{
+		"1092791"
+		{
+			"encryptedmanifests"
+			{
+				"bitsummit"
+				{
+					"encrypted_gid_2"		"2DF2D4DEB97C4FF1B49A9B29CC5FC950"
+					"encrypted_size_2"		"64254A9F11C9725C12307A6483A51ECB"
+				}
+				"devolver_qa"
+				{
+					"encrypted_gid_2"		"4D6745D5EFE991902393A8B615D3E97E"
+					"encrypted_size_2"		"C0319D79AD275262938FF8EF58C8B7F1"
+				}
+				"kaycee-mod-beta"
+				{
+					"encrypted_gid_2"		"A6C2DC4B6409AEC16DEDA816B3D0ABC0"
+					"encrypted_size_2"		"602DA8927A09325F1985D9EDEAB36CDB"
+				}
+				"mac-linux-beta"
+				{
+					"encrypted_gid_2"		"3118F49C34D07AB4672AE7EFCF71798A"
+					"encrypted_size_2"		"A24C8FAD33D4799127C87C288C9175EF"
+				}
+				"privatetest"
+				{
+					"encrypted_gid_2"		"1A177552E224813C0727D936C91F1E7C"
+					"encrypted_size_2"		"933837B19E7B8B1BC852A315FFFCCBF0"
+				}
+				"videocapture"
+				{
+					"encrypted_gid_2"		"8925655787603C382ECEF41ADAF5E0B4"
+					"encrypted_size_2"		"C121CC8F3C205B304D02F8D9D119577D"
+				}
+			}
+			"manifests"
+			{
+				"public"		"1735263726687503974"
+			}
+			"maxsize"		"3431514764"
+			"name"		"DiskCardGame (Windows)"
+		}
+		"1092792"
+		{
+			"config"
+			{
+				"oslist"		"macos"
+			}
+			"encryptedmanifests"
+			{
+				"bitsummit"
+				{
+					"encrypted_gid_2"		"936C9EDDF6D7BE5447DC84FA1F0F0BF4"
+					"encrypted_size_2"		"A3E79DBEBD6F4C76A527208889E2B7F5"
+				}
+				"kaycee-mod-beta"
+				{
+					"encrypted_gid_2"		"99658E8A2AC9E5EE46E8AFF4C748906A"
+					"encrypted_size_2"		"33F9C26DFC01E6AE9F8AC0BC6E02B435"
+				}
+				"mac-linux-beta"
+				{
+					"encrypted_gid_2"		"E29E1E8E88118F89CD3B23E4FB13D534"
+					"encrypted_size_2"		"C4EE4E0BF9F665295D817870E14388C5"
+				}
+				"privatetest"
+				{
+					"encrypted_gid_2"		"D390657BBD4B8A1C57D65A106F03E4FF"
+					"encrypted_size_2"		"6BBFB72B9A53D8CECFD291A7E4D3F515"
+				}
+				"videocapture"
+				{
+					"encrypted_gid_2"		"D5AA6887F09113849C4D8E7946281F81"
+					"encrypted_size_2"		"2A15722BB70BDF5BF2BF1D7557FA89B8"
+				}
+			}
+			"manifests"
+			{
+			}
+			"name"		"Inscryption (Mac)"
+		}
+		"1092793"
+		{
+			"config"
+			{
+				"oslist"		"linux"
+			}
+			"encryptedmanifests"
+			{
+				"bitsummit"
+				{
+					"encrypted_gid_2"		"F3298A73A0434B9CCF65A3FD9F42FBE4"
+					"encrypted_size_2"		"D960177701585AD78D24EEBAB2C9918C"
+				}
+				"kaycee-mod-beta"
+				{
+					"encrypted_gid_2"		"F56B5131B87F19D21A240824F7BE02C5"
+					"encrypted_size_2"		"33F9C26DFC01E6AE9F8AC0BC6E02B435"
+				}
+				"mac-linux-beta"
+				{
+					"encrypted_gid_2"		"05E612AF432CFB6DADFEB99041FA4841"
+					"encrypted_size_2"		"723D5451D41BCBDC08EF2FD93EA79109"
+				}
+				"privatetest"
+				{
+					"encrypted_gid_2"		"EE1AD5F4D1D655E06783285C2F4DD2A8"
+					"encrypted_size_2"		"6BBFB72B9A53D8CECFD291A7E4D3F515"
+				}
+				"videocapture"
+				{
+					"encrypted_gid_2"		"6B44E728F0E3A97EA8F4B55C3C45EF56"
+					"encrypted_size_2"		"2A15722BB70BDF5BF2BF1D7557FA89B8"
+				}
+			}
+			"manifests"
+			{
+			}
+			"name"		"Inscryption (Linux)"
+		}
+		"228990"
+		{
+			"config"
+			{
+				"language"		""
+				"oslist"		"windows"
+			}
+			"depotfromapp"		"228980"
+			"maxsize"		"102931551"
+			"name"		"DirectX Jun 2010 Redist"
+			"sharedinstall"		"1"
+		}
+		"baselanguages"		"english"
+		"branches"
+		{
+			"bitsummit"
+			{
+				"buildid"		"7273864"
+				"description"		"For Bitsummit demo."
+				"pwdrequired"		"1"
+				"timeupdated"		"1630342287"
+			}
+			"devolver_qa"
+			{
+				"buildid"		"7557552"
+				"description"		"For QA."
+				"pwdrequired"		"1"
+				"timeupdated"		"1634620354"
+			}
+			"kaycee-mod-beta"
+			{
+				"buildid"		"8217738"
+				"description"		"To test the Kaycee's Mod mini-expansion!"
+				"pwdrequired"		"1"
+				"timeupdated"		"1645048493"
+			}
+			"mac-linux-beta"
+			{
+				"buildid"		"7987950"
+				"description"		"To test Mac and Linux versions."
+				"pwdrequired"		"1"
+				"timeupdated"		"1641606462"
+			}
+			"privatetest"
+			{
+				"buildid"		"8215730"
+				"description"		"To self playtest"
+				"pwdrequired"		"1"
+				"timeupdated"		"1645037581"
+			}
+			"public"
+			{
+				"buildid"		"7659956"
+				"timeupdated"		"1636129205"
+			}
+			"videocapture"
+			{
+				"buildid"		"8030717"
+				"description"		"For capturing video."
+				"pwdrequired"		"1"
+				"timeupdated"		"1642366459"
+			}
+		}
+	}
+	"ufs"
+	{
+		"maxnumfiles"		"1"
+		"quota"		"1000000"
+		"savefiles"
+		{
+			"0"
+			{
+				"path"		""
+				"pattern"		"*.gwsave"
+				"platforms"
+				{
+					"1"		"Windows"
+				}
+				"root"		"gameinstall"
+			}
+			"1"
+			{
+				"path"		""
+				"pattern"		"*.gwsave"
+				"platforms"
+				{
+					"1"		"Linux"
+				}
+				"root"		"gameinstall"
+			}
+			"2"
+			{
+				"path"		""
+				"pattern"		"*.gwsave"
+				"platforms"
+				{
+					"1"		"MacOS"
+				}
+				"root"		"gameinstall"
+			}
+		}
+	}
+}

@@ -17,22 +17,6 @@ public class PrintAppInfo {
         this.cacheDirectory = null;
     }
 
-    public PrintAppInfo(Path cacheDirectory) {
-        this.cacheDirectory = cacheDirectory;
-    }
-
-    public List<String> asVdfString(Long appId) {
-        Optional<List<String>> appLines = Optional.empty();
-        if (cacheDirectory != null) {
-            appLines = RegistryStores.readCache(cacheDirectory, appId);
-        }
-        return appLines.orElseGet(() -> {
-            List<String> lines = new PrintAppInfoExecutor().runPrintAppInfoProcess(appId);
-            cacheDirectoryMaybe().ifPresent(x -> RegistryStores.cacheRegistryStore(x, appId, lines));
-            return lines;
-        });
-    }
-
     RegistryStore getRegistryStore(PrintAppInfoExecutor executor, Long appId) {
         Optional<RegistryStore> registry = Optional.empty();
         if (cacheDirectory != null) {

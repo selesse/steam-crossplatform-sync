@@ -1,5 +1,9 @@
 package com.selesse.steam.registry.implementation;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 public class RegistryStore {
     private final RegistryObject rootObject;
 
@@ -21,5 +25,9 @@ public class RegistryStore {
 
     public boolean pathExists(String path) {
         return rootObject.pathExists(path);
+    }
+
+    public Set<String> getKeys() {
+        return Sets.newHashSet(rootObject.getKeys());
     }
 }

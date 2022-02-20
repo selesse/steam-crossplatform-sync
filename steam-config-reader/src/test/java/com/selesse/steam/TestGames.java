@@ -17,6 +17,7 @@ public enum TestGames {
     SLAY_THE_SPIRE(646570),
     LEGEND_OF_GRIMROCK(207170),
     TORCHLIGHT_II(200710),
+    INSCRYPTION(1092790),
     ;
 
     private final int gameId;
@@ -30,14 +31,14 @@ public enum TestGames {
     }
 
     public UserFileSystem getUserFileSystem() {
-        return new UserFileSystem(getGameRegistryStore());
+        return new UserFileSystem(RegistryParser.parseOmittingFirstLevel(registryFileContents()));
     }
 
-    private RegistryStore getGameRegistryStore() {
-        return RegistryParser.parseOmittingFirstLevel(registryFileContents());
+    public RegistryStore getGameRegistryStore() {
+        return RegistryParser.parse(registryFileContents());
     }
 
-    private List<String> registryFileContents() {
+    public List<String> registryFileContents() {
         Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
         try {
             return Files.readAllLines(fakeFilePath);
