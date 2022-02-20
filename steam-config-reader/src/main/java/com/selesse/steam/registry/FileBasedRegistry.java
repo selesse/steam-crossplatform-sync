@@ -1,9 +1,9 @@
 package com.selesse.steam.registry;
 
 import com.google.common.collect.Lists;
-import com.selesse.steam.AppListFetcher;
-import com.selesse.steam.applist.SteamApp;
-import com.selesse.steam.applist.SteamAppList;
+import com.selesse.steam.AppType;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class FileBasedRegistry extends SteamRegistry {
@@ -43,41 +42,36 @@ public abstract class FileBasedRegistry extends SteamRegistry {
     }
 
     public List<Long> getInstalledAppIds() {
-        RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
+        RegistryObject object = getAppsRegistryObject();
         return object.getKeys().stream().map(Long::valueOf).sorted().collect(Collectors.toList());
     }
 
     public List<SteamGameMetadata> getGameMetadata() {
-        RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
+        RegistryObject object = getAppsRegistryObject();
         List<SteamGameMetadata> steamGames = Lists.newArrayList();
-        for (String gameIdString : object.getKeys()) {
-            RegistryObject registryObject = object.getObjectValueAsObject(gameIdString);
-            if (registryObject.pathExists("installed")) {
-                RegistryString nameValue = registryObject.getObjectValueAsString("name");
-                String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
-                RegistryString installedValue = registryObject.getObjectValueAsString("installed");
-                boolean installed = installedValue.getValue().equals("1");
-                long gameId = Long.parseLong(gameIdString);
-                SteamGameMetadata steamGameMetadata = new SteamGameMetadata(gameId, name, installed);
-                steamGames.add(steamGameMetadata);
+        for (long gameId : object.getKeys().stream().map(Long::parseLong).collect(Collectors.toList())) {
+            if (getRegistryObject(gameId).pathExists("installed")) {
+                SteamApp steamApp = SteamAppLoader.load(gameId);
+
+                if (steamApp.getType() == AppType.GAME) {
+                    steamGames.add(getGameMetadata(gameId));
+                }
             }
         }
         return steamGames;
     }
 
     public SteamGameMetadata getGameMetadata(Long gameId) {
-        RegistryObject object = registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
-        RegistryObject registryObject = object.getObjectValueAsObject("" + gameId);
-        if (registryObject != null) {
-            RegistryString nameValue = registryObject.getObjectValueAsString("name");
-            String name = Optional.ofNullable(nameValue).map(RegistryString::getValue).orElse("");
-            RegistryString installedValue = registryObject.getObjectValueAsString("installed");
-            boolean installed = installedValue.getValue().equals("1");
-            return new SteamGameMetadata(gameId, name, installed);
-        } else {
-            SteamAppList appList = AppListFetcher.fetchAppList();
-            SteamApp app = appList.getAppById(gameId);
-            return new SteamGameMetadata(gameId, app.name, false);
-        }
+        SteamApp steamApp = SteamAppLoader.load(gameId);
+        String installedValue = getRegistryObject(gameId).getObjectValueAsString("installed").getValue();
+        return new SteamGameMetadata(gameId, steamApp.getName(), installedValue.equals("1"));
+    }
+
+    private RegistryObject getAppsRegistryObject() {
+        return registryStore.getObjectValueAsObject("Registry/HKCU/Software/Valve/Steam/apps");
+    }
+
+    private RegistryObject getRegistryObject(long gameId) {
+        return getAppsRegistryObject().getObjectValueAsObject("" + gameId);
     }
 }
