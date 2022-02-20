@@ -1,7 +1,7 @@
 package com.selesse.steam.registry.mac;
 
 import com.selesse.os.Resources;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameMetadata;
 import org.junit.Before;
 import org.junit.Test;
 

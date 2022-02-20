@@ -1,4 +1,4 @@
-package com.selesse.steam.steamcmd.games;
+package com.selesse.steam.games.saves;
 
 import com.selesse.steam.registry.implementation.RegistryStore;
 

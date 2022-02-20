@@ -7,7 +7,7 @@ import com.selesse.steam.GameRunningDetector;
 import com.selesse.steam.Games;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-import com.selesse.steam.steamcmd.SteamGame;
+import com.selesse.steam.games.SteamGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

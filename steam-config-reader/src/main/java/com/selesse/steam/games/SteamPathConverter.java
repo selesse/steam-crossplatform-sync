@@ -1,4 +1,4 @@
-package com.selesse.steam.steamcmd.games;
+package com.selesse.steam.games;
 
 class SteamPathConverter {
     public static String convert(String path) {

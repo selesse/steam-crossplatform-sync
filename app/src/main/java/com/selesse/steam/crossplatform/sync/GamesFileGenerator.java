@@ -7,7 +7,7 @@ import com.selesse.steam.Games;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
-import com.selesse.steam.steamcmd.SteamGame;
+import com.selesse.steam.games.SteamGame;
 
 import java.io.IOException;
 import java.nio.file.Path;

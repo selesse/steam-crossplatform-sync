@@ -6,7 +6,7 @@ import com.selesse.processes.ProcessRunner;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.registry.windows.GetCurrentlyRunningGameIdViaRegistry;
 import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

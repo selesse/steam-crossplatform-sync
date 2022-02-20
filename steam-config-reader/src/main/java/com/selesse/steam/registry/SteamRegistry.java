@@ -2,7 +2,7 @@ package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameMetadata;
 
 import java.nio.file.Path;
 import java.util.List;

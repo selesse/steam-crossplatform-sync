@@ -1,5 +1,7 @@
-package com.selesse.steam.steamcmd.games;
+package com.selesse.steam.games;
 
+import com.selesse.steam.games.saves.SaveFile;
+import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
 public class UserFileSystem {

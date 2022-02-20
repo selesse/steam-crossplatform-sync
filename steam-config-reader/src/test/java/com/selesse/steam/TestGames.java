@@ -3,7 +3,7 @@ package com.selesse.steam;
 import com.selesse.os.Resources;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-import com.selesse.steam.steamcmd.games.UserFileSystem;
+import com.selesse.steam.games.UserFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,12 +1,12 @@
 package com.selesse.steam;
 
 import com.google.common.collect.Lists;
+import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.steamcmd.PrintAppInfo;
-import com.selesse.steam.steamcmd.SteamGame;
-import com.selesse.steam.steamcmd.games.SteamGameConfig;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameConfig;
+import com.selesse.steam.games.SteamGameMetadata;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -8,7 +8,7 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameMetadata;
 
 import java.io.IOException;
 import java.nio.file.Files;

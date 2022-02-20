@@ -1,7 +1,4 @@
-package com.selesse.steam.steamcmd;
-
-import com.selesse.steam.steamcmd.games.SteamGameConfig;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+package com.selesse.steam.games;
 
 public class SteamGame {
     private final SteamGameMetadata metadata;

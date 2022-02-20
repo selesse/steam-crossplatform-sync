@@ -2,7 +2,7 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.Games;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-import com.selesse.steam.steamcmd.SteamGame;
+import com.selesse.steam.games.SteamGame;
 
 import java.util.List;
 

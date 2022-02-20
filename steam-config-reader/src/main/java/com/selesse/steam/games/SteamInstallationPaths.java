@@ -1,4 +1,4 @@
-package com.selesse.steam.steamcmd.games;
+package com.selesse.steam.games;
 
 import com.selesse.os.OperatingSystems;
 

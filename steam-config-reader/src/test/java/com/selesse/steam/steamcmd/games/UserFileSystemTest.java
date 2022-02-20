@@ -1,6 +1,7 @@
 package com.selesse.steam.steamcmd.games;
 
 import com.selesse.steam.TestGames;
+import com.selesse.steam.games.UserFileSystem;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

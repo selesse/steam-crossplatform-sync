@@ -1,7 +1,7 @@
 package com.selesse.steam;
 
 import com.selesse.steam.registry.SteamRegistry;
-import com.selesse.steam.steamcmd.games.SteamGameMetadata;
+import com.selesse.steam.games.SteamGameMetadata;
 
 public class GameRunningDetector {
     public static boolean isGameCurrentlyRunning() {
