@@ -79,4 +79,17 @@ public class UserFileSystemTest {
                 .isEqualTo("~/.steam/steamapps/common/" +
                         "Torchlight II/my games/runic games/torchlight 2/save");
     }
+
+    @Test
+    public void canPrintUnrailed() {
+        TestGames unrailed = TestGames.UNRAILED;
+        UserFileSystem userFileSystem = unrailed.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%USERPROFILE%/AppData/Local/Daedalic Entertainment GmbH/Unrailed/GameState/AllPlayers/SaveGames");
+        assertThat(userFileSystem.getMacInstallationPath())
+                .isEqualTo("~/Library/Application Support/UnrailedGame/GameState/AllPlayers/SaveGames");
+        assertThat(userFileSystem.getLinuxInstallationPath())
+                .isEqualTo("~/.local/share/UnrailedGame/GameState/AllPlayers/SaveGames");
+    }
 }

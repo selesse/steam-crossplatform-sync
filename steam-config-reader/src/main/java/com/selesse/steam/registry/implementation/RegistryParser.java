@@ -1,22 +1,36 @@
 package com.selesse.steam.registry.implementation;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class RegistryParser {
     private static final Pattern lineMatchingPattern = Pattern.compile("\t*\".+?\"\t*\".*\"");
 
     public static RegistryStore parse(List<String> lines) {
+        return collapseRegistryStoreIfNecessary(parseWithoutRegistryCollapse(lines));
+    }
+
+    public static RegistryStore parseWithoutRegistryCollapse(List<String> lines) {
+        if (Iterables.getLast(lines).isEmpty()) {
+            lines = lines.subList(0, lines.size() - 1);
+        }
         RegistryValue object = parseValue(lines);
         return new RegistryStore((RegistryObject) object);
     }
 
-    public static RegistryStore parseOmittingFirstLevel(List<String> lines) {
-        RegistryValue object = parseValue(lines);
-        RegistryObject firstLevelKey = (RegistryObject) object;
-        return new RegistryStore((RegistryObject) firstLevelKey.get(firstLevelKey.getKeys().get(0)));
+    private static RegistryStore collapseRegistryStoreIfNecessary(RegistryStore registryStore) {
+        Set<String> keys = registryStore.getKeys();
+        if (keys.size() == 1) {
+            String keyValue = keys.stream().findFirst().orElse("");
+            if (keyValue.matches("\\d+")) {
+                return new RegistryStore(registryStore.getObjectValueAsObject(keyValue));
+            }
+        }
+        return registryStore;
     }
 
     private static RegistryValue parseValue(List<String> blockScope) {

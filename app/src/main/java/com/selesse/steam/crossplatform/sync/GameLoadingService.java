@@ -45,7 +45,7 @@ public class GameLoadingService {
             try {
                 List<String> lines = Files.readAllLines(cachedRegistryStore);
                 if (lines.size() > 3) {
-                    registryStore = RegistryParser.parseOmittingFirstLevel(lines);
+                    registryStore = RegistryParser.parse(lines);
                 }
             } catch (IOException e) {
                 LOGGER.error("Had trouble reading cached file for game {}", gameId, e);

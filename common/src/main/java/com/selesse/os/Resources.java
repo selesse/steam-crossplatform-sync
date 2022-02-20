@@ -16,4 +16,9 @@ public class Resources {
             throw new RuntimeException(e);
         }
     }
+
+    public static boolean exists(String name) {
+        URL resource = Resources.class.getClassLoader().getResource(name);
+        return resource != null;
+    }
 }

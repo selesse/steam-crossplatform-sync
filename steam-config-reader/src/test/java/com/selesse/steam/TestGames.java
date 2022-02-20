@@ -1,9 +1,11 @@
 package com.selesse.steam;
 
+import com.google.common.base.Splitter;
 import com.selesse.os.Resources;
+import com.selesse.steam.games.UserFileSystem;
+import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-import com.selesse.steam.games.UserFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,6 +20,7 @@ public enum TestGames {
     LEGEND_OF_GRIMROCK(207170),
     TORCHLIGHT_II(200710),
     INSCRYPTION(1092790),
+    UNRAILED(1016920),
     ;
 
     private final int gameId;
@@ -31,19 +34,26 @@ public enum TestGames {
     }
 
     public UserFileSystem getUserFileSystem() {
-        return new UserFileSystem(RegistryParser.parseOmittingFirstLevel(registryFileContents()));
+        return new UserFileSystem(RegistryParser.parse(registryFileContents()));
     }
 
     public RegistryStore getGameRegistryStore() {
-        return RegistryParser.parse(registryFileContents());
+        return RegistryParser.parseWithoutRegistryCollapse(registryFileContents());
     }
 
     public List<String> registryFileContents() {
-        Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
-        try {
-            return Files.readAllLines(fakeFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (Resources.exists(getGameId() + ".vdf")) {
+            Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
+            try {
+                return Files.readAllLines(fakeFilePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+            RegistryPrettyPrint registryPrettyPrint =
+                    new RegistryPrettyPrint(SteamAppLoader.load(getGameId()).getRegistryStore());
+            return Splitter.on("\n").splitToList(registryPrettyPrint.prettyPrint());
         }
     }
 }

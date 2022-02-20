@@ -37,7 +37,7 @@ public class RegistryPrettyPrintTest {
         String prettyPrint = new RegistryPrettyPrint(TestGames.HOLLOW_KNIGHT.getGameRegistryStore()).prettyPrint();
 
         List<String> prettyPrintedLines = Stream.of(prettyPrint.split("\n")).collect(Collectors.toList());
-        RegistryStore registryStore = RegistryParser.parse(prettyPrintedLines);
+        RegistryStore registryStore = RegistryParser.parseWithoutRegistryCollapse(prettyPrintedLines);
         String prettyPrint2 = new RegistryPrettyPrint(registryStore).prettyPrint();
 
         assertThat(prettyPrint).isEqualTo(prettyPrint2);
