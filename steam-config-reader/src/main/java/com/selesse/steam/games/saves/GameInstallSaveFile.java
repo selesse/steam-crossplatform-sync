@@ -79,6 +79,7 @@ public class GameInstallSaveFile extends SaveFile {
             root = ufs.getObjectValueAsString("savefiles/0/root").getValue();
             path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
         }
+        root = root.replace("gameinstall", computeRoot(OperatingSystems.OperatingSystem.WINDOWS));
         return new UserFileSystemPath(root, path);
     }
 

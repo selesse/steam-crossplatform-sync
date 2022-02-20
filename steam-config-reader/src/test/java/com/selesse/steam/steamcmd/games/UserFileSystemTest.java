@@ -101,4 +101,13 @@ public class UserFileSystemTest {
         assertThat(userFileSystem.getWindowsInstallationPath())
                 .isEqualTo("%USERPROFILE%/AppData/Local/Ori and the Will of The Wisps");
     }
+
+    @Test
+    public void canPrintInscryption() {
+        TestGames inscryption = TestGames.INSCRYPTION;
+        UserFileSystem userFileSystem = inscryption.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/Inscryption/");
+    }
 }
