@@ -14,7 +14,7 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getConfigDirectory(), config.getRemoteAppInfoUrl());
+        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory(), config.getRemoteAppInfoUrl());
         for (SteamGame steamGame : steamGames) {
             printSteamGame(steamGame);
         }
