@@ -20,10 +20,10 @@ public class App {
             int index = arguments.indexOf("--sync");
             List<String> argList = Arrays.stream(args).collect(Collectors.toList());
             if (argList.size() == 1) {
-                new SyncGameFilesService(context.getConfig()).runForAllGames();
+                new SyncGameFilesService(context).runForAllGames();
             } else {
                 Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
-                new SyncGameFilesService(context.getConfig()).run(gameIds);
+                new SyncGameFilesService(context).run(gameIds);
             }
         } else if (arguments.contains("--print-games")) {
             new GamesFilePrinter(context).run();

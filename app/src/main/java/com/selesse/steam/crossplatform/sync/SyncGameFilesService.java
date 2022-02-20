@@ -1,7 +1,7 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.crossplatform.sync.config.GameLoader;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
+import com.selesse.steam.games.SteamGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,28 +12,32 @@ import java.util.stream.Collectors;
 
 public class SyncGameFilesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncGameFilesService.class);
-    private final SteamCrossplatformSyncConfig config;
+    private final SteamCrossplatformSyncContext context;
 
-    public SyncGameFilesService(SteamCrossplatformSyncConfig config) {
-        this.config = config;
+    public SyncGameFilesService(SteamCrossplatformSyncContext context) {
+        this.context = context;
     }
 
     public void runForAllGames() {
-        GameConfig gameList = new GameLoader().loadGames(config);
+        GameConfig gameList = new GameLoader().loadGames(context.getConfig());
         gameList.getGames().forEach(this::sync);
     }
 
-    public void run(long runningGameId) {
-        run(new Long[] { runningGameId });
+    public void run(SteamGame steamGame) {
+        run(new SteamGame[] { steamGame });
     }
 
     public void run(Long[] gameIds) {
-        List<Long> gamesToSync = Arrays.stream(gameIds).collect(Collectors.toList());
-        GameConfig gameList = new GameLoader().loadGames(config);
-        for (Long gameId : gamesToSync) {
-            gameList.getGame(gameId).ifPresentOrElse(
+        Arrays.stream(gameIds).map(context::loadGame).collect(Collectors.toList()).forEach(this::run);
+    }
+
+    public void run(SteamGame[] steamGames) {
+        List<SteamGame> gamesToSync = Arrays.stream(steamGames).collect(Collectors.toList());
+        GameConfig gameList = new GameLoader().loadGames(context.getConfig());
+        for (SteamGame steamGame : gamesToSync) {
+            gameList.getGame(steamGame.getId()).ifPresentOrElse(
                     this::sync,
-                    () -> LOGGER.warn("Could not find game config for game with ID {}", gameId)
+                    () -> LOGGER.warn("Could not find game config for {}", steamGame.getName())
             );
         }
     }
@@ -41,7 +45,7 @@ public class SyncGameFilesService {
     private void sync(SyncableGame game) {
         if (game.isSupportedOnThisOs()) {
             Path localPath = game.getLocalPath();
-            Path cloudSyncPath = game.getLocalCloudSyncPath(config);
+            Path cloudSyncPath = game.getLocalCloudSyncPath(context.getConfig());
 
             LOGGER.info("Checking {}", game.getName());
             GameSyncer.sync(localPath, cloudSyncPath);

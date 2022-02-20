@@ -16,9 +16,6 @@ public class SteamGame {
     }
 
     public String getName() {
-        if (metadata.getName().isBlank()) {
-            return config.getGameName();
-        }
         return metadata.getName();
     }
 
@@ -51,7 +48,7 @@ public class SteamGame {
     }
 
     public boolean isGame() {
-        return config.loaded() && config.isGame();
+        return getAppType() == AppType.GAME;
     }
 
     @Override
