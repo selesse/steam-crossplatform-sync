@@ -1,5 +1,6 @@
 package com.selesse.steam.registry;
 
+import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.steamcmd.games.SteamGameMetadata;
 
@@ -23,8 +24,8 @@ public abstract class SteamRegistry {
     public Path getAppCachePath() {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam\\appcache\\appinfo.vdf");
-            case MAC -> Path.of(System.getProperty("user.home") + "/Library/Application Support/Steam/appcache/appinfo.vdf");
-            case LINUX -> Path.of(System.getProperty("user.home") + "/.steam/appcache/appinfo.vdf");
+            case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam/appcache/appinfo.vdf"));
+            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam/appcache/appinfo.vdf"));
         };
     }
 }
