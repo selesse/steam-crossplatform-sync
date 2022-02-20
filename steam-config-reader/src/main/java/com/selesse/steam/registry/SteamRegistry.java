@@ -2,10 +2,14 @@ package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.AppType;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.games.SteamGameMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class SteamRegistry {
     public static SteamRegistry getInstance() {
@@ -18,8 +22,18 @@ public abstract class SteamRegistry {
 
     public abstract long getCurrentlyRunningAppId();
     public abstract List<Long> getInstalledAppIds();
-    public abstract List<SteamGameMetadata> getGameMetadata();
-    public abstract SteamGameMetadata getGameMetadata(Long gameId);
+
+    public List<SteamGameMetadata> getGamesMetadata() {
+        return getInstalledAppIds().stream()
+                .map(this::getGameMetadata)
+                .filter(gameMetadata -> SteamAppLoader.load(gameMetadata.getGameId()).getType() == AppType.GAME)
+                .collect(Collectors.toList());
+    }
+
+    public SteamGameMetadata getGameMetadata(Long gameId) {
+        SteamApp steamApp = SteamAppLoader.load(gameId);
+        return new SteamGameMetadata(gameId, steamApp.getName(), getInstalledAppIds().contains(gameId));
+    }
 
     public Path getAppCachePath() {
         return switch (OperatingSystems.get()) {

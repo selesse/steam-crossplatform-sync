@@ -1,13 +1,9 @@
 package com.selesse.steam.registry;
 
-import com.selesse.steam.AppType;
-import com.selesse.steam.SteamApp;
-import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
-import com.selesse.steam.games.SteamGameMetadata;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,18 +40,6 @@ public abstract class FileBasedRegistry extends SteamRegistry {
         RegistryObject object = getAppsRegistryObject();
         return object.getKeys().stream().map(Long::valueOf)
                 .filter(this::isInstalled).sorted().collect(Collectors.toList());
-    }
-
-    public List<SteamGameMetadata> getGameMetadata() {
-        return getInstalledAppIds().stream()
-                .map(this::getGameMetadata)
-                .filter(gameMetadata -> SteamAppLoader.load(gameMetadata.getGameId()).getType() == AppType.GAME)
-                .collect(Collectors.toList());
-    }
-
-    public SteamGameMetadata getGameMetadata(Long gameId) {
-        SteamApp steamApp = SteamAppLoader.load(gameId);
-        return new SteamGameMetadata(gameId, steamApp.getName(), getInstalledAppIds().contains(gameId));
     }
 
     private RegistryObject getAppsRegistryObject() {

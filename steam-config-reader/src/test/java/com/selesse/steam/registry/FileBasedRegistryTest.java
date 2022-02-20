@@ -58,7 +58,7 @@ public class FileBasedRegistryTest {
 
     @Test
     public void canReadGameMetadata() {
-        List<SteamGameMetadata> gameMetadata = fileBasedRegistry.getGameMetadata();
+        List<SteamGameMetadata> gameMetadata = fileBasedRegistry.getGamesMetadata();
 
         assertThat(gameMetadata).contains(new SteamGameMetadata(367520, "Hollow Knight", true));
     }
