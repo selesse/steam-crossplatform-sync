@@ -58,7 +58,7 @@ public class GameMonitor implements Runnable {
     }
 
     private Optional<ProcessHandle> findGameOverlayProcess() {
-        return ProcessHandle.allProcesses().filter(p -> {
+        return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).filter(p -> {
             String gameOverlayProcess = getGameOverlayProcessName();
             List<String> processArguments =
                     p.info().command().map(x -> Splitter.on(File.separatorChar).splitToList(x)).orElse(Lists.newArrayList());
