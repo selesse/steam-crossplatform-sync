@@ -41,4 +41,9 @@ public class SteamGameMetadata {
     public int hashCode() {
         return Objects.hash(gameId, installed, name);
     }
+
+    @Override
+    public String toString() {
+        return name + " (" + gameId + ") " + (installed ? "installed" : "not installed");
+    }
 }

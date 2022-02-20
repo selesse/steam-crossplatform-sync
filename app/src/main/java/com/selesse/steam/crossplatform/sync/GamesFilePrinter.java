@@ -29,8 +29,7 @@ public class GamesFilePrinter {
 
     private void printSteamGame(SteamGame steamGame) {
         if (steamGame.isGame()) {
-            String installed = steamGame.isInstalled() ? "installed" : "not installed";
-            System.out.println(steamGame.getName() + " (" + steamGame.getId() + ") " + installed);
+            System.out.println(steamGame.metadata());
             if (steamGame.hasUserCloud()) {
                 if (steamGame.hasComputedInstallationPath()) {
                     System.out.println("Windows path: " + steamGame.getWindowsInstallationPath());

@@ -48,6 +48,10 @@ public class SteamGame {
         return String.format("%s (%d)", getName(), getId());
     }
 
+    public String metadata() {
+        return metadata.toString();
+    }
+
     public boolean hasComputedInstallationPath() {
         boolean windows, mac;
         try {
