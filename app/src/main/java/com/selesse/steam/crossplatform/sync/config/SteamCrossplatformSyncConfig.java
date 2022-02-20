@@ -3,6 +3,7 @@ package com.selesse.steam.crossplatform.sync.config;
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -46,6 +47,7 @@ public interface SteamCrossplatformSyncConfig {
                 .orElse(Path.of(getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
 
+    @Nullable
     default String getRemoteAppInfoUrl() {
         return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getRemoteAppInfoUrl)
