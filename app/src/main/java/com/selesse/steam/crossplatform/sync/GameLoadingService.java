@@ -1,6 +1,5 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.selesse.os.OperatingSystems;
 import com.selesse.steam.GameRegistries;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
@@ -16,8 +15,8 @@ public class GameLoadingService {
     private final SteamRegistry steamRegistry;
 
     public GameLoadingService(SteamCrossplatformSyncConfig config) {
-        if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
-            gameRegistries = GameRegistries.buildWindows(config.getRemoteAppInfoUrl());
+        if (config.getRemoteAppInfoUrl() != null) {
+            gameRegistries = GameRegistries.buildWithRemoteFallback(config.getRemoteAppInfoUrl());
         } else {
             gameRegistries = GameRegistries.build();
         }

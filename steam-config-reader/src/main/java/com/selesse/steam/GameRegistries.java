@@ -31,18 +31,15 @@ public class GameRegistries {
         throw new RegistryNotFoundException();
     }
 
-    public static GameRegistries buildWindows(String remoteAppInfoUrl) {
-        if (remoteAppInfoUrl != null) {
-            return new GameRegistries(windowsLoaders(remoteAppInfoUrl));
-        }
-        return build();
+    public static GameRegistries buildWithRemoteFallback(String remoteAppInfoUrl) {
+        return new GameRegistries(remoteFallbackLoaders(remoteAppInfoUrl));
     }
 
     public static GameRegistries build() {
         return new GameRegistries(defaultLoaders());
     }
 
-    private static List<GameRegistryLoader> windowsLoaders(String remoteAppInfoUrl) {
+    private static List<GameRegistryLoader> remoteFallbackLoaders(String remoteAppInfoUrl) {
         return List.of(new AppCacheRegistryLoader(), new SteamCmdRegistryLoader(), new RemoteGameRegistryLoader(remoteAppInfoUrl));
     }
 
