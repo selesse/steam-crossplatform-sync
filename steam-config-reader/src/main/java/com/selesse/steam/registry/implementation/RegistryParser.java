@@ -56,9 +56,10 @@ public class RegistryParser {
     }
 
     private static RegistryString parseRegistryString(String line) {
-        List<String> strings = Splitter.on("\t").omitEmptyStrings().splitToList(line);
-        String key = extractKeyName(strings.get(0));
-        String value = extractKeyName(strings.get(1));
+        // e.g. \t"hello"\t\t"\tworld"\t" => ["", "hello", "", "\tworld", ""]
+        List<String> strings = Splitter.on("\"").trimResults().splitToList(line);
+        String key = strings.get(1);
+        String value = strings.get(3);
         return new RegistryString(key, value);
     }
 }
