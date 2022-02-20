@@ -1,4 +1,4 @@
-package com.selesse.steam.registry.mac;
+package com.selesse.steam.registry;
 
 import com.selesse.os.Resources;
 import com.selesse.steam.games.SteamGameMetadata;
@@ -10,29 +10,28 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MacSteamRegistryFileTest {
-    private Path testRegistryPath;
+public class FileBasedRegistryTest {
+    private FileBasedRegistry fileBasedRegistry;
 
     @Before
     public void setup() {
-        testRegistryPath = Resources.getResource("registry.vdf");
+        fileBasedRegistry = new FileBasedRegistry() {
+            @Override
+            Path registryPath() {
+                return Resources.getResource("registry.vdf");
+            }
+        };
     }
 
     @Test
     public void canReadTheCurrentlyRunningAppId() {
-        MacSteamRegistryFile macSteamRegistryFile = new MacSteamRegistryFile(testRegistryPath);
-
-        assertThat(macSteamRegistryFile.getCurrentlyRunningAppId()).isEqualTo(0);
+        assertThat(fileBasedRegistry.getCurrentlyRunningAppId()).isEqualTo(0);
     }
 
     @Test
     public void canReadInstalledAppIds() {
-        MacSteamRegistryFile macSteamRegistryFile = new MacSteamRegistryFile(testRegistryPath);
-
-        assertThat(macSteamRegistryFile.getInstalledAppIds()).containsExactly(
-                (long) 55040,
+        assertThat(fileBasedRegistry.getInstalledAppIds()).containsExactly(
                 (long) 105600,
-                (long) 200710,
                 (long) 262060,
                 (long) 291650,
                 (long) 349180,
@@ -53,15 +52,13 @@ public class MacSteamRegistryFileTest {
                 (long) 457140,
                 (long) 607050,
                 (long) 646570,
-                (long) 653530,
                 (long) 734070
         );
     }
 
     @Test
     public void canReadGameMetadata() {
-        MacSteamRegistryFile steamRegistryFile = new MacSteamRegistryFile(testRegistryPath);
-        List<SteamGameMetadata> gameMetadata = steamRegistryFile.getGameMetadata();
+        List<SteamGameMetadata> gameMetadata = fileBasedRegistry.getGameMetadata();
 
         assertThat(gameMetadata).contains(new SteamGameMetadata(367520, "Hollow Knight", true));
     }
