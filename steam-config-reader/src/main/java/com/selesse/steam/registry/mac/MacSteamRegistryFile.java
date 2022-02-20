@@ -2,7 +2,7 @@ package com.selesse.steam.registry.mac;
 
 import com.google.common.collect.Lists;
 import com.selesse.steam.AppListFetcher;
-import com.selesse.steam.applist.SteamApp;
+import com.selesse.steam.applist.SteamNameAndId;
 import com.selesse.steam.applist.SteamAppList;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
@@ -68,7 +68,7 @@ public class MacSteamRegistryFile {
             return new SteamGameMetadata(gameId, name, installed);
         } else {
             SteamAppList appList = AppListFetcher.fetchAppList();
-            SteamApp app = appList.getAppById(gameId);
+            SteamNameAndId app = appList.getAppById(gameId);
             return new SteamGameMetadata(gameId, app.name, false);
         }
     }
