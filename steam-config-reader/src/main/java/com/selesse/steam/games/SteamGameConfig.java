@@ -21,16 +21,12 @@ public class SteamGameConfig {
         return new UserFileSystem(registryStore).getWindowsInstallationPath();
     }
 
+    public String getLinuxInstallationPath() {
+        return new UserFileSystem(registryStore).getLinuxInstallationPath();
+    }
+
     public boolean hasUserFileSystem() {
         return registryStore.getObjectValueAsObject("ufs") != null && registryStore.pathExists("ufs/savefiles");
-    }
-
-    private RegistryStore getUserFileSystemRegistry() {
-        return new RegistryStore(registryStore.getObjectValueAsObject("ufs"));
-    }
-
-    public boolean loaded() {
-        return registryStore != null;
     }
 
     public boolean isGame() {

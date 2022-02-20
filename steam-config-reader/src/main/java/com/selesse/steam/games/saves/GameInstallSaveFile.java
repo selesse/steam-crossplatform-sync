@@ -3,6 +3,7 @@ package com.selesse.steam.games.saves;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
+import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
@@ -28,25 +29,34 @@ public class GameInstallSaveFile extends SaveFile {
 
     @Override
     public UserFileSystemPath getMacInfo() {
-        RegistryObject macObject = null;
+        return getUserFileSystemPath(SteamOperatingSystem.MAC);
+    }
+
+    @Override
+    public UserFileSystemPath getLinuxInfo() {
+        return getUserFileSystemPath(SteamOperatingSystem.LINUX);
+    }
+
+    private UserFileSystemPath getUserFileSystemPath(SteamOperatingSystem os) {
+        RegistryObject targetOsObject = null;
         RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
         for (String key : rootOverrides.getKeys()) {
             RegistryObject osObject = rootOverrides.getObjectValueAsObject(key);
-            if (osObject.getObjectValueAsString("os").getValue().equals("macos")) {
-                macObject = osObject;
+            if (osObject.getObjectValueAsString("os").getValue().equals(os.steamValue())) {
+                targetOsObject = osObject;
             }
         }
         String root;
         String path;
         if (isSlayTheSpire()) {
             String macSpecial = ufs.getObjectValueAsString("rootoverrides/0/addpath").getValue();
-            root = computeRoot(OperatingSystems.OperatingSystem.MAC) + "/" + macSpecial;
+            root = computeRoot(os.toOperatingSystem()) + "/" + macSpecial;
         } else {
-            RegistryObject macRegistryObject = Optional.ofNullable(macObject).orElseThrow();
+            RegistryObject macRegistryObject = Optional.ofNullable(targetOsObject).orElseThrow();
             if (macRegistryObject.pathExists("useinstead")) {
                 String useInsteadValue = macRegistryObject.getObjectValueAsString("useinstead").getValue();
                 if (useInsteadValue.equals("gameinstall")) {
-                    root = computeRoot(OperatingSystems.OperatingSystem.MAC);
+                    root = computeRoot(os.toOperatingSystem());
                 } else {
                     root = useInsteadValue;
                 }

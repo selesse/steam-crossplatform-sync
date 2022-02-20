@@ -16,6 +16,8 @@ public class UserFileSystemTest {
                 .isEqualTo("%USERPROFILE%/AppData/LocalLow/Team Cherry/Hollow Knight");
         assertThat(userFileSystem.getMacInstallationPath())
                 .isEqualTo("~/Library/Application Support/unity.Team Cherry.Hollow Knight");
+        assertThat(userFileSystem.getLinuxInstallationPath())
+                .isEqualTo("~/.config/unity3d/Team Cherry/Hollow Knight");
     }
 
     @Test
@@ -35,7 +37,7 @@ public class UserFileSystemTest {
         UserFileSystem userFileSystem = slayTheSpire.getUserFileSystem();
 
         assertThat(userFileSystem.getWindowsInstallationPath())
-                .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamsapps/common/SlayTheSpire/saves");
+                .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves");
         assertThat(userFileSystem.getMacInstallationPath())
                 .isEqualTo("~/Library/Application Support/Steam/steamapps/" +
                         "common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves");
@@ -72,6 +74,9 @@ public class UserFileSystemTest {
                 .isEqualTo("%USERPROFILE%/Documents/my games/runic games/torchlight 2/save");
         assertThat(userFileSystem.getMacInstallationPath())
                 .isEqualTo("~/Library/Application Support/Steam/steamapps/common/" +
+                        "Torchlight II/my games/runic games/torchlight 2/save");
+        assertThat(userFileSystem.getLinuxInstallationPath())
+                .isEqualTo("~/.steam/steamapps/common/" +
                         "Torchlight II/my games/runic games/torchlight 2/save");
     }
 }

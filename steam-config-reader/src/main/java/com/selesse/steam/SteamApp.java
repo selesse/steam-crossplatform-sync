@@ -1,7 +1,13 @@
 package com.selesse.steam;
 
+import com.google.common.base.Splitter;
+import com.selesse.os.OperatingSystems;
+import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SteamApp {
     private final RegistryStore registryStore;
@@ -22,5 +28,14 @@ public class SteamApp {
     public AppType getType() {
         RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/type");
         return AppType.fromString(objectValueAsString);
+    }
+
+    public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {
+        if (!getRegistryStore().pathExists("common/oslist")) {
+            return List.of(OperatingSystems.OperatingSystem.WINDOWS);
+        }
+        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/oslist");
+        List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
+        return oses.stream().map(x -> SteamOperatingSystem.fromString(x).toOperatingSystem()).collect(Collectors.toList());
     }
 }

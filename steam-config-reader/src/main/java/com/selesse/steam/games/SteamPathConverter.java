@@ -11,6 +11,8 @@ class SteamPathConverter {
                 .replace("WinSavedGames", "%USERPROFILE%/Saved Games")
                 .replace("MacHome", "~")
                 .replace("MacAppSupport", "~/Library/Application Support")
-                .replace("MacDocuments", "~/Documents");
+                .replace("MacDocuments", "~/Documents")
+                .replace("LinuxHome", "~")
+                .replace("LinuxXdgDataHome", System.getenv().getOrDefault("XDG_DATA_HOME", "~"));
     }
 }

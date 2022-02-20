@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.google.common.base.Joiner;
 import com.selesse.steam.games.SteamGame;
 
 import java.util.List;
@@ -30,14 +31,22 @@ public class GamesFilePrinter {
     private void printSteamGame(SteamGame steamGame) {
         if (steamGame.isGame()) {
             System.out.println(steamGame.metadata());
+            System.out.println("  Supported OSes: " + Joiner.on(", ").join(steamGame.supportedOperatingSystems()));
             if (steamGame.hasUserCloud()) {
-                if (steamGame.hasComputedInstallationPath()) {
-                    System.out.println("Windows path: " + steamGame.getWindowsInstallationPath());
-                    System.out.println("Mac path: " + steamGame.getMacInstallationPath());
-                } else {
-                    System.out.println("Did not compute installation path for " + steamGame);
+                if (steamGame.hasWindowsPath()) {
+                    System.out.println("  Windows path: " + steamGame.getWindowsInstallationPath());
+                }
+                if (steamGame.hasMacPath()) {
+                    System.out.println("  Mac path: " + steamGame.getMacInstallationPath());
+                }
+                if (steamGame.hasLinuxPath()) {
+                    System.out.println("  Linux path: " + steamGame.getMacInstallationPath());
+                }
+                if (!steamGame.hasComputedInstallationPath()) {
+                    System.out.println("  Did not compute installation path for " + steamGame);
                 }
             }
+            System.out.println("");
         }
     }
 }

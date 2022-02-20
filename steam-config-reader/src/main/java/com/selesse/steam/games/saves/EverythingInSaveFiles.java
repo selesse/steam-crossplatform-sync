@@ -33,6 +33,14 @@ public class EverythingInSaveFiles extends SaveFile {
         return new UserFileSystemPath(root, path);
     }
 
+    @Override
+    public UserFileSystemPath getLinuxInfo() {
+        RegistryObject object = getSaveFile("Linux");
+        String root = object.getObjectValueAsString("root").getValue();
+        String path = object.getObjectValueAsString("path").getValue();
+        return new UserFileSystemPath(root, path);
+    }
+
     private RegistryObject getSaveFile(String platform) {
         RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
         for (String saveFile : saveFiles.getKeys()) {

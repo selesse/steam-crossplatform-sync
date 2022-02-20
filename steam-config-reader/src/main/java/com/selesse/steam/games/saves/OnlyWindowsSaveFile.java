@@ -33,4 +33,11 @@ public class OnlyWindowsSaveFile extends SaveFile {
         String path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
         return new UserFileSystemPath(root, path);
     }
+
+    @Override
+    public UserFileSystemPath getLinuxInfo() {
+        String root = "~";
+        String path = getWindowsInfo().getPath();
+        return new UserFileSystemPath(root, path);
+    }
 }

@@ -1,6 +1,7 @@
 package com.selesse.steam.games.saves;
 
 import com.selesse.steam.games.UserFileSystemPath;
+import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -20,25 +21,29 @@ public class SaveFilesRootOverrides extends SaveFile {
 
     @Override
     public UserFileSystemPath getMacInfo() {
+        return getUserFileSystemPath(SteamOperatingSystem.MAC);
+    }
+
+    private UserFileSystemPath getUserFileSystemPath(SteamOperatingSystem os) {
         RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
-        RegistryObject macConfig = null;
+        RegistryObject targetOsConfig = null;
         for (String objectKeys : rootOverrides.getKeys()) {
             RegistryObject nonWindowsConfig = rootOverrides.getObjectValueAsObject(objectKeys);
-            if (nonWindowsConfig.getObjectValueAsString("os").getValue().equals("MacOS")) {
-                macConfig = nonWindowsConfig;
+            if (nonWindowsConfig.getObjectValueAsString("os").getValue().toLowerCase().equals(os.steamValue())) {
+                targetOsConfig = nonWindowsConfig;
             }
         }
-        if (macConfig == null) {
-            throw new IllegalArgumentException("Could not find Mac config");
+        if (targetOsConfig == null) {
+            throw new IllegalArgumentException("Could not find config for " + os.toOperatingSystem());
         }
-        String root = macConfig.getObjectValueAsString("useinstead").getValue();
+        String root = targetOsConfig.getObjectValueAsString("useinstead").getValue();
         String path = getRawWindowsInfo().getRawPath();
-        RegistryString addpath = macConfig.getObjectValueAsString("addpath");
+        RegistryString addpath = targetOsConfig.getObjectValueAsString("addpath");
         if (addpath != null) {
             String append = addpath.getValue();
             root = root + append;
         }
-        RegistryObject transforms = macConfig.getObjectValueAsObject("pathtransforms/0");
+        RegistryObject transforms = targetOsConfig.getObjectValueAsObject("pathtransforms/0");
         if (transforms != null) {
             String find = transforms.getObjectValueAsString("find").getValue();
             String replace = transforms.getObjectValueAsString("replace").getValue();
@@ -52,6 +57,11 @@ public class SaveFilesRootOverrides extends SaveFile {
     public UserFileSystemPath getWindowsInfo() {
         UserFileSystemPath rawWindowsInfo = getRawWindowsInfo();
         return new UserFileSystemPath(rawWindowsInfo.getRoot(), computePath(rawWindowsInfo.getRawPath()));
+    }
+
+    @Override
+    public UserFileSystemPath getLinuxInfo() {
+        return getUserFileSystemPath(SteamOperatingSystem.LINUX);
     }
 
     private UserFileSystemPath getRawWindowsInfo() {

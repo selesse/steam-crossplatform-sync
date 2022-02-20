@@ -1,8 +1,12 @@
 package com.selesse.steam.games;
 
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.registry.implementation.RegistryStore;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 public class SteamGame {
     private final SteamGameMetadata metadata;
@@ -35,6 +39,10 @@ public class SteamGame {
         return metadata.getGameId();
     }
 
+    public List<OperatingSystems.OperatingSystem> supportedOperatingSystems() {
+        return app.getSupportedOperatingSystems();
+    }
+
     public boolean hasUserCloud() {
         return config.hasUserFileSystem();
     }
@@ -45,6 +53,10 @@ public class SteamGame {
 
     public String getMacInstallationPath() {
         return config.getMacInstallationPath();
+    }
+
+    private String getLinuxInstallationPath() {
+        return config.getLinuxInstallationPath();
     }
 
     public boolean isGame() {
@@ -60,14 +72,31 @@ public class SteamGame {
         return metadata.toString();
     }
 
-    public boolean hasComputedInstallationPath() {
-        boolean windows, mac;
+    public boolean hasMacPath() {
         try {
-            windows = getWindowsInstallationPath() != null;
-            mac = getMacInstallationPath() != null;
+            return getMacInstallationPath() != null;
         } catch (RuntimeException e) {
             return false;
         }
-        return windows && mac;
+    }
+
+    public boolean hasLinuxPath() {
+        try {
+            return getLinuxInstallationPath() != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    public boolean hasWindowsPath() {
+        try {
+            return getWindowsInstallationPath() != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    public boolean hasComputedInstallationPath() {
+        return Stream.of(hasWindowsPath(), hasMacPath(), hasLinuxPath()).anyMatch(x -> x);
     }
 }

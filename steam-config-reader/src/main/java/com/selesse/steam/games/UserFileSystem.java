@@ -22,4 +22,8 @@ public class UserFileSystem {
     private SaveFile getSaveFile() {
         return SaveFilesFactory.determineSaveFile(gameRegistry);
     }
+
+    public String getLinuxInstallationPath() {
+        return getSaveFile().getLinuxInfo().getSymbolPath();
+    }
 }
