@@ -24,7 +24,7 @@ public abstract class SteamRegistry {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam\\appcache\\appinfo.vdf");
             case MAC -> Path.of(System.getProperty("user.home") + "/Library/Application Support/Steam/appcache/appinfo.vdf");
-            case LINUX -> Path.of(System.getProperty("user.home") + "/.config/steam/appcache/appinfo.vdf");
+            case LINUX -> Path.of(System.getProperty("user.home") + "/.steam/appcache/appinfo.vdf");
         };
     }
 }
