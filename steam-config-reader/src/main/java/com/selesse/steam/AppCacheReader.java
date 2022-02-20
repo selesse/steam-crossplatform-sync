@@ -1,7 +1,5 @@
 package com.selesse.steam;
 
-import com.google.common.util.concurrent.SimpleTimeLimiter;
-import com.google.common.util.concurrent.TimeLimiter;
 import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.appcache.AppCacheBufferedReader;
 import com.selesse.steam.registry.RegistryNotFoundException;
@@ -10,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class AppCacheReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheReader.class);
@@ -22,15 +17,17 @@ public class AppCacheReader {
         return load(SteamRegistry.getInstance().getAppCachePath());
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public AppCache load(Path path) {
         AppCacheBufferedReader appCacheBufferedReader = new AppCacheBufferedReader(path);
 
-        TimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
         try {
-            return timeLimiter.callWithTimeout(appCacheBufferedReader, 5, TimeUnit.SECONDS);
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
-            LOGGER.error("Unable to parse app cache", e);
+            AppCache appCache = submit.get(5, TimeUnit.SECONDS);
+            executorService.shutdown();
+            return appCache;
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOGGER.info("Interrupted while trying to read app cache", e);
             throw new RegistryNotFoundException();
         }
     }

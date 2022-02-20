@@ -31,34 +31,35 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
 
     @Override
     public AppCache call() throws Exception {
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()));
-        String firstFourBytes = readFourBytes(bufferedInputStream);
-        assert firstFourBytes.equals("27 44 56 7");
-        String nextByte = readFourBytes(bufferedInputStream);
-        assert nextByte.equals("1 0 0 0");
-        AppCache appCache = new AppCache();
-        while (true) {
-            int appId = parse32Int(bufferedInputStream);
-            if (appId == 0) {
-                break;
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+            String firstFourBytes = readFourBytes(bufferedInputStream);
+            assert firstFourBytes.equals("27 44 56 7");
+            String nextByte = readFourBytes(bufferedInputStream);
+            assert nextByte.equals("1 0 0 0");
+            AppCache appCache = new AppCache();
+            while (true) {
+                int appId = parse32Int(bufferedInputStream);
+                if (appId == 0) {
+                    break;
+                }
+                int size = parse32Int(bufferedInputStream);
+                int infoState = parse32Int(bufferedInputStream);
+                int lastUpdated = parse32Int(bufferedInputStream);
+                int picsToken = parse64Int(bufferedInputStream);
+                byte[] sha1 = getSha1(bufferedInputStream);
+                int changeNumber = parse32Int(bufferedInputStream);
+
+                byte b = parseOneByte(bufferedInputStream);
+                assert b == BEGIN_OBJECT;
+                VdfObject object = parseVdfObject(bufferedInputStream);
+                b = parseOneByte(bufferedInputStream);
+                assert b == END_OBJECT;
+
+                appCache.add(new App(appId, size, infoState, lastUpdated, picsToken, sha1, changeNumber, object));
             }
-            int size = parse32Int(bufferedInputStream);
-            int infoState = parse32Int(bufferedInputStream);
-            int lastUpdated = parse32Int(bufferedInputStream);
-            int picsToken = parse64Int(bufferedInputStream);
-            byte[] sha1 = getSha1(bufferedInputStream);
-            int changeNumber = parse32Int(bufferedInputStream);
 
-            byte b = parseOneByte(bufferedInputStream);
-            assert b == BEGIN_OBJECT;
-            VdfObject object = parseVdfObject(bufferedInputStream);
-            b = parseOneByte(bufferedInputStream);
-            assert b == END_OBJECT;
-
-            appCache.add(new App(appId, size, infoState, lastUpdated, picsToken, sha1, changeNumber, object));
+            return appCache;
         }
-
-        return appCache;
     }
 
     private VdfObject parseVdfObject(BufferedInputStream bufferedInputStream) throws IOException {
