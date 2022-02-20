@@ -58,7 +58,7 @@ public class GoogleDrive {
     }
 
     private static Connection getConnectionToDb(Path dbPath) throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath().toString());
+        return DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath());
     }
 
     private static Path defaultPath() {
