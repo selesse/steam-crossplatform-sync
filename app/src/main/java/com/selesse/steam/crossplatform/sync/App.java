@@ -4,8 +4,6 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.google.common.collect.Lists;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.daemon.Daemon;
 import com.selesse.steam.crossplatform.sync.server.AppInfoServer;
 
@@ -17,30 +15,30 @@ public class App {
     public static void main(String[] args) {
         List<String> arguments = Lists.newArrayList(args);
 
-        SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
+        SteamCrossplatformSyncContext context = new SteamCrossplatformSyncContext();
         if (arguments.contains("--sync")) {
             int index = arguments.indexOf("--sync");
             List<String> argList = Arrays.stream(args).collect(Collectors.toList());
             if (argList.size() == 1) {
-                new SyncGameFilesService(config).runForAllGames();
+                new SyncGameFilesService(context.getConfig()).runForAllGames();
             } else {
                 Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
-                new SyncGameFilesService(config).run(gameIds);
+                new SyncGameFilesService(context.getConfig()).run(gameIds);
             }
         } else if (arguments.contains("--print-games")) {
-            new GamesFilePrinter(config).run();
+            new GamesFilePrinter(context).run();
         } else if (arguments.contains("--print-game")) {
             int index = arguments.indexOf("--print-game");
             List<String> argList = Arrays.stream(args).collect(Collectors.toList());
             Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
-            new GamesFilePrinter(config).run(gameIds);
+            new GamesFilePrinter(context).run(gameIds);
         } else if (arguments.contains("--generate-games")) {
-            new GamesFileGenerator(config).run();
+            new GamesFileGenerator(context).run();
         } else if (arguments.contains("--app-info-server")) {
-            new AppInfoServer(config).run();
+            new AppInfoServer(context.getConfig()).run();
         } else {
             boolean fast = arguments.contains("--fast");
-            new Daemon(config, fast).run();
+            new Daemon(context, fast).run();
         }
     }
 }

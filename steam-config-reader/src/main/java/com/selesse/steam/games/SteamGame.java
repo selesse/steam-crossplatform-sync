@@ -1,12 +1,18 @@
 package com.selesse.steam.games;
 
+import com.selesse.steam.AppType;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.registry.implementation.RegistryStore;
+
 public class SteamGame {
     private final SteamGameMetadata metadata;
     private final SteamGameConfig config;
+    private final SteamApp app;
 
-    public SteamGame(SteamGameMetadata metadata, SteamGameConfig config) {
+    public SteamGame(SteamGameMetadata metadata, RegistryStore config) {
         this.metadata = metadata;
-        this.config = config;
+        this.app = new SteamApp(config);
+        this.config = new SteamGameConfig(config);
     }
 
     public String getName() {
@@ -18,6 +24,10 @@ public class SteamGame {
 
     public boolean isInstalled() {
         return metadata.isInstalled();
+    }
+
+    public AppType getAppType() {
+        return app.getType();
     }
 
     public long getId() {

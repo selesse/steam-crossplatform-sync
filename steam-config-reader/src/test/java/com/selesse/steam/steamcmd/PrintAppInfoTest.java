@@ -18,10 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrintAppInfoTest {
     private static class LocalFileReaderAppInfo extends PrintAppInfoExecutor {
-        public LocalFileReaderAppInfo() {
-            super(null);
-        }
-
         @Override
         public List<String> runPrintAppInfoProcess(Long appId) {
             Path fakeFilePath = Resources.getResource(appId + ".vdf");

@@ -4,9 +4,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.GameRunningDetector;
-import com.selesse.steam.Games;
+import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +17,11 @@ import java.util.Optional;
 public class GameMonitor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameMonitor.class);
 
-    private final SteamCrossplatformSyncConfig config;
+    private final SteamCrossplatformSyncContext context;
     private SteamGame runningGame;
 
-    public GameMonitor(SteamCrossplatformSyncConfig config) {
-        this.config = config;
+    public GameMonitor(SteamCrossplatformSyncContext context) {
+        this.context = context;
     }
 
     @Override
@@ -32,16 +31,11 @@ public class GameMonitor implements Runnable {
                 long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
 
                 if (runningGame == null) {
-                    Optional<SteamGame> steamGameMaybe = loadGame(currentGameId);
-                    steamGameMaybe.ifPresentOrElse(steamGame -> {
-                        runningGame = steamGame;
-                        onGameLaunch(runningGame);
-                    }, () -> LOGGER.info("Game launched with ID {}", currentGameId));
+                    runningGame = context.loadGame(currentGameId);
+                    onGameLaunch(runningGame);
                 } else if (currentGameId != runningGame.getId()) {
-                    Optional<SteamGame> currentSteamGame = loadGame(currentGameId);
-                    SteamGame newGame = currentSteamGame.orElse(null);
-                    String newGameName = currentSteamGame.map(SteamGame::getName).orElse("" + currentGameId);
-                    LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGameName);
+                    SteamGame newGame = context.loadGame(currentGameId);
+                    LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGame.getName());
                     LOGGER.info("Game closed: {}", runningGame.getName());
                     runningGame = newGame;
                     onGameLaunch(newGame);
@@ -49,18 +43,9 @@ public class GameMonitor implements Runnable {
             } else if (runningGame != null) {
                 LOGGER.info("Game closed: {}", runningGame.getName());
                 LOGGER.info("Running sync service for {}", runningGame.getName());
-                new SyncGameFilesService(config).run(runningGame.getId());
+                new SyncGameFilesService(context.getConfig()).run(runningGame.getId());
                 runningGame = null;
             }
-        }
-    }
-
-    private Optional<SteamGame> loadGame(long gameId) {
-        try {
-            return Optional.of(Games.loadGame(config.getCacheDirectory(), config.getRemoteAppInfoUrl(), gameId));
-        } catch (RuntimeException e) {
-            LOGGER.error("Error trying to load gameId {}", gameId, e);
-            return Optional.empty();
         }
     }
 
@@ -69,9 +54,7 @@ public class GameMonitor implements Runnable {
 
         findGameOverlayProcess().ifPresentOrElse(processHandle -> {
             processHandle.onExit().thenRunAsync(this);
-        }, () -> {
-            LOGGER.info("Couldn't find GameOverlay process");
-        });
+        }, () -> LOGGER.info("Couldn't find GameOverlay process"));
     }
 
     private Optional<ProcessHandle> findGameOverlayProcess() {

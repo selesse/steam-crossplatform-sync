@@ -19,7 +19,7 @@ public class AppInfoServer {
         Spark.get("/app-info/:app_id", (request, response) -> {
             String appId = request.params(":app_id");
             LOGGER.info("Received app print request for app ID {}", appId);
-            PrintAppInfo printAppInfo = new PrintAppInfo(config.getCacheDirectory(), config.getRemoteAppInfoUrl());
+            PrintAppInfo printAppInfo = new PrintAppInfo(config.getCacheDirectory());
             return Joiner.on("\n").join(printAppInfo.asVdfString(Long.parseLong(appId)));
         });
     }

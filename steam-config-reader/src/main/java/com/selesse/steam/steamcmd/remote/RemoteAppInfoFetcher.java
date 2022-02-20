@@ -1,4 +1,4 @@
-package com.selesse.steam.steamcmd;
+package com.selesse.steam.steamcmd.remote;
 
 import java.io.IOException;
 import java.net.URI;

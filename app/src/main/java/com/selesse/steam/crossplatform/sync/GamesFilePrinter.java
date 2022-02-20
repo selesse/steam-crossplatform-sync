@@ -1,20 +1,20 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.selesse.steam.Games;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
 
 import java.util.List;
 
-public class GamesFilePrinter {
-    private final SteamCrossplatformSyncConfig config;
+;
 
-    public GamesFilePrinter(SteamCrossplatformSyncConfig config) {
-        this.config = config;
+public class GamesFilePrinter {
+    private final SteamCrossplatformSyncContext context;
+
+    public GamesFilePrinter(SteamCrossplatformSyncContext context) {
+        this.context = context;
     }
 
     public void run() {
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory(), config.getRemoteAppInfoUrl());
+        List<SteamGame> steamGames = context.loadGames();
         for (SteamGame steamGame : steamGames) {
             printSteamGame(steamGame);
         }
@@ -22,7 +22,7 @@ public class GamesFilePrinter {
 
     public void run(Long... gameIds) {
         for (Long gameId : gameIds) {
-            SteamGame steamGame = Games.loadGame(config.getCacheDirectory(), config.getRemoteAppInfoUrl(), gameId);
+            SteamGame steamGame = context.loadGame(gameId);
             printSteamGame(steamGame);
         }
     }

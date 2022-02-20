@@ -1,6 +1,6 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
+import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,11 +8,11 @@ import java.util.concurrent.*;
 
 public class Daemon implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Daemon.class);
-    private final SteamCrossplatformSyncConfig config;
+    private final SteamCrossplatformSyncContext context;
     private final boolean fast;
 
-    public Daemon(SteamCrossplatformSyncConfig config, boolean fast) {
-        this.config = config;
+    public Daemon(SteamCrossplatformSyncContext context, boolean fast) {
+        this.context = context;
         this.fast = fast;
     }
 
@@ -25,7 +25,7 @@ public class Daemon implements Runnable {
             period = 5;
             timeUnitFrequency = TimeUnit.SECONDS;
         }
-        GameMonitor command = new GameMonitor(config);
+        GameMonitor command = new GameMonitor(context);
         ScheduledFuture<?> scheduledFuture =
                 executorService.scheduleAtFixedRate(command, 0, period, timeUnitFrequency);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

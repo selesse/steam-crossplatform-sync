@@ -1,6 +1,7 @@
 package com.selesse.steam;
 
 import com.selesse.steam.appcache.*;
+import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -14,6 +15,9 @@ public class SteamAppLoader {
 
     public static SteamApp load(Long gameId) {
         App rawApp = loadAppCache().getById(gameId);
+        if (rawApp == null) {
+            throw new RegistryNotFoundException();
+        }
 
         RegistryObject rootRegistry = convert(rawApp.getVdfObject());
         RegistryStore registryStore = new RegistryStore(rootRegistry);

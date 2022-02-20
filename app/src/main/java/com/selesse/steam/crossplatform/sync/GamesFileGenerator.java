@@ -3,8 +3,6 @@ package com.selesse.steam.crossplatform.sync;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
-import com.selesse.steam.Games;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.games.SteamGame;
@@ -15,15 +13,15 @@ import java.util.Comparator;
 import java.util.List;
 
 public class GamesFileGenerator {
-    private final SteamCrossplatformSyncConfig config;
+    private final SteamCrossplatformSyncContext context;
 
-    public GamesFileGenerator(SteamCrossplatformSyncConfig config) {
-        this.config = config;
+    public GamesFileGenerator(SteamCrossplatformSyncContext config) {
+        this.context = config;
     }
 
     public void run() {
-        Path gamesConfigPath = config.getGamesFile();
-        List<SteamGame> steamGames = Games.loadInstalledGames(config.getCacheDirectory(), config.getRemoteAppInfoUrl());
+        Path gamesConfigPath = context.getConfig().getGamesFile();
+        List<SteamGame> steamGames = context.loadGames();
 
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 
