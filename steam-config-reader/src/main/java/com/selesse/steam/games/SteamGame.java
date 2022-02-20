@@ -22,6 +22,10 @@ public class SteamGame {
         return metadata.getName();
     }
 
+    public RegistryStore getRegistryStore() {
+        return app.getRegistryStore();
+    }
+
     public boolean isInstalled() {
         return metadata.isInstalled();
     }
