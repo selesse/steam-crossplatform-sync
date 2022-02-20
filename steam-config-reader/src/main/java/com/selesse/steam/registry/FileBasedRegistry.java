@@ -1,5 +1,6 @@
 package com.selesse.steam.registry;
 
+import com.google.common.collect.Lists;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
@@ -38,6 +39,9 @@ public abstract class FileBasedRegistry extends SteamRegistry {
 
     public List<Long> getInstalledAppIds() {
         RegistryObject object = getAppsRegistryObject();
+        if (object == null) {
+            return Lists.newArrayList();
+        }
         return object.getKeys().stream().map(Long::valueOf)
                 .filter(this::isInstalled).sorted().collect(Collectors.toList());
     }
