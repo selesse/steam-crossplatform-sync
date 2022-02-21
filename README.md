@@ -1,52 +1,64 @@
 # steam-crossplatform-sync
 
-This project exists to help synchronize Steam cloud saves across OS X and
-Windows. Some games aren't smart enough to sync the local folders with Steam
-cloud. This program exists to manually sync the files when necessary.
+This project helps synchronize Steam saves across different computers and
+platforms. Think of it as Steam Cloud for games that don't support it. Playing
+on the go on your MacBook but just got home to your desktop? This program will
+automatically use your cloud storage provider (e.g. Google Drive, Dropbox) to
+synchronize the files so you can pick up where you left off.
 
-If you're playing a game on your laptop (in OS X), but want to switch over to
-your desktop (Windows), it's tedious to copy your save files over. It gets
-especially annoying if you're switching repeatedly.
-
-**Note**: this is largely untested and experimental - it may behave poorly
+**Note**: the sync strategy is dumb and experimental - it may behave poorly
 and accidentally delete some files. Use at your own discretion.
+
+## How does it work?
+
+Periodically, steam-crossplatform-sync checks Steam's registry to see if there's
+a game running. When it detects that a game has been closed, it checks a
+configuration file to see where its save files are located and backs them up.
+
+The configuration file, `games.yml`, (described below) can be generated or
+hand-crafted. Unfortunately, determining the save location of a given
+game is non-trivial. [Work is being done][work] to automatically detect as many
+games and formats as possible.
+
+[work]: https://github.com/selesse/steam-crossplatform-sync/blob/master/steam-config-reader/src/test/java/com/selesse/steam/steamcmd/games/UserFileSystemTest.java
 
 ## Setup
 
 By default, the program assumes you're using Google Drive. It will sync to the
 root of your Google Drive folder, into `steam-crossplatform-sync`.
 
-If you're not using Google Drive, you'll need to change the configurations on
-every machine.
+Every machine will need its own copy of the configuration.
 
-## Configuration
+On Windows, the config location is in `%LOCALAPPDATA%/steam-crossplatform-sync/config.yml`. On OS X and Linux, the
+config location is in `${XDG_CONFIG_HOME:-$HOME}/.config/steam-crossplatform-sync/config.yml`.
 
-Create a `config.yml`. On Windows, create it in
-`%LOCALAPPDATA%/steam-crossplatform-sync/config.yml`. On OS X, create it in
-`$HOME/.config/steam-crossplatform-sync/config.yml`.
-
-The three following options are configurable:
+The following options are configurable:
 
 ```yml
-pathToCloudStorage: '~/Dropbox' # e.g. if you're not using Google Drive
+ # e.g. if you're not using Google Drive
+pathToCloudStorage: '~/Dropbox' # default: reads Google Drive's config to find your Drive location
 
 # relative path to sync within cloud storage - in this case, games will be synced into ~/Dropbox/steam-sync
-cloudStorageRelativeWritePath: 'steam-sync'
+cloudStorageRelativeWritePath: 'steam-sync' # default: 'steam-crossplatform-sync'
 
-# Hand-crafted, hand-maintained database of save game locations in all OSes
-gamesFileLocation: '~/Dropbox/steam-sync/games.yml'
+# Configuration of save game locations for all OSes
+gamesFileLocation: '~/Dropbox/steam-sync/games.yml' # default: cloudRelativeWritePath/games.yml
 ```
 
-The games.yml format is pretty basic:
+The games.yml format is pretty basic. It's optional to provide a path for
+an operating system - it can be handy to only have Windows saves synced if
+you switch between Windows devices.
 
 ```yml
 games:
   - name: Pillars of Eternity
     mac: '~/Library/Application Support/Pillars of Eternity/Saved Games'
     windows: '%USERPROFILE%\Saved Games\Pillars of Eternity'
+    gameId: 291650
   - name: Oxygen Not Included
     mac: '~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files'
     windows: '%USERPROFILE%\Documents\Klei\OxygenNotIncluded\save_files'
+    gameId: 457140
 ```
 
 ## Sync strategy
