@@ -23,12 +23,12 @@ public class AppCacheReader {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
         try {
-            AppCache appCache = submit.get(5, TimeUnit.SECONDS);
-            executorService.shutdown();
-            return appCache;
+            return submit.get(15, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             LOGGER.info("Interrupted while trying to read app cache", e);
             throw new RegistryNotFoundException();
+        } finally {
+            executorService.shutdown();
         }
     }
 }
