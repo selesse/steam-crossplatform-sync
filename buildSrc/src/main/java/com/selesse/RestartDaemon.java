@@ -1,3 +1,5 @@
+package com.selesse;
+
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.DefaultOperatingSystem;
 

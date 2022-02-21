@@ -1,3 +1,4 @@
+import com.selesse.RestartDaemon
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 

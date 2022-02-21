@@ -1,3 +1,5 @@
+package com.selesse;
+
 import java.io.IOException;
 
 class RestartMacDaemon {
