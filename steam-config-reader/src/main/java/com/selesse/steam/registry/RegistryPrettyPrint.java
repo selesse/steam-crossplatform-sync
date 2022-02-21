@@ -85,7 +85,7 @@ public class RegistryPrettyPrint {
     }
 
     private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryObject value) {
-        return MapCollectors.toLinkedMap(Function.identity(), value::getObjectValue);
+        return MapCollectors.toLinkedMap(Function.identity(), value::get);
     }
 
     private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryStore value) {

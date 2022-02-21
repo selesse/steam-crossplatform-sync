@@ -22,6 +22,7 @@ public enum TestGames {
     UNRAILED(1016920),
     ORI_AND_THE_WILL_OF_THE_WISPS(1057090),
     WILDERMYTH(763890),
+    PATH_OF_EXILE(238960),
     ;
 
     private final int gameId;
@@ -44,12 +45,16 @@ public enum TestGames {
 
     public List<String> registryFileContents() {
         if (Resources.exists(getGameId() + ".vdf")) {
-            Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
-            return RuntimeExceptionFiles.readAllLines(fakeFilePath);
+            return registryFileContentsFromFile();
         } else {
             SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
             RegistryStore registryStore = SteamAppLoader.load(getGameId()).getRegistryStore();
             return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryStore));
         }
+    }
+
+    public List<String> registryFileContentsFromFile() {
+        Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
+        return RuntimeExceptionFiles.readAllLines(fakeFilePath);
     }
 }

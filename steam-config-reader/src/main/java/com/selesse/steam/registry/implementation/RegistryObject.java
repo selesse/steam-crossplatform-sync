@@ -39,6 +39,9 @@ public class RegistryObject extends RegistryValue {
     }
 
     public RegistryValue getObjectValue(String path) {
+        if (values.containsKey(path)) {
+            return values.get(path);
+        }
         List<String> parts = Splitter.on("/").splitToList(path);
 
         RegistryObject currentObject = this;

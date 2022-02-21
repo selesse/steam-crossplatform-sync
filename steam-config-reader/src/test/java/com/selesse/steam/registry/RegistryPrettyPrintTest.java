@@ -44,4 +44,15 @@ public class RegistryPrettyPrintTest {
 
         assertThat(prettyPrint).isEqualTo(prettyPrint2);
     }
+
+    @Test
+    public void prettyPrinting_pathOfExile_handlesKeysWithSlashesInThem() {
+        SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+        RegistryStore registryStore = SteamAppLoader.load(TestGames.PATH_OF_EXILE.getGameId()).getRegistryStore();
+        String prettyPrintFromAppInfo = RegistryPrettyPrint.prettyPrint(registryStore);
+
+        String expected = String.join("\n", TestGames.PATH_OF_EXILE.registryFileContentsFromFile()) + "\n";
+
+        assertThat(prettyPrintFromAppInfo).isEqualTo(expected);
+    }
 }
