@@ -17,12 +17,20 @@ public class RegistryPrettyPrint {
             List.of("common", "extended", "config", "depots", "ufs");
 
     public static String prettyPrint(RegistryStore registryStore) {
-        int indentLevel = 0;
-
-        StringBuilder stringBuilder = new StringBuilder();
         Map<String, RegistryValue> keyValuePairs =
                 registryStore.getKeys().stream().collect(keyAndValueCollector(registryStore));
+        return prettyPrintKeyValuePairs(keyValuePairs);
+    }
 
+    public static String prettyPrint(RegistryObject registryObject) {
+        Map<String, RegistryValue> keyValuePairs =
+                registryObject.getKeys().stream().collect(keyAndValueCollector(registryObject));
+        return prettyPrintKeyValuePairs(keyValuePairs);
+    }
+
+    private static String prettyPrintKeyValuePairs(Map<String, RegistryValue> keyValuePairs) {
+        int indentLevel = 0;
+        StringBuilder stringBuilder = new StringBuilder();
         boolean hasAppId = keyValuePairs.containsKey("appid");
 
         if (hasAppId) {
