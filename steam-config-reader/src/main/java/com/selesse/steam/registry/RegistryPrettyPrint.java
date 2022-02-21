@@ -13,19 +13,15 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class RegistryPrettyPrint {
-    private final RegistryStore gameRegistryStore;
-    private final List<String> STEAM_MAIN_SECTION_ORDERING = List.of("common", "extended", "config", "depots", "ufs");
+    private static final List<String> STEAM_MAIN_SECTION_ORDERING =
+            List.of("common", "extended", "config", "depots", "ufs");
 
-    public RegistryPrettyPrint(RegistryStore gameRegistryStore) {
-        this.gameRegistryStore = gameRegistryStore;
-    }
-
-    public String prettyPrint() {
+    public static String prettyPrint(RegistryStore registryStore) {
         int indentLevel = 0;
 
         StringBuilder stringBuilder = new StringBuilder();
         Map<String, RegistryValue> keyValuePairs =
-                gameRegistryStore.getKeys().stream().collect(keyAndValueCollector(gameRegistryStore));
+                registryStore.getKeys().stream().collect(keyAndValueCollector(registryStore));
 
         boolean hasAppId = keyValuePairs.containsKey("appid");
 
@@ -50,7 +46,7 @@ public class RegistryPrettyPrint {
         return stringBuilder.toString();
     }
 
-    private String prettyPrint(int indentLevel, RegistryValue value) {
+    private static String prettyPrint(int indentLevel, RegistryValue value) {
         StringBuilder stringBuilder = new StringBuilder();
         String indent = Strings.repeat("\t", indentLevel);
         if (value instanceof RegistryObject) {
@@ -73,23 +69,23 @@ public class RegistryPrettyPrint {
         return stringBuilder.toString();
     }
 
-    private String printRegistry(RegistryString registryString) {
+    private static String printRegistry(RegistryString registryString) {
         return "%s%s%s\n".formatted(quote(registryString.getName()), Strings.repeat("\t", 2), quote(registryString.getValue()));
     }
 
-    private String quote(String value) {
+    private static String quote(String value) {
         return "\"" + value + "\"";
     }
 
-    private Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryObject value) {
+    private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryObject value) {
         return Collectors.toMap(Function.identity(), value::getObjectValue);
     }
 
-    private Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryStore value) {
+    private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryStore value) {
         return Collectors.toMap(Function.identity(), value::getObjectValue);
     }
 
-    private List<Map.Entry<String, RegistryValue>> orderEntriesBasedOnSteam(Map<String, RegistryValue> keyValuePairs) {
+    private static List<Map.Entry<String, RegistryValue>> orderEntriesBasedOnSteam(Map<String, RegistryValue> keyValuePairs) {
         return keyValuePairs.entrySet().stream().sorted((o1, o2) -> {
             String key1 = o1.getKey();
             String key2 = o2.getKey();
@@ -100,7 +96,7 @@ public class RegistryPrettyPrint {
         }).collect(Collectors.toList());
     }
 
-    public List<String> steamOrdering() {
+    public static List<String> steamOrdering() {
         return STEAM_MAIN_SECTION_ORDERING;
     }
 }

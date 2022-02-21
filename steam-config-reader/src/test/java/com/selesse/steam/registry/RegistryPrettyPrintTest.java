@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegistryPrettyPrintTest {
     @Test
     public void canPrettyPrintInscryption() {
-        String prettyPrint = new RegistryPrettyPrint(TestGames.INSCRYPTION.getGameRegistryStore()).prettyPrint();
+        String prettyPrint = RegistryPrettyPrint.prettyPrint(TestGames.INSCRYPTION.getGameRegistryStore());
 
         assertThat(prettyPrint).isEqualTo(String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n");
     }
@@ -27,18 +27,18 @@ public class RegistryPrettyPrintTest {
     public void canPrettyPrintInscryptionBasedOnAppCache() throws IOException {
         SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
         RegistryStore registryStore = SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
-        String prettyPrint = new RegistryPrettyPrint(registryStore).prettyPrint();
+        String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);
 
         assertThat(prettyPrint).isEqualTo(String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n");
     }
 
     @Test
     public void prettyPrintingPrettyPrintResultsInTheSame() {
-        String prettyPrint = new RegistryPrettyPrint(TestGames.HOLLOW_KNIGHT.getGameRegistryStore()).prettyPrint();
+        String prettyPrint = RegistryPrettyPrint.prettyPrint(TestGames.HOLLOW_KNIGHT.getGameRegistryStore());
 
         List<String> prettyPrintedLines = Stream.of(prettyPrint.split("\n")).collect(Collectors.toList());
         RegistryStore registryStore = RegistryParser.parseWithoutRegistryCollapse(prettyPrintedLines);
-        String prettyPrint2 = new RegistryPrettyPrint(registryStore).prettyPrint();
+        String prettyPrint2 = RegistryPrettyPrint.prettyPrint(registryStore);
 
         assertThat(prettyPrint).isEqualTo(prettyPrint2);
     }

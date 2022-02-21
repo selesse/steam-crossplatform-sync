@@ -22,7 +22,7 @@ public class AppInfoServer {
             LOGGER.info("Received app print request for app ID {}", appId);
             SteamGame steamGame = new GameLoadingService(config).loadGame(Long.parseLong(appId));
             LOGGER.info("Printing registry file for {}", steamGame.metadata());
-            return new RegistryPrettyPrint(steamGame.getRegistryStore()).prettyPrint();
+            return RegistryPrettyPrint.prettyPrint(steamGame.getRegistryStore());
         });
     }
 }

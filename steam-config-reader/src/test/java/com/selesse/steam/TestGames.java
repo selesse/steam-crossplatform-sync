@@ -52,9 +52,8 @@ public enum TestGames {
             }
         } else {
             SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
-            RegistryPrettyPrint registryPrettyPrint =
-                    new RegistryPrettyPrint(SteamAppLoader.load(getGameId()).getRegistryStore());
-            return Splitter.on("\n").splitToList(registryPrettyPrint.prettyPrint());
+            RegistryStore registryStore = SteamAppLoader.load(getGameId()).getRegistryStore();
+            return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryStore));
         }
     }
 }

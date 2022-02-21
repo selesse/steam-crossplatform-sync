@@ -54,7 +54,7 @@ public class GameLoadingService {
         if (registryStore == null) {
             registryStore = gameRegistries.load(gameId);
             try {
-                Files.writeString(cachedRegistryStore, new RegistryPrettyPrint(registryStore).prettyPrint());
+                Files.writeString(cachedRegistryStore, RegistryPrettyPrint.prettyPrint(registryStore));
             } catch (IOException e) {
                 LOGGER.error("Error writing cache", e);
             }
