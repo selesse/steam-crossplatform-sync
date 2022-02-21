@@ -29,7 +29,9 @@ public class RegistryPrettyPrintTest {
         RegistryStore registryStore = SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);
 
-        assertThat(prettyPrint).isEqualTo(String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n");
+        String expected = String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n";
+
+        assertThat(prettyPrint).isEqualTo(expected);
     }
 
     @Test

@@ -2,8 +2,8 @@ package com.selesse.steam.registry.implementation;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +11,7 @@ public class RegistryObject extends RegistryValue {
     private final Map<String, RegistryValue> values;
 
     public RegistryObject() {
-        this.values = Maps.newHashMap();
+        this.values = new LinkedHashMap<>();
     }
 
     public RegistryValue get(String part) {

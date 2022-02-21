@@ -28,6 +28,6 @@ public class RegistryStore {
     }
 
     public Set<String> getKeys() {
-        return Sets.newHashSet(rootObject.getKeys());
+        return Sets.newLinkedHashSet(rootObject.getKeys());
     }
 }

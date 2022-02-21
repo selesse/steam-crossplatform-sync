@@ -1,21 +1,20 @@
 package com.selesse.steam.registry;
 
 import com.google.common.base.Strings;
+import com.selesse.collections.MapCollectors;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.registry.implementation.RegistryValue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
+/**
+ * Pretty prints a {@link RegistryStore}, using the same format as steamcmd.
+ */
 public class RegistryPrettyPrint {
-    private static final List<String> STEAM_MAIN_SECTION_ORDERING =
-            List.of("common", "extended", "config", "depots", "ufs");
-
     public static String prettyPrint(RegistryStore registryStore) {
         Map<String, RegistryValue> keyValuePairs =
                 registryStore.getKeys().stream().collect(keyAndValueCollector(registryStore));
@@ -42,7 +41,7 @@ public class RegistryPrettyPrint {
             indentLevel = 1;
         }
         String indent = Strings.repeat("\t", indentLevel);
-        for (Map.Entry<String, RegistryValue> x : orderEntriesBasedOnSteam(keyValuePairs)) {
+        for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
             stringBuilder.append(indent).append("\"").append(x.getKey()).append("\"").append("\n");
             stringBuilder.append(indent).append("{\n");
             stringBuilder.append(prettyPrint(indentLevel + 1, x.getValue()));
@@ -60,7 +59,7 @@ public class RegistryPrettyPrint {
         if (value instanceof RegistryObject) {
             Map<String, RegistryValue> keyValuePairs =
                     ((RegistryObject) value).getKeys().stream().collect(keyAndValueCollector((RegistryObject) value));
-            for (Map.Entry<String, RegistryValue> x : orderEntriesBasedOnSteam(keyValuePairs)) {
+            for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
                 if (x.getValue() instanceof RegistryString) {
                     stringBuilder.append(indent).append(printRegistry((RegistryString) x.getValue()));
                 } else {
@@ -86,25 +85,10 @@ public class RegistryPrettyPrint {
     }
 
     private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryObject value) {
-        return Collectors.toMap(Function.identity(), value::getObjectValue);
+        return MapCollectors.toLinkedMap(Function.identity(), value::getObjectValue);
     }
 
     private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryStore value) {
-        return Collectors.toMap(Function.identity(), value::getObjectValue);
-    }
-
-    private static List<Map.Entry<String, RegistryValue>> orderEntriesBasedOnSteam(Map<String, RegistryValue> keyValuePairs) {
-        return keyValuePairs.entrySet().stream().sorted((o1, o2) -> {
-            String key1 = o1.getKey();
-            String key2 = o2.getKey();
-            if (steamOrdering().contains(key1) && steamOrdering().contains(key2)) {
-                return steamOrdering().indexOf(key1) - steamOrdering().indexOf(key2);
-            }
-            return key1.compareTo(key2);
-        }).collect(Collectors.toList());
-    }
-
-    public static List<String> steamOrdering() {
-        return STEAM_MAIN_SECTION_ORDERING;
+        return MapCollectors.toLinkedMap(Function.identity(), value::getObjectValue);
     }
 }
