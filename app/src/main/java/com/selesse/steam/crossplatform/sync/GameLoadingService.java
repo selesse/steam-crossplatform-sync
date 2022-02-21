@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.GameRegistries;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
@@ -11,8 +12,6 @@ import com.selesse.steam.registry.implementation.RegistryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -42,22 +41,14 @@ public class GameLoadingService {
 
         Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
         if (accurateEnoughCache(cachedRegistryStore)) {
-            try {
-                List<String> lines = Files.readAllLines(cachedRegistryStore);
-                if (lines.size() > 3) {
-                    registryStore = RegistryParser.parse(lines);
-                }
-            } catch (IOException e) {
-                LOGGER.error("Had trouble reading cached file for game {}", gameId, e);
+            List<String> lines = RuntimeExceptionFiles.readAllLines(cachedRegistryStore);
+            if (lines.size() > 3) {
+                registryStore = RegistryParser.parse(lines);
             }
         }
         if (registryStore == null) {
             registryStore = gameRegistries.load(gameId);
-            try {
-                Files.writeString(cachedRegistryStore, RegistryPrettyPrint.prettyPrint(registryStore));
-            } catch (IOException e) {
-                LOGGER.error("Error writing cache", e);
-            }
+            RuntimeExceptionFiles.writeString(cachedRegistryStore, RegistryPrettyPrint.prettyPrint(registryStore));
         }
         SteamGameMetadata gameMetadata = steamRegistry.getGameMetadata(gameId);
         return new SteamGame(gameMetadata, registryStore);

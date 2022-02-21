@@ -1,14 +1,13 @@
 package com.selesse.steam;
 
 import com.google.common.base.Splitter;
+import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.Resources;
 import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -46,11 +45,7 @@ public enum TestGames {
     public List<String> registryFileContents() {
         if (Resources.exists(getGameId() + ".vdf")) {
             Path fakeFilePath = Resources.getResource(getGameId() + ".vdf");
-            try {
-                return Files.readAllLines(fakeFilePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return RuntimeExceptionFiles.readAllLines(fakeFilePath);
         } else {
             SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
             RegistryStore registryStore = SteamAppLoader.load(getGameId()).getRegistryStore();

@@ -1,13 +1,12 @@
 package com.selesse.steam.registry;
 
 import com.google.common.collect.Lists;
+import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,12 +17,8 @@ public abstract class FileBasedRegistry extends SteamRegistry {
     abstract Path registryPath();
 
     public FileBasedRegistry() {
-        try {
-            ensureRegistryPathExists();
-            this.registryStore = RegistryParser.parse(Files.readAllLines(registryPath()));
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
+        ensureRegistryPathExists();
+        this.registryStore = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(registryPath()));
     }
 
     private void ensureRegistryPathExists() {
