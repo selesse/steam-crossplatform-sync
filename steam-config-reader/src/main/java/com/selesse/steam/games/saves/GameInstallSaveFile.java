@@ -7,8 +7,6 @@ import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 
-import java.util.Optional;
-
 public class GameInstallSaveFile extends SaveFile {
     public GameInstallSaveFile(SteamApp steamApp) {
         super(steamApp);
@@ -42,7 +40,7 @@ public class GameInstallSaveFile extends SaveFile {
         RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
         for (String key : rootOverrides.getKeys()) {
             RegistryObject osObject = rootOverrides.getObjectValueAsObject(key);
-            if (osObject.getObjectValueAsString("os").getValue().equals(os.steamValue())) {
+            if (osObject.getObjectValueAsString("os").getValue().equalsIgnoreCase(os.steamValue())) {
                 targetOsObject = osObject;
             }
         }
@@ -52,16 +50,20 @@ public class GameInstallSaveFile extends SaveFile {
             String macSpecial = ufs.getObjectValueAsString("rootoverrides/0/addpath").getValue();
             root = computeRoot(os.toOperatingSystem()) + "/" + macSpecial;
         } else {
-            RegistryObject macRegistryObject = Optional.ofNullable(targetOsObject).orElseThrow();
-            if (macRegistryObject.pathExists("useinstead")) {
-                String useInsteadValue = macRegistryObject.getObjectValueAsString("useinstead").getValue();
+            if (targetOsObject != null && targetOsObject.pathExists("useinstead")) {
+                String useInsteadValue = targetOsObject.getObjectValueAsString("useinstead").getValue();
                 if (useInsteadValue.equals("gameinstall")) {
                     root = computeRoot(os.toOperatingSystem());
                 } else {
                     root = useInsteadValue;
                 }
+            } else if (targetOsObject != null) {
+                root = targetOsObject.getObjectValueAsString("root").getValue();
             } else {
-                root = macRegistryObject.getObjectValueAsString("root").getValue();
+                root = computeRoot(os.toOperatingSystem());
+            }
+            if (targetOsObject != null && targetOsObject.pathExists("addpath")) {
+                root += "/" + targetOsObject.getObjectValueAsString("addpath").getValue();
             }
         }
         path = getWindowsInfo().getPath();

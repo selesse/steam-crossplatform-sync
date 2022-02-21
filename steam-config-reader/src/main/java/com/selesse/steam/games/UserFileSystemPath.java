@@ -2,6 +2,8 @@ package com.selesse.steam.games;
 
 import com.selesse.os.FilePathSanitizer;
 
+import java.util.regex.Pattern;
+
 public class UserFileSystemPath {
     private final String root;
     private final String path;
@@ -27,6 +29,7 @@ public class UserFileSystemPath {
 
     public String getSymbolPath() {
         String convertedRoot = SteamPathConverter.convert(root);
+        convertedRoot = convertedRoot.replaceAll(Pattern.quote("\\"), "/");
         if (path.startsWith("/") || convertedRoot.endsWith("/")) {
             return convertedRoot + getPath();
         }

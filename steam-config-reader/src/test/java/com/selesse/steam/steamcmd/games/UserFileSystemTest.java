@@ -108,4 +108,18 @@ public class UserFileSystemTest {
         assertThat(userFileSystem.getWindowsInstallationPath())
                 .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/Inscryption/");
     }
+
+    @Test
+    public void canPrintWildermyth() {
+        TestGames wildermyth = TestGames.WILDERMYTH;
+        UserFileSystem userFileSystem = wildermyth.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/Wildermyth/players");
+        assertThat(userFileSystem.getMacInstallationPath())
+                .isEqualTo("~/Library/Application Support/Steam/steamapps/common/" +
+                        "Wildermyth/wildermyth.app/Contents/Resources/players");
+        assertThat(userFileSystem.getLinuxInstallationPath())
+                .isEqualTo("~/.steam/steamapps/common/Wildermyth/players");
+    }
 }
