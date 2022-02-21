@@ -1,14 +1,14 @@
 package com.selesse.steam.games.saves;
 
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 
 public class SaveFilesRootOverrides extends SaveFile {
-    public SaveFilesRootOverrides(RegistryStore gameRegistry) {
-        super(gameRegistry);
+    public SaveFilesRootOverrides(SteamApp steamApp) {
+        super(steamApp);
     }
 
     @Override

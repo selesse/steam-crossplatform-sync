@@ -1,12 +1,15 @@
 package com.selesse.steam.games;
 
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
 public class SteamGameConfig {
     private final RegistryStore registryStore;
+    private final SteamApp steamApp;
 
-    public SteamGameConfig(RegistryStore registryStore) {
-        this.registryStore = registryStore;
+    public SteamGameConfig(SteamApp steamApp) {
+        this.steamApp = steamApp;
+        this.registryStore = steamApp.getRegistryStore();
     }
 
     public String getGameName() {
@@ -14,15 +17,15 @@ public class SteamGameConfig {
     }
 
     public String getMacInstallationPath() {
-        return new UserFileSystem(registryStore).getMacInstallationPath();
+        return new UserFileSystem(steamApp).getMacInstallationPath();
     }
 
     public String getWindowsInstallationPath() {
-        return new UserFileSystem(registryStore).getWindowsInstallationPath();
+        return new UserFileSystem(steamApp).getWindowsInstallationPath();
     }
 
     public String getLinuxInstallationPath() {
-        return new UserFileSystem(registryStore).getLinuxInstallationPath();
+        return new UserFileSystem(steamApp).getLinuxInstallationPath();
     }
 
     public boolean hasUserFileSystem() {

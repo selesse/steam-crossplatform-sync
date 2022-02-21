@@ -16,7 +16,7 @@ public class SteamGame {
     public SteamGame(SteamGameMetadata metadata, RegistryStore config) {
         this.metadata = metadata;
         this.app = new SteamApp(config);
-        this.config = new SteamGameConfig(config);
+        this.config = new SteamGameConfig(app);
     }
 
     public String getName() {

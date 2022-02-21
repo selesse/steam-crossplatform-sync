@@ -35,7 +35,7 @@ public enum TestGames {
     }
 
     public UserFileSystem getUserFileSystem() {
-        return new UserFileSystem(RegistryParser.parse(registryFileContents()));
+        return new UserFileSystem(new SteamApp(RegistryParser.parse(registryFileContents())));
     }
 
     public RegistryStore getGameRegistryStore() {

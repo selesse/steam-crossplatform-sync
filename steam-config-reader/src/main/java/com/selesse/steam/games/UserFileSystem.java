@@ -1,14 +1,14 @@
 package com.selesse.steam.games;
 
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.games.saves.SaveFilesFactory;
-import com.selesse.steam.registry.implementation.RegistryStore;
 
 public class UserFileSystem {
-    private final RegistryStore gameRegistry;
+    private final SteamApp steamApp;
 
-    public UserFileSystem(RegistryStore gameRegistry) {
-        this.gameRegistry = gameRegistry;
+    public UserFileSystem(SteamApp steamApp) {
+        this.steamApp = steamApp;
     }
 
     public String getMacInstallationPath() {
@@ -20,7 +20,7 @@ public class UserFileSystem {
     }
 
     private SaveFile getSaveFile() {
-        return SaveFilesFactory.determineSaveFile(gameRegistry);
+        return SaveFilesFactory.determineSaveFile(steamApp);
     }
 
     public String getLinuxInstallationPath() {

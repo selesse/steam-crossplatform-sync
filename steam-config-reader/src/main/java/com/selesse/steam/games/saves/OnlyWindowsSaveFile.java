@@ -1,12 +1,12 @@
 package com.selesse.steam.games.saves;
 
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryStore;
 
 public class OnlyWindowsSaveFile extends SaveFile {
-    public OnlyWindowsSaveFile(RegistryStore gameRegistry) {
-        super(gameRegistry);
+    public OnlyWindowsSaveFile(SteamApp steamApp) {
+        super(steamApp);
     }
 
     @Override

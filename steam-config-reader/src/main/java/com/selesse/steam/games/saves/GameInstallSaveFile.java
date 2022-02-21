@@ -1,17 +1,17 @@
 package com.selesse.steam.games.saves;
 
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryStore;
 
 import java.util.Optional;
 
 public class GameInstallSaveFile extends SaveFile {
-    public GameInstallSaveFile(RegistryStore gameRegistry) {
-        super(gameRegistry);
+    public GameInstallSaveFile(SteamApp steamApp) {
+        super(steamApp);
     }
 
     @Override

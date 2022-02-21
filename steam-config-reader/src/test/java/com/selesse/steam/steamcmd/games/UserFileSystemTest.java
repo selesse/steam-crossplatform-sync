@@ -27,8 +27,6 @@ public class UserFileSystemTest {
 
         assertThat(userFileSystem.getWindowsInstallationPath())
                 .isEqualTo("%USERPROFILE%/AppData/Roaming/Chucklefish/Wargroove/save");
-        assertThat(userFileSystem.getMacInstallationPath())
-                .isEqualTo("~/Library/Chucklefish/Wargroove/save");
     }
 
     @Test
