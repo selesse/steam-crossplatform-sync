@@ -3,8 +3,8 @@ package com.selesse.steam.registry;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.AppType;
+import com.selesse.steam.GameRegistries;
 import com.selesse.steam.SteamApp;
-import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.games.SteamGameMetadata;
 
 import java.nio.file.Path;
@@ -26,12 +26,12 @@ public abstract class SteamRegistry {
     public List<SteamGameMetadata> getGamesMetadata() {
         return getInstalledAppIds().stream()
                 .map(this::getGameMetadata)
-                .filter(gameMetadata -> SteamAppLoader.load(gameMetadata.getGameId()).getType() == AppType.GAME)
+                .filter(gameMetadata -> getSteamApp(gameMetadata.getGameId()).getType() == AppType.GAME)
                 .collect(Collectors.toList());
     }
 
     public SteamGameMetadata getGameMetadata(Long gameId) {
-        SteamApp steamApp = SteamAppLoader.load(gameId);
+        SteamApp steamApp = getSteamApp(gameId);
         return new SteamGameMetadata(gameId, steamApp.getName(), getInstalledAppIds().contains(gameId));
     }
 
@@ -41,5 +41,9 @@ public abstract class SteamRegistry {
             case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam/appcache/appinfo.vdf"));
             case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam/appcache/appinfo.vdf"));
         };
+    }
+
+    private SteamApp getSteamApp(long gameId) {
+        return new SteamApp(GameRegistries.build().load(gameId));
     }
 }
