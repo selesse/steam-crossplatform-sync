@@ -2,6 +2,7 @@ package com.selesse.steam;
 
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -37,5 +38,21 @@ public class SteamApp {
         RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/oslist");
         List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
         return oses.stream().map(x -> SteamOperatingSystem.fromString(x).toOperatingSystem()).collect(Collectors.toList());
+    }
+
+    public String getMacInstallationPath() {
+        return new UserFileSystem(this).getMacInstallationPath();
+    }
+
+    public String getWindowsInstallationPath() {
+        return new UserFileSystem(this).getWindowsInstallationPath();
+    }
+
+    public String getLinuxInstallationPath() {
+        return new UserFileSystem(this).getLinuxInstallationPath();
+    }
+
+    public boolean hasUserFileSystem() {
+        return registryStore.getObjectValueAsObject("ufs") != null && registryStore.pathExists("ufs/savefiles");
     }
 }

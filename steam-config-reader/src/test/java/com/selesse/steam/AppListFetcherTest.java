@@ -12,7 +12,7 @@ public class AppListFetcherTest {
     @Test
     public void testCanFetchAppList() {
         SteamAppList steamAppList = AppListFetcher.fetchAppList();
-        SteamNameAndId hollowKnight = steamAppList.getAppById((long) TestGames.HOLLOW_KNIGHT.getGameId());
+        SteamNameAndId hollowKnight = steamAppList.getAppById(TestGames.HOLLOW_KNIGHT.getGameId());
         assertThat(hollowKnight.name).isEqualTo("Hollow Knight");
     }
 }

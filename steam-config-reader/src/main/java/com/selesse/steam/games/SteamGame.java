@@ -10,13 +10,11 @@ import java.util.stream.Stream;
 
 public class SteamGame {
     private final SteamGameMetadata metadata;
-    private final SteamGameConfig config;
     private final SteamApp app;
 
     public SteamGame(SteamGameMetadata metadata, RegistryStore config) {
         this.metadata = metadata;
         this.app = new SteamApp(config);
-        this.config = new SteamGameConfig(app);
     }
 
     public String getName() {
@@ -44,7 +42,7 @@ public class SteamGame {
     }
 
     public boolean hasUserCloud() {
-        return config.hasUserFileSystem();
+        return app.hasUserFileSystem();
     }
 
     public String getInstallationPath(OperatingSystems.OperatingSystem operatingSystem) {
@@ -56,15 +54,15 @@ public class SteamGame {
     }
 
     public String getWindowsInstallationPath() {
-        return config.getWindowsInstallationPath();
+        return app.getWindowsInstallationPath();
     }
 
     public String getMacInstallationPath() {
-        return config.getMacInstallationPath();
+        return app.getMacInstallationPath();
     }
 
     public String getLinuxInstallationPath() {
-        return config.getLinuxInstallationPath();
+        return app.getLinuxInstallationPath();
     }
 
     public boolean isGame() {
