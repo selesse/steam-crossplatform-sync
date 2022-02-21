@@ -40,7 +40,7 @@ public class GamesFilePrinter {
                     System.out.println("  Mac path: " + steamGame.getMacInstallationPath());
                 }
                 if (steamGame.hasLinuxPath()) {
-                    System.out.println("  Linux path: " + steamGame.getMacInstallationPath());
+                    System.out.println("  Linux path: " + steamGame.getLinuxInstallationPath());
                 }
                 if (!steamGame.hasComputedInstallationPath()) {
                     System.out.println("  Did not compute installation path for " + steamGame);

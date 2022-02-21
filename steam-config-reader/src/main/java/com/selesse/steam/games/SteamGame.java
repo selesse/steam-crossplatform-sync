@@ -55,7 +55,7 @@ public class SteamGame {
         return config.getMacInstallationPath();
     }
 
-    private String getLinuxInstallationPath() {
+    public String getLinuxInstallationPath() {
         return config.getLinuxInstallationPath();
     }
 

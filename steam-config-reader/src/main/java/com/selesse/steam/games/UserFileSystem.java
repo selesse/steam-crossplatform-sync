@@ -1,5 +1,6 @@
 package com.selesse.steam.games;
 
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.games.saves.SaveFilesFactory;
@@ -12,18 +13,24 @@ public class UserFileSystem {
     }
 
     public String getMacInstallationPath() {
-        return getSaveFile().getMacInfo().getSymbolPath();
+        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
+            return getSaveFile().getMacInfo().getSymbolPath();
+        }
+        return null;
     }
 
     public String getWindowsInstallationPath() {
         return getSaveFile().getWindowsInfo().getSymbolPath();
     }
 
-    private SaveFile getSaveFile() {
-        return SaveFilesFactory.determineSaveFile(steamApp);
+    public String getLinuxInstallationPath() {
+        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
+            return getSaveFile().getLinuxInfo().getSymbolPath();
+        }
+        return null;
     }
 
-    public String getLinuxInstallationPath() {
-        return getSaveFile().getLinuxInfo().getSymbolPath();
+    private SaveFile getSaveFile() {
+        return SaveFilesFactory.determineSaveFile(steamApp);
     }
 }

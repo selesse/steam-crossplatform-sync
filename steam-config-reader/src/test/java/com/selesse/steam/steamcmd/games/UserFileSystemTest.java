@@ -54,8 +54,8 @@ public class UserFileSystemTest {
 
     @Test
     public void canPrintLegendOfGrimrock() {
-        TestGames oxygenNotIncluded = TestGames.LEGEND_OF_GRIMROCK;
-        UserFileSystem userFileSystem = oxygenNotIncluded.getUserFileSystem();
+        TestGames legendOfGrimrock = TestGames.LEGEND_OF_GRIMROCK;
+        UserFileSystem userFileSystem = legendOfGrimrock.getUserFileSystem();
 
         assertThat(userFileSystem.getWindowsInstallationPath())
                 .isEqualTo("%USERPROFILE%/Documents/Almost Human/Legend of Grimrock");
