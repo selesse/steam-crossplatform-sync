@@ -6,9 +6,6 @@ on the go on your MacBook but just got home to your desktop? This program will
 automatically use your cloud storage provider (e.g. Google Drive, Dropbox) to
 synchronize the files so you can pick up where you left off.
 
-**Note**: the sync strategy is dumb and experimental - it may behave poorly
-and accidentally delete some files. Use at your own discretion.
-
 ## How does it work?
 
 Periodically, steam-crossplatform-sync checks Steam's registry to see if there's
@@ -61,11 +58,16 @@ games:
     gameId: 457140
 ```
 
+Once the configuration files are ready, `./gradlew localRelease` will install
+the application. On OS X, it'll install a LaunchAgent for the current user. On
+Windows, it'll copy a fat JAR over into the startup folder. If double clicking
+the JAR doesn't work, you may need to run [Jarfix][jarfix].
+
+[jarfix]: https://johann.loefflmann.net/en/software/jarfix/index.html
+
 ## Sync strategy
 
 For now, the sync strategy is intentionally dumb. It looks across both folders
 to find the oldest file. Whichever is oldest gets all its files copied into
 the younger. Name collisions are resolved by overwriting the older file.
-
-Eventually I can do something smarter like only write when the md5sums don't
-match, but this works out pretty well for the games I've tested it on.
+Use at your own discretion!
