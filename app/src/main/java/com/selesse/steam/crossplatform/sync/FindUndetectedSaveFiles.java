@@ -15,7 +15,7 @@ public class FindUndetectedSaveFiles {
     }
 
     public void run() {
-        List<SteamGame> steamGames = context.loadGames();
+        List<SteamGame> steamGames = context.loadInstalledGames();
         for (SteamGame steamGame : steamGames) {
             if (steamGame.hasUserCloud()) {
                 boolean isFullyIntegrated = true;

@@ -19,7 +19,7 @@ public class GamesFileGenerator {
     }
 
     public void run() {
-        List<SteamGame> steamGames = context.loadGames();
+        List<SteamGame> steamGames = context.loadInstalledGames();
 
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 

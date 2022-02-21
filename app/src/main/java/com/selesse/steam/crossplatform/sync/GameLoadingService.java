@@ -54,7 +54,7 @@ public class GameLoadingService {
         return new SteamGame(gameMetadata, registryStore);
     }
 
-    public List<SteamGame> loadGames() {
+    public List<SteamGame> loadInstalledGames() {
         return steamRegistry.getInstalledAppIds().stream().map(this::loadGame).collect(Collectors.toList());
     }
 

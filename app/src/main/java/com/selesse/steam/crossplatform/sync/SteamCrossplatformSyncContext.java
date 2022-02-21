@@ -23,7 +23,7 @@ public class SteamCrossplatformSyncContext {
         return gameLoadingService.loadGame(gameId);
     }
 
-    public List<SteamGame> loadGames() {
-        return gameLoadingService.loadGames();
+    public List<SteamGame> loadInstalledGames() {
+        return gameLoadingService.loadInstalledGames();
     }
 }

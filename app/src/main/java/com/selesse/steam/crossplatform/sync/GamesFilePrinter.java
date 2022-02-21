@@ -15,7 +15,7 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamGame> steamGames = context.loadGames();
+        List<SteamGame> steamGames = context.loadInstalledGames();
         for (SteamGame steamGame : steamGames) {
             printSteamGame(steamGame);
         }
