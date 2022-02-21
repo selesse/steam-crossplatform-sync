@@ -2,106 +2,35 @@
 {
 	"common"
 	{
-		"associations"
-		{
-			"0"
-			{
-				"name"		"Daniel Mullins Games"
-				"type"		"developer"
-			}
-			"1"
-			{
-				"name"		"Devolver Digital"
-				"type"		"publisher"
-			}
-			"2"
-			{
-				"name"		"Devolver Digital"
-				"type"		"franchise"
-			}
-		}
-		"category"
-		{
-			"category_2"		"1"
-			"category_22"		"1"
-			"category_23"		"1"
-			"category_29"		"1"
-			"category_45"		"1"
-			"category_46"		"1"
-		}
-		"clienticon"		"0f06afca5503683fe12bfaee26a6a3f13df27c87"
-		"clienttga"		"74824317094412eddcea18355548988e7ae7e78a"
-		"community_hub_visible"		"1"
-		"community_visible_stats"		"1"
-		"gameid"		"1092790"
-		"genres"
-		{
-			"0"		"25"
-			"1"		"23"
-			"2"		"2"
-		}
-		"header_image"
-		{
-			"english"		"header.jpg"
-		}
-		"icon"		"25c02dcbabe97febe787797195099325a4d47935"
-		"languages"
-		{
-			"brazilian"		"1"
-			"english"		"1"
-			"french"		"1"
-			"german"		"1"
-			"italian"		"1"
-			"japanese"		"1"
-			"koreana"		"1"
-			"russian"		"1"
-			"schinese"		"1"
-			"spanish"		"1"
-			"tchinese"		"1"
-			"turkish"		"1"
-		}
-		"library_assets"
-		{
-			"library_capsule"		"en"
-			"library_hero"		"en"
-			"library_logo"		"en"
-			"logo_position"
-			{
-				"height_pct"		"100"
-				"pinned_position"		"BottomLeft"
-				"width_pct"		"56.00933488914817"
-			}
-		}
+		"name"		"Inscryption"
+		"type"		"Game"
+		"oslist"		"windows"
+		"osarch"		""
 		"logo"		"92af712fe5fb4abf4fe7937075221964e8cbd1c8"
 		"logo_small"		"92af712fe5fb4abf4fe7937075221964e8cbd1c8_thumb"
-		"name"		"Inscryption"
-		"osarch"		""
-		"osextended"		""
-		"oslist"		"windows"
-		"primary_genre"		"23"
+		"icon"		"25c02dcbabe97febe787797195099325a4d47935"
+		"clienttga"		"74824317094412eddcea18355548988e7ae7e78a"
+		"clienticon"		"0f06afca5503683fe12bfaee26a6a3f13df27c87"
 		"releasestate"		"released"
-		"review_percentage"		"97"
-		"review_score"		"9"
-		"small_capsule"
+		"osextended"		""
+		"languages"
 		{
-			"english"		"capsule_231x87.jpg"
+			"english"		"1"
+			"german"		"1"
+			"french"		"1"
+			"italian"		"1"
+			"koreana"		"1"
+			"spanish"		"1"
+			"schinese"		"1"
+			"tchinese"		"1"
+			"russian"		"1"
+			"japanese"		"1"
+			"turkish"		"1"
+			"brazilian"		"1"
 		}
 		"steam_deck_compatibility"
 		{
 			"category"		"2"
-			"configuration"
-			{
-				"non_deck_display_glyphs"		"0"
-				"primary_player_is_controller_slot_0"		"0"
-				"recommended_runtime"		"proton-stable"
-				"requires_h264"		"0"
-				"requires_internet_for_setup"		"0"
-				"requires_internet_for_singleplayer"		"0"
-				"requires_manual_keyboard_invoke"		"0"
-				"requires_non_controller_launcher_nav"		"0"
-				"small_text"		"0"
-				"supported_input"		"other"
-			}
 			"test_timestamp"		"1644969600"
 			"tested_build_id"		"7584684"
 			"tests"
@@ -127,13 +56,154 @@
 					"token"		"#SteamDeckVerified_TestResult_DefaultConfigurationIsPerformant"
 				}
 			}
+			"configuration"
+			{
+				"supported_input"		"other"
+				"requires_manual_keyboard_invoke"		"0"
+				"requires_non_controller_launcher_nav"		"0"
+				"primary_player_is_controller_slot_0"		"0"
+				"non_deck_display_glyphs"		"0"
+				"small_text"		"0"
+				"requires_internet_for_setup"		"0"
+				"requires_internet_for_singleplayer"		"0"
+				"recommended_runtime"		"proton-stable"
+				"requires_h264"		"0"
+			}
+		}
+		"small_capsule"
+		{
+			"english"		"capsule_231x87.jpg"
+		}
+		"header_image"
+		{
+			"english"		"header.jpg"
+		}
+		"library_assets"
+		{
+			"library_capsule"		"en"
+			"library_hero"		"en"
+			"library_logo"		"en"
+			"logo_position"
+			{
+				"pinned_position"		"BottomLeft"
+				"width_pct"		"56.00933488914817"
+				"height_pct"		"100"
+			}
+		}
+		"store_asset_mtime"		"1632501352"
+		"associations"
+		{
+			"0"
+			{
+				"type"		"developer"
+				"name"		"Daniel Mullins Games"
+			}
+			"1"
+			{
+				"type"		"publisher"
+				"name"		"Devolver Digital"
+			}
+			"2"
+			{
+				"type"		"franchise"
+				"name"		"Devolver Digital"
+			}
+		}
+		"primary_genre"		"23"
+		"genres"
+		{
+			"0"		"25"
+			"1"		"23"
+			"2"		"2"
+		}
+		"category"
+		{
+			"category_2"		"1"
+			"category_22"		"1"
+			"category_23"		"1"
+			"category_29"		"1"
+			"category_45"		"1"
+			"category_46"		"1"
+		}
+		"supported_languages"
+		{
+			"english"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"french"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"german"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"spanish"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"japanese"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"koreana"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"russian"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"schinese"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"italian"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"brazilian"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"tchinese"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
+			"turkish"
+			{
+				"supported"		"true"
+				"subtitles"		"true"
+			}
 		}
 		"steam_release_date"		"1634655924"
-		"store_asset_mtime"		"1632501352"
+		"community_visible_stats"		"1"
+		"community_hub_visible"		"1"
+		"gameid"		"1092790"
 		"store_tags"
 		{
 			"0"		"791774"
 			"1"		"1666"
+			"2"		"1742"
+			"3"		"32322"
+			"4"		"1667"
+			"5"		"4342"
+			"6"		"3959"
+			"7"		"5186"
+			"8"		"1664"
+			"9"		"9"
 			"10"		"1710"
 			"11"		"1716"
 			"12"		"13782"
@@ -144,85 +214,15 @@
 			"17"		"18594"
 			"18"		"3964"
 			"19"		"21"
-			"2"		"1742"
-			"3"		"32322"
-			"4"		"1667"
-			"5"		"4342"
-			"6"		"3959"
-			"7"		"5186"
-			"8"		"1664"
-			"9"		"9"
 		}
-		"supported_languages"
-		{
-			"brazilian"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"english"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"french"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"german"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"italian"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"japanese"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"koreana"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"russian"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"schinese"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"spanish"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"tchinese"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-			"turkish"
-			{
-				"subtitles"		"true"
-				"supported"		"true"
-			}
-		}
-		"type"		"Game"
+		"review_score"		"9"
+		"review_percentage"		"97"
 	}
 	"extended"
 	{
 		"developer"		"Daniel Mullins Games"
-		"homepage"		"https://www.inscryption-game.com"
 		"publisher"		"Devolver Digital"
+		"homepage"		"https://www.inscryption-game.com"
 	}
 	"config"
 	{
@@ -231,39 +231,58 @@
 		{
 			"0"
 			{
+				"executable"		"Inscryption.exe"
+				"type"		"none"
 				"config"
 				{
 					"oslist"		"windows"
 				}
-				"executable"		"Inscryption.exe"
-				"type"		"none"
 			}
 			"1"
 			{
-				"config"
-				{
-					"betakey"		"mac-linux-beta"
-					"oslist"		"macos"
-				}
 				"executable"		"Inscryption.app"
 				"type"		"default"
+				"config"
+				{
+					"oslist"		"macos"
+					"betakey"		"mac-linux-beta"
+				}
 			}
 			"2"
 			{
-				"config"
-				{
-					"betakey"		"mac-linux-beta"
-					"oslist"		"linux"
-				}
 				"executable"		"Inscryption.x86"
 				"type"		"default"
+				"config"
+				{
+					"oslist"		"linux"
+					"betakey"		"mac-linux-beta"
+				}
 			}
 		}
 	}
 	"depots"
 	{
+		"baselanguages"		"english"
+		"228990"
+		{
+			"name"		"DirectX Jun 2010 Redist"
+			"config"
+			{
+				"oslist"		"windows"
+				"language"		""
+			}
+			"maxsize"		"102931551"
+			"depotfromapp"		"228980"
+			"sharedinstall"		"1"
+		}
 		"1092791"
 		{
+			"name"		"DiskCardGame (Windows)"
+			"manifests"
+			{
+				"public"		"1735263726687503974"
+			}
+			"maxsize"		"3431514764"
 			"encryptedmanifests"
 			{
 				"bitsummit"
@@ -297,18 +316,16 @@
 					"encrypted_size_2"		"C121CC8F3C205B304D02F8D9D119577D"
 				}
 			}
-			"manifests"
-			{
-				"public"		"1735263726687503974"
-			}
-			"maxsize"		"3431514764"
-			"name"		"DiskCardGame (Windows)"
 		}
 		"1092792"
 		{
+			"name"		"Inscryption (Mac)"
 			"config"
 			{
 				"oslist"		"macos"
+			}
+			"manifests"
+			{
 			}
 			"encryptedmanifests"
 			{
@@ -338,16 +355,16 @@
 					"encrypted_size_2"		"2A15722BB70BDF5BF2BF1D7557FA89B8"
 				}
 			}
-			"manifests"
-			{
-			}
-			"name"		"Inscryption (Mac)"
 		}
 		"1092793"
 		{
+			"name"		"Inscryption (Linux)"
 			"config"
 			{
 				"oslist"		"linux"
+			}
+			"manifests"
+			{
 			}
 			"encryptedmanifests"
 			{
@@ -377,26 +394,14 @@
 					"encrypted_size_2"		"2A15722BB70BDF5BF2BF1D7557FA89B8"
 				}
 			}
-			"manifests"
-			{
-			}
-			"name"		"Inscryption (Linux)"
 		}
-		"228990"
-		{
-			"config"
-			{
-				"language"		""
-				"oslist"		"windows"
-			}
-			"depotfromapp"		"228980"
-			"maxsize"		"102931551"
-			"name"		"DirectX Jun 2010 Redist"
-			"sharedinstall"		"1"
-		}
-		"baselanguages"		"english"
 		"branches"
 		{
+			"public"
+			{
+				"buildid"		"7659956"
+				"timeupdated"		"1636129205"
+			}
 			"bitsummit"
 			{
 				"buildid"		"7273864"
@@ -432,11 +437,6 @@
 				"pwdrequired"		"1"
 				"timeupdated"		"1645037581"
 			}
-			"public"
-			{
-				"buildid"		"7659956"
-				"timeupdated"		"1636129205"
-			}
 			"videocapture"
 			{
 				"buildid"		"8030717"
@@ -448,39 +448,39 @@
 	}
 	"ufs"
 	{
-		"maxnumfiles"		"1"
 		"quota"		"1000000"
+		"maxnumfiles"		"1"
 		"savefiles"
 		{
 			"0"
 			{
+				"root"		"gameinstall"
 				"path"		""
 				"pattern"		"*.gwsave"
 				"platforms"
 				{
 					"1"		"Windows"
 				}
-				"root"		"gameinstall"
 			}
 			"1"
 			{
+				"root"		"gameinstall"
 				"path"		""
 				"pattern"		"*.gwsave"
 				"platforms"
 				{
 					"1"		"Linux"
 				}
-				"root"		"gameinstall"
 			}
 			"2"
 			{
+				"root"		"gameinstall"
 				"path"		""
 				"pattern"		"*.gwsave"
 				"platforms"
 				{
 					"1"		"MacOS"
 				}
-				"root"		"gameinstall"
 			}
 		}
 	}
