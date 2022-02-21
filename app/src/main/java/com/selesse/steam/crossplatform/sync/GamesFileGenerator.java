@@ -8,7 +8,6 @@ import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.games.SteamGame;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,7 +19,6 @@ public class GamesFileGenerator {
     }
 
     public void run() {
-        Path gamesConfigPath = context.getConfig().getGamesFile();
         List<SteamGame> steamGames = context.loadGames();
 
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
@@ -45,7 +43,7 @@ public class GamesFileGenerator {
         YAMLFactory yamlFactory = new YAMLFactory();
         ObjectMapper objectMapper = new ObjectMapper(yamlFactory);
         try {
-            objectMapper.writeValue(gamesConfigPath.toFile(), gameConfigRaw);
+            objectMapper.writeValue(System.out, gameConfigRaw);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
