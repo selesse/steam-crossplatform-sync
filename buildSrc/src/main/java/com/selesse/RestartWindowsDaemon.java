@@ -1,5 +1,7 @@
 package com.selesse;
 
+import org.gradle.api.Project;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -7,9 +9,11 @@ import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
 class RestartWindowsDaemon {
+    private final Project project;
     private final File shadowJarPath;
 
-    public RestartWindowsDaemon(File shadowJarPath) {
+    public RestartWindowsDaemon(Project project, File shadowJarPath) {
+        this.project = project;
         this.shadowJarPath = shadowJarPath;
     }
 
@@ -43,7 +47,7 @@ class RestartWindowsDaemon {
 
     private void startNewDaemon() throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder().command(
-                System.getenv("JAVA_HOME") + File.separator + "bin" + File.separator + "javaw.exe",
+                JavaHomeLocator.locate(project) + File.separator + "bin" + File.separator + "javaw.exe",
                 "-jar",
                 shadowJarPath.getAbsolutePath()
         );

@@ -1,5 +1,6 @@
 package com.selesse;
 
+import org.gradle.api.Project;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.DefaultOperatingSystem;
 
@@ -8,8 +9,10 @@ import java.io.IOException;
 
 public class RestartDaemon {
     private final File shadowJarPath;
+    private final Project project;
 
-    public RestartDaemon(File shadowJarPath) {
+    public RestartDaemon(Project project, File shadowJarPath) {
+        this.project = project;
         this.shadowJarPath = shadowJarPath;
     }
 
@@ -18,7 +21,7 @@ public class RestartDaemon {
         if (currentOperatingSystem.isMacOsX()) {
             new RestartMacDaemon().restart();
         } else if (currentOperatingSystem.isWindows()) {
-            new RestartWindowsDaemon(shadowJarPath).restart();
+            new RestartWindowsDaemon(project, shadowJarPath).restart();
         }
     }
 }

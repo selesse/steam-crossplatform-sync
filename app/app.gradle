@@ -1,3 +1,4 @@
+import com.selesse.JavaHomeLocator
 import com.selesse.RestartDaemon
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
@@ -68,7 +69,7 @@ task localOsRelease(type: Copy) {
                 rename { filename -> filename.replace('.template', '') }
                 filter(ReplaceTokens, tokens: [
                         "PROGRAM_HOME": project.ext.macConfigDirectory,
-                        'JAVA_HOME'   : System.getenv("JAVA_HOME")
+                        'JAVA_HOME'   : JavaHomeLocator.locate(project)
                 ])
             }
             return file(project.ext.macConfigDirectory)
@@ -79,7 +80,7 @@ task localOsRelease(type: Copy) {
 task restartDaemon() {
     doLast {
         def pathToShadowJar = new File(localOsRelease.outputs.files.singleFile, shadowJar.archiveFileName.get())
-        new RestartDaemon(pathToShadowJar).restart()
+        new RestartDaemon(project, pathToShadowJar).restart()
     }
 }
 
