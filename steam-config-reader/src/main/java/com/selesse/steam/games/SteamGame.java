@@ -47,6 +47,14 @@ public class SteamGame {
         return config.hasUserFileSystem();
     }
 
+    public String getInstallationPath(OperatingSystems.OperatingSystem operatingSystem) {
+        return switch (operatingSystem) {
+            case WINDOWS -> getWindowsInstallationPath();
+            case MAC -> getMacInstallationPath();
+            case LINUX -> getLinuxInstallationPath();
+        };
+    }
+
     public String getWindowsInstallationPath() {
         return config.getWindowsInstallationPath();
     }
