@@ -1,14 +1,14 @@
 package com.selesse.steam.registry.implementation;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegistryParser {
-    private static final Pattern lineMatchingPattern = Pattern.compile("\t*\".+?\"\t*\".*\"");
+    private static final Pattern lineMatchingPattern = Pattern.compile("\t*\"(.+?)\"\t*\"(.*)\"");
 
     public static RegistryStore parse(List<String> lines) {
         return collapseRegistryStoreIfNecessary(parseWithoutRegistryCollapse(lines));
@@ -70,10 +70,11 @@ public class RegistryParser {
     }
 
     private static RegistryString parseRegistryString(String line) {
-        // e.g. \t"hello"\t\t"\tworld"\t" => ["", "hello", "", "\tworld", ""]
-        List<String> strings = Splitter.on("\"").trimResults().splitToList(line);
-        String key = strings.get(1);
-        String value = strings.get(3);
+        Matcher matcher = lineMatchingPattern.matcher(line);
+        boolean found = matcher.find();
+        assert found;
+        String key = matcher.group(1);
+        String value = matcher.group(2);
         return new RegistryString(key, value);
     }
 }
