@@ -47,7 +47,7 @@ public enum TestGames {
         if (Resources.exists(getGameId() + ".vdf")) {
             return registryFileContentsFromFile();
         } else {
-            SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+            TestAppCache.setup();
             RegistryStore registryStore = SteamAppLoader.load(getGameId()).getRegistryStore();
             return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryStore));
         }

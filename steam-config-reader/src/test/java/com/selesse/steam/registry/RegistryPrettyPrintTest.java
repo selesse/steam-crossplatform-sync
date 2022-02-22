@@ -1,8 +1,7 @@
 package com.selesse.steam.registry;
 
-import com.selesse.os.Resources;
-import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.SteamAppLoader;
+import com.selesse.steam.TestAppCache;
 import com.selesse.steam.TestGames;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
@@ -25,7 +24,7 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void canPrettyPrintInscryptionBasedOnAppCache() throws IOException {
-        SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+        TestAppCache.setup();
         RegistryStore registryStore = SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);
 
@@ -47,7 +46,7 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void prettyPrinting_pathOfExile_handlesKeysWithSlashesInThem() {
-        SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+        TestAppCache.setup();
         RegistryStore registryStore = SteamAppLoader.load(TestGames.PATH_OF_EXILE.getGameId()).getRegistryStore();
         String prettyPrintFromAppInfo = RegistryPrettyPrint.prettyPrint(registryStore);
 

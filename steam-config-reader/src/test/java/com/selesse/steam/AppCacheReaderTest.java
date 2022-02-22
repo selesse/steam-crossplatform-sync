@@ -2,7 +2,7 @@ package com.selesse.steam;
 
 import com.selesse.os.Resources;
 import com.selesse.steam.appcache.*;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -11,10 +11,10 @@ import java.util.Formatter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppCacheReaderTest {
-    private AppCache appCache;
+    private static AppCache appCache;
 
-    @Before
-    public void setup() {
+    @BeforeClass
+    public static void setup() {
         Path path = Resources.getResource("appinfo.vdf");
         appCache = new AppCacheReader().load(path);
     }

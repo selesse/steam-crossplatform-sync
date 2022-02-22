@@ -1,6 +1,5 @@
 package com.selesse.steam;
 
-import com.selesse.os.Resources;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SteamAppLoaderTest {
     @Before
     public void setup() {
-        SteamAppLoader.primeAppCache(new AppCacheReader().load(Resources.getResource("appinfo.vdf")));
+        TestAppCache.setup();
     }
 
     @Test
