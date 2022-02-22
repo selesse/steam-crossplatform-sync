@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,7 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
 
     private VdfObject parseVdfObject(BufferedInputStream bufferedInputStream) throws IOException {
         List<Byte> currentData = getBytes(bufferedInputStream);
-        String keyName = new String(byteListToByteArray(currentData));
+        String keyName = new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
         VdfObject vdfObject = new VdfObject(keyName);
 
         byte nextByte;
@@ -105,9 +106,9 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
 
     private VdfString parseStringValue(BufferedInputStream bufferedInputStream) throws IOException {
         List<Byte> bytes = getBytes(bufferedInputStream);
-        String keyName = new String(byteListToByteArray(bytes));
+        String keyName = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
         List<Byte> bytes1 = getBytes(bufferedInputStream);
-        String value = new String(byteListToByteArray(bytes1));
+        String value = new String(byteListToByteArray(bytes1), StandardCharsets.UTF_8);
         return new VdfString(keyName, value);
     }
 
