@@ -36,6 +36,9 @@ public class GameInstallSaveFile extends SaveFile {
     }
 
     private UserFileSystemPath getUserFileSystemPath(SteamOperatingSystem os) {
+        if (!ufs.pathExists("rootoverrides")) {
+            return new UserFileSystemPath(computeRoot(os.toOperatingSystem()), getWindowsInfo().getPath());
+        }
         RegistryObject targetOsObject = null;
         RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
         for (String key : rootOverrides.getKeys()) {

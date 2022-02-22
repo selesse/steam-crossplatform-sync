@@ -23,6 +23,7 @@ public enum TestGames {
     ORI_AND_THE_WILL_OF_THE_WISPS(1057090),
     WILDERMYTH(763890),
     PATH_OF_EXILE(238960),
+    JACKBOX(331670),
     ;
 
     private final int gameId;

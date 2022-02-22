@@ -117,9 +117,21 @@ public class UserFileSystemTest {
         assertThat(userFileSystem.getWindowsInstallationPath())
                 .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/Wildermyth/players");
         assertThat(userFileSystem.getMacInstallationPath())
-                .isEqualTo("~/Library/Application Support/Steam/steamapps/common/" +
-                        "Wildermyth/wildermyth.app/Contents/Resources/players");
+                .isEqualTo("~/Library/Application Support/Steam/steamapps/common/Wildermyth/wildermyth.app/Contents/Resources/players");
         assertThat(userFileSystem.getLinuxInstallationPath())
                 .isEqualTo("~/.steam/steamapps/common/Wildermyth/players");
+    }
+
+    @Test
+    public void canPrintJackbox() {
+        TestGames jackbox = TestGames.JACKBOX;
+        UserFileSystem userFileSystem = jackbox.getUserFileSystem();
+
+        assertThat(userFileSystem.getWindowsInstallationPath())
+                .isEqualTo("%PROGRAMFILES(X86)%/Steam/steamapps/common/The Jackbox Party Pack/save");
+        assertThat(userFileSystem.getMacInstallationPath())
+                .isEqualTo("~/Library/Application Support/Steam/steamapps/common/The Jackbox Party Pack/save");
+        assertThat(userFileSystem.getLinuxInstallationPath())
+                .isEqualTo("~/.steam/steamapps/common/The Jackbox Party Pack/save");
     }
 }
