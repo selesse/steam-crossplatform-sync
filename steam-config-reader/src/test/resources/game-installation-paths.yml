@@ -15,9 +15,11 @@ games:
 - name: Oxygen Not Included
   windows: "%USERPROFILE%/Documents/Klei/OxygenNotIncluded/save_files"
   mac: "~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files"
+  linux: "~/.config/unity3d/Klei/Oxygen Not Included/save_files"
 - name: Slay the Spire
   windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves"
   mac: "~/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves"
+  linux: "~/.steam/steamapps/common/SlayTheSpire/saves"
 - name: Unrailed!
   windows: "%USERPROFILE%/AppData/Local/Daedalic Entertainment GmbH/Unrailed/GameState/AllPlayers/SaveGames"
   mac: "~/Library/Application Support/UnrailedGame/GameState/AllPlayers/SaveGames"

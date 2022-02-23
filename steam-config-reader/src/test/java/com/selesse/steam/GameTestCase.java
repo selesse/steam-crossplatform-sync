@@ -17,13 +17,6 @@ public class GameTestCase {
     public GameTestCase() {
     }
 
-    public GameTestCase(String name, String windows, String mac, String linux) {
-        this.name = name;
-        this.windows = windows;
-        this.mac = mac;
-        this.linux = linux;
-    }
-
     @Override
     public String toString() {
         return name;

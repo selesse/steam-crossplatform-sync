@@ -50,6 +50,11 @@ public class GameInstallSaveFile extends SaveFile {
         String root;
         String path;
         if (isSlayTheSpire()) {
+            if (os == SteamOperatingSystem.LINUX) {
+                root = computeRoot(OperatingSystems.OperatingSystem.LINUX);
+                path = ufs.getObjectValueAsString("savefiles/3/path").getValue();
+                return new UserFileSystemPath(root, path);
+            }
             String macSpecial = ufs.getObjectValueAsString("rootoverrides/0/addpath").getValue();
             root = computeRoot(os.toOperatingSystem()) + "/" + macSpecial;
         } else {

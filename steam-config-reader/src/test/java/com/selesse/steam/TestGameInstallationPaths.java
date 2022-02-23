@@ -1,6 +1,7 @@
 package com.selesse.steam;
 
 
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @RunWith(Parameterized.class)
 public class TestGameInstallationPaths {
@@ -43,9 +45,15 @@ public class TestGameInstallationPaths {
         }
         if (gameTestCase.mac != null) {
             assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.mac);
+        } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
+            fail(steamApp.getName() + " supports OS X but no path was provided. " +
+                    "Add \"" + steamApp.getMacInstallationPath() + "\" to the file.");
         }
         if (gameTestCase.linux != null) {
             assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linux);
+        } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
+            fail(steamApp.getName() + " supports Linux but no path was provided. " +
+                    "Add \"" + steamApp.getLinuxInstallationPath() + "\" to the file.");
         }
     }
 
