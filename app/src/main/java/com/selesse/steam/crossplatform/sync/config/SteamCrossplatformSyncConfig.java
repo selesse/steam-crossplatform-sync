@@ -5,7 +5,6 @@ import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
-import java.util.Objects;
 
 public interface SteamCrossplatformSyncConfig {
     Path getConfigDirectory();
@@ -25,7 +24,7 @@ public interface SteamCrossplatformSyncConfig {
     default Path getLocalCloudSyncBaseDirectory() {
         return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getPathToCloudStorage)
-                .filter(Objects::nonNull)
+                .filter(x -> !x.isEmpty())
                 .map(Path::of)
                 .orElse(CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath).orElseThrow());
     }
@@ -34,7 +33,7 @@ public interface SteamCrossplatformSyncConfig {
     default Path getCloudStorageRelativeWritePath() {
         return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getCloudStorageRelativeWritePath)
-                .filter(Objects::nonNull)
+                .filter(x -> !x.isEmpty())
                 .map(Path::of)
                 .orElse(Path.of("steam-crossplatform-sync"));
     }
@@ -42,7 +41,7 @@ public interface SteamCrossplatformSyncConfig {
     default Path getGamesFile() {
         return ConfigLoader.loadIfExists(getConfigFileLocation())
                 .map(ConfigRaw::getGamesFileLocation)
-                .filter(Objects::nonNull)
+                .filter(x -> !x.isEmpty())
                 .map(Path::of)
                 .orElse(Path.of(getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
