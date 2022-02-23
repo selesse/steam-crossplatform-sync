@@ -49,30 +49,20 @@ public class GameInstallSaveFile extends SaveFile {
         }
         String root;
         String path;
-        if (isSlayTheSpire()) {
-            if (os == SteamOperatingSystem.LINUX) {
-                root = computeRoot(OperatingSystems.OperatingSystem.LINUX);
-                path = ufs.getObjectValueAsString("savefiles/3/path").getValue();
-                return new UserFileSystemPath(root, path);
-            }
-            String macSpecial = ufs.getObjectValueAsString("rootoverrides/0/addpath").getValue();
-            root = computeRoot(os.toOperatingSystem()) + "/" + macSpecial;
-        } else {
-            if (targetOsObject != null && targetOsObject.pathExists("useinstead")) {
-                String useInsteadValue = targetOsObject.getObjectValueAsString("useinstead").getValue();
-                if (useInsteadValue.equals("gameinstall")) {
-                    root = computeRoot(os.toOperatingSystem());
-                } else {
-                    root = useInsteadValue;
-                }
-            } else if (targetOsObject != null) {
-                root = targetOsObject.getObjectValueAsString("root").getValue();
-            } else {
+        if (targetOsObject != null && targetOsObject.pathExists("useinstead")) {
+            String useInsteadValue = targetOsObject.getObjectValueAsString("useinstead").getValue();
+            if (useInsteadValue.equals("gameinstall")) {
                 root = computeRoot(os.toOperatingSystem());
+            } else {
+                root = useInsteadValue;
             }
-            if (targetOsObject != null && targetOsObject.pathExists("addpath")) {
-                root += "/" + targetOsObject.getObjectValueAsString("addpath").getValue();
-            }
+        } else if (targetOsObject != null) {
+            root = targetOsObject.getObjectValueAsString("root").getValue();
+        } else {
+            root = computeRoot(os.toOperatingSystem());
+        }
+        if (targetOsObject != null && targetOsObject.pathExists("addpath")) {
+            root += "/" + targetOsObject.getObjectValueAsString("addpath").getValue();
         }
         path = getWindowsInfo().getPath();
         return new UserFileSystemPath(root, path);
@@ -80,15 +70,8 @@ public class GameInstallSaveFile extends SaveFile {
 
     @Override
     public UserFileSystemPath getWindowsInfo() {
-        String root;
-        String path;
-        if (isSlayTheSpire()) {
-            root = computeRoot(OperatingSystems.OperatingSystem.WINDOWS);
-            path = ufs.getObjectValueAsString("savefiles/3/path").getValue();
-        } else {
-            root = ufs.getObjectValueAsString("savefiles/0/root").getValue();
-            path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
-        }
+        String root = ufs.getObjectValueAsString("savefiles/0/root").getValue();
+        String path = ufs.getObjectValueAsString("savefiles/0/path").getValue();
         root = root.replace("gameinstall", computeRoot(OperatingSystems.OperatingSystem.WINDOWS));
         return new UserFileSystemPath(root, path);
     }

@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "game": "Slay the Spire",
+      "windows": "%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves",
+      "mac": "~/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves",
+      "linux": "~/.steam/steamapps/common/SlayTheSpire/saves"
+    }
+  ]
+}

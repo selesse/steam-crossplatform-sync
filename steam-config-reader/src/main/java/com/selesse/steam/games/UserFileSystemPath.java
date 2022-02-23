@@ -1,7 +1,11 @@
 package com.selesse.steam.games;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.selesse.os.FilePathSanitizer;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class UserFileSystemPath {
@@ -11,6 +15,12 @@ public class UserFileSystemPath {
     public UserFileSystemPath(String root, String path) {
         this.root = root;
         this.path = path;
+    }
+
+    public UserFileSystemPath(String fullPath) {
+        List<String> parts = Splitter.on("/").splitToList(fullPath);
+        this.root = Joiner.on("/").join(parts.subList(0, parts.size() - 1));
+        this.path = Iterables.getLast(parts);
     }
 
     public String getRoot() {
