@@ -27,7 +27,7 @@ public class TestGameInstallationPaths {
         protected void failed(Throwable e, Description description) {
             super.failed(e, description);
 
-            System.out.println("Failed to test " + gameTestCase.name + "'s installation paths");
+            System.out.println("Failed to test " + gameTestCase.name() + "'s installation paths");
             System.out.println(RegistryPrettyPrint.prettyPrint(steamApp.getRegistryStore().getObjectValueAsObject("ufs")));
         }
     };
@@ -38,19 +38,19 @@ public class TestGameInstallationPaths {
 
     @Test
     public void testGame() {
-        steamApp = SteamAppLoader.findByName(gameTestCase.name);
+        steamApp = SteamAppLoader.findByName(gameTestCase.name());
 
-        if (gameTestCase.windows != null) {
-            assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windows);
+        if (gameTestCase.windows() != null) {
+            assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windows());
         }
-        if (gameTestCase.mac != null) {
-            assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.mac);
+        if (gameTestCase.mac() != null) {
+            assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.mac());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
             fail(steamApp.getName() + " supports OS X but no path was provided. " +
                     "Add \"" + steamApp.getMacInstallationPath() + "\" to the file.");
         }
-        if (gameTestCase.linux != null) {
-            assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linux);
+        if (gameTestCase.linux() != null) {
+            assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linux());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " +
                     "Add \"" + steamApp.getLinuxInstallationPath() + "\" to the file.");
