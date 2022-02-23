@@ -18,7 +18,7 @@ public class SteamGame {
     }
 
     public String getName() {
-        return metadata.getName();
+        return metadata.name();
     }
 
     public RegistryStore getRegistryStore() {
@@ -26,7 +26,7 @@ public class SteamGame {
     }
 
     public boolean isInstalled() {
-        return metadata.isInstalled();
+        return metadata.installed();
     }
 
     public AppType getAppType() {
@@ -34,7 +34,7 @@ public class SteamGame {
     }
 
     public long getId() {
-        return metadata.getGameId();
+        return metadata.gameId();
     }
 
     public List<OperatingSystems.OperatingSystem> supportedOperatingSystems() {

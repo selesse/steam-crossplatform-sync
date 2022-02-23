@@ -14,7 +14,7 @@ public class GameRunningDetector {
 
     public static SteamGameMetadata getCurrentlyRunningGameMetadata() {
         return SteamRegistry.getInstance().getGamesMetadata().stream()
-                .filter(x -> x.getGameId() == SteamRegistry.getInstance().getCurrentlyRunningAppId())
+                .filter(x -> x.gameId() == SteamRegistry.getInstance().getCurrentlyRunningAppId())
                 .findFirst()
                 .orElseThrow();
     }

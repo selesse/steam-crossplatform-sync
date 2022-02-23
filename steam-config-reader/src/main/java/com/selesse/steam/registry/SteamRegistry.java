@@ -25,7 +25,7 @@ public abstract class SteamRegistry {
     public List<SteamGameMetadata> getGamesMetadata() {
         return getInstalledAppIds().stream()
                 .map(this::getGameMetadata)
-                .filter(gameMetadata -> getSteamApp(gameMetadata.getGameId()).getType() == AppType.GAME)
+                .filter(gameMetadata -> getSteamApp(gameMetadata.gameId()).getType() == AppType.GAME)
                 .toList();
     }
 
