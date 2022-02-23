@@ -22,15 +22,15 @@ public class AppCacheReaderTest {
     @Test
     public void testCanParseAppCache() {
         App app = appCache.getById(5);
-        assertThat(app.getAppId()).isEqualTo(5);
-        assertThat(app.getSize()).isEqualTo(79);
-        assertThat(app.getInfoState()).isEqualTo(1);
-        assertThat(app.getLastUpdated()).isEqualTo(1617940879);
-        assertThat(app.getPicsToken()).isEqualTo(0);
-        assertThat(byteArrayToHex(app.getSha1())).isEqualTo("87fa436785800db490496ddc7db481ee518b8235");
-        assertThat(app.getChangeNumber()).isEqualTo(13224007);
+        assertThat(app.appId()).isEqualTo(5);
+        assertThat(app.size()).isEqualTo(79);
+        assertThat(app.infoState()).isEqualTo(1);
+        assertThat(app.lastUpdated()).isEqualTo(1617940879);
+        assertThat(app.picsToken()).isEqualTo(0);
+        assertThat(byteArrayToHex(app.sha1())).isEqualTo("87fa436785800db490496ddc7db481ee518b8235");
+        assertThat(app.changeNumber()).isEqualTo(13224007);
 
-        VdfObject object = app.getVdfObject();
+        VdfObject object = app.vdfObject();
 
         assertThat(object.getName()).isEqualTo("appinfo");
         assertThat(object.getValues().get(0)).isEqualTo(new VdfInteger("appid", 5));
@@ -46,7 +46,7 @@ public class AppCacheReaderTest {
     public void testCanParseHollowKnight() {
         App hollowKnight = appCache.getById(TestGames.HOLLOW_KNIGHT.getGameId());
 
-        VdfObject vdfObject = hollowKnight.getVdfObject();
+        VdfObject vdfObject = hollowKnight.vdfObject();
 
         VdfObject common = (VdfObject) vdfObject.getValues().get(1);
         assertThat(common.getName()).isEqualTo("common");

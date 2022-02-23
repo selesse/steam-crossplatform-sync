@@ -21,7 +21,7 @@ public class SteamAppLoader {
             throw new RegistryNotFoundException();
         }
 
-        RegistryObject rootRegistry = convert(rawApp.getVdfObject());
+        RegistryObject rootRegistry = convert(rawApp.vdfObject());
         RegistryStore registryStore = new RegistryStore(rootRegistry);
 
         return new SteamApp(registryStore);
@@ -31,7 +31,7 @@ public class SteamAppLoader {
         Collection<App> apps = loadAppCache().getApps();
 
         RegistryObject registryObject = apps.stream()
-                .map(steamApp -> convert(steamApp.getVdfObject()))
+                .map(steamApp -> convert(steamApp.vdfObject()))
                 .filter(registry -> registry.pathExists("common/name") && registry.getObjectValueAsString("common/name").getValue().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Could not find app named " + name));

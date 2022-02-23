@@ -12,7 +12,7 @@ public class AppCache {
     }
 
     public void add(App app) {
-        appMap.put((long) app.getAppId(), app);
+        appMap.put((long) app.appId(), app);
     }
 
     public App getById(long id) {
