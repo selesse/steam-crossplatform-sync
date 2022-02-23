@@ -43,16 +43,13 @@ public class SteamAppLoader {
         RegistryObject registryObject = new RegistryObject();
 
         for (Object value : object.getValues()) {
-            if (value instanceof VdfObject) {
-                VdfObject nestedVdfObject = (VdfObject) value;
+            if (value instanceof VdfObject nestedVdfObject) {
                 RegistryObject nestedObject = convert(nestedVdfObject);
                 registryObject.put(nestedVdfObject.getName(), nestedObject);
-            } else if (value instanceof VdfString) {
-                VdfString stringObject = (VdfString) value;
+            } else if (value instanceof VdfString stringObject) {
                 RegistryString registryString = new RegistryString(stringObject.getName(), "" + stringObject.getValue());
                 registryObject.put(registryString.getName(), registryString);
-            } else if (value instanceof VdfInteger) {
-                VdfInteger intObject = (VdfInteger) value;
+            } else if (value instanceof VdfInteger intObject) {
                 RegistryString registryString = new RegistryString(intObject.getName(), "" + intObject.getValue());
                 registryObject.put(intObject.getName(), registryString);
             }

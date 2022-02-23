@@ -48,8 +48,8 @@ public class RegistryObject extends RegistryValue {
 
         for (String part : parts) {
             RegistryValue registryValue = currentObject.get(part);
-            if (registryValue instanceof RegistryObject) {
-                currentObject = (RegistryObject) registryValue;
+            if (registryValue instanceof RegistryObject registryObject) {
+                currentObject = registryObject;
             } else {
                 return registryValue;
             }
@@ -68,8 +68,8 @@ public class RegistryObject extends RegistryValue {
             if (registryValue == null) {
                 return false;
             }
-            if (registryValue instanceof RegistryObject) {
-                currentObject = (RegistryObject) registryValue;
+            if (registryValue instanceof RegistryObject registryObject) {
+                currentObject = registryObject;
             }
         }
 
