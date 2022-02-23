@@ -7,7 +7,6 @@ import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -22,7 +21,7 @@ public class RegistryPrettyPrintTest {
     }
 
     @Test
-    public void canPrettyPrintInscryptionBasedOnAppCache() throws IOException {
+    public void canPrettyPrintInscryptionBasedOnAppCache() {
         TestAppCache.setup();
         RegistryStore registryStore = SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);

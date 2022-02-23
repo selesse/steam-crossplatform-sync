@@ -5,8 +5,6 @@ import com.selesse.steam.games.SteamGame;
 
 import java.util.List;
 
-;
-
 public class GamesFilePrinter {
     private final SteamCrossplatformSyncContext context;
 
