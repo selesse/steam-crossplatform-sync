@@ -5,7 +5,6 @@ import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class GameConfig {
     private final List<SyncableGame> games;
@@ -16,7 +15,7 @@ public class GameConfig {
 
     public static GameConfig fromRaw(GameConfigRaw gameConfigRaw) {
         List<SyncableGame> games =
-                gameConfigRaw.games.stream().map(SyncableGame::fromRaw).collect(Collectors.toList());
+                gameConfigRaw.games.stream().map(SyncableGame::fromRaw).toList();
         return new GameConfig(games);
     }
 

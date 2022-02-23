@@ -6,7 +6,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RemoteAppInfoFetcher {
     private final String remoteAppInfoUrl;
@@ -22,7 +21,7 @@ public class RemoteAppInfoFetcher {
                     URI.create(remoteAppInfoUrl + "/app-info/" + appId)
             ).build();
             var response = httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
-            return response.body().collect(Collectors.toList());
+            return response.body().toList();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

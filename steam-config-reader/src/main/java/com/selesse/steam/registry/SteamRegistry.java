@@ -9,7 +9,6 @@ import com.selesse.steam.games.SteamGameMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class SteamRegistry {
     public static SteamRegistry getInstance() {
@@ -27,7 +26,7 @@ public abstract class SteamRegistry {
         return getInstalledAppIds().stream()
                 .map(this::getGameMetadata)
                 .filter(gameMetadata -> getSteamApp(gameMetadata.getGameId()).getType() == AppType.GAME)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public SteamGameMetadata getGameMetadata(Long gameId) {

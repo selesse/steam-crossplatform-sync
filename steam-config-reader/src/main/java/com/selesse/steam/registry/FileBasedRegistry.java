@@ -9,7 +9,6 @@ import com.selesse.steam.registry.implementation.RegistryString;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class FileBasedRegistry extends SteamRegistry {
     private final RegistryStore registryStore;
@@ -38,7 +37,7 @@ public abstract class FileBasedRegistry extends SteamRegistry {
             return Lists.newArrayList();
         }
         return object.getKeys().stream().map(Long::valueOf)
-                .filter(this::isInstalled).sorted().collect(Collectors.toList());
+                .filter(this::isInstalled).sorted().toList();
     }
 
     private RegistryObject getAppsRegistryObject() {

@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ public class RegistryPrettyPrintTest {
     public void prettyPrintingPrettyPrintResultsInTheSame() {
         String prettyPrint = RegistryPrettyPrint.prettyPrint(TestGames.HOLLOW_KNIGHT.getGameRegistryStore());
 
-        List<String> prettyPrintedLines = Stream.of(prettyPrint.split("\n")).collect(Collectors.toList());
+        List<String> prettyPrintedLines = Stream.of(prettyPrint.split("\n")).toList();
         RegistryStore registryStore = RegistryParser.parseWithoutRegistryCollapse(prettyPrintedLines);
         String prettyPrint2 = RegistryPrettyPrint.prettyPrint(registryStore);
 

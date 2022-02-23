@@ -8,7 +8,6 @@ import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SteamApp {
     private final RegistryStore registryStore;
@@ -37,7 +36,7 @@ public class SteamApp {
         }
         RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/oslist");
         List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
-        return oses.stream().map(x -> SteamOperatingSystem.fromString(x).toOperatingSystem()).collect(Collectors.toList());
+        return oses.stream().map(x -> SteamOperatingSystem.fromString(x).toOperatingSystem()).toList();
     }
 
     public String getMacInstallationPath() {

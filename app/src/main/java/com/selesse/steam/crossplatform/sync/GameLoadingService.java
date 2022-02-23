@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GameLoadingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameLoadingService.class);
@@ -55,7 +54,7 @@ public class GameLoadingService {
     }
 
     public List<SteamGame> loadInstalledGames() {
-        return steamRegistry.getInstalledAppIds().stream().map(this::loadGame).collect(Collectors.toList());
+        return steamRegistry.getInstalledAppIds().stream().map(this::loadGame).toList();
     }
 
     private boolean accurateEnoughCache(Path cachedRegistryStore) {

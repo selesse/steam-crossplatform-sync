@@ -6,7 +6,6 @@ import com.selesse.steam.crossplatform.sync.server.AppInfoServer;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class App {
     public static void main(String[] args) {
@@ -15,7 +14,7 @@ public class App {
         SteamCrossplatformSyncContext context = new SteamCrossplatformSyncContext();
         if (arguments.contains("--sync")) {
             int index = arguments.indexOf("--sync");
-            List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+            List<String> argList = Arrays.stream(args).toList();
             if (argList.size() == 1) {
                 new SyncGameFilesService(context).runForAllGames();
             } else {
@@ -26,7 +25,7 @@ public class App {
             new GamesFilePrinter(context).run();
         } else if (arguments.contains("--print-game")) {
             int index = arguments.indexOf("--print-game");
-            List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+            List<String> argList = Arrays.stream(args).toList();
             Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
             new GamesFilePrinter(context).run(gameIds);
         } else if (arguments.contains("--generate-games")) {

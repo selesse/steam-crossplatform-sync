@@ -5,7 +5,6 @@ import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.implementation.RegistryObject;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EverythingInSaveFilesWindowsOnly extends SaveFile {
     public EverythingInSaveFilesWindowsOnly(SteamApp steamApp) {
@@ -19,7 +18,7 @@ public class EverythingInSaveFilesWindowsOnly extends SaveFile {
         }
         RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
         List<RegistryObject> objects =
-                saveFiles.getKeys().stream().map(saveFiles::getObjectValueAsObject).collect(Collectors.toList());
+                saveFiles.getKeys().stream().map(saveFiles::getObjectValueAsObject).toList();
         return objects.stream().noneMatch(x -> x.getKeys().contains("platforms"));
     }
 

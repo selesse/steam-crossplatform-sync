@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SyncGameFilesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncGameFilesService.class);
@@ -28,11 +27,11 @@ public class SyncGameFilesService {
     }
 
     public void run(Long[] gameIds) {
-        Arrays.stream(gameIds).map(context::loadGame).collect(Collectors.toList()).forEach(this::run);
+        Arrays.stream(gameIds).map(context::loadGame).toList().forEach(this::run);
     }
 
     public void run(SteamGame[] steamGames) {
-        List<SteamGame> gamesToSync = Arrays.stream(steamGames).collect(Collectors.toList());
+        List<SteamGame> gamesToSync = Arrays.stream(steamGames).toList();
         GameConfig gameList = new GameLoader().loadGames(context.getConfig());
         for (SteamGame steamGame : gamesToSync) {
             gameList.getGame(steamGame.getId()).ifPresentOrElse(
