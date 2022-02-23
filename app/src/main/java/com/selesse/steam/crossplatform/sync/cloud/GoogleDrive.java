@@ -17,11 +17,30 @@ public class GoogleDrive {
             return googleDrive;
         }
 
-        Path localDbPath = switch (OperatingSystems.get()) {
-            case MAC, LINUX -> defaultMacPath();
-            case WINDOWS -> defaultWindowsPath();
+        Optional<Path> localDbPathMaybe = switch (OperatingSystems.get()) {
+            case MAC, LINUX -> defaultMacDriveConfigPath();
+            case WINDOWS -> defaultWindowsDriveConfigPath();
         };
 
+        return localDbPathMaybe.map(GoogleDrive::loadGoogleDrivePathFromItsDatabase).orElse(defaultPathIfExists());
+    }
+
+    private static Optional<Path> defaultPathIfExists() {
+        return Stream.of(defaultPath(), reasonableRename())
+                .filter(x -> x.toFile().isDirectory())
+                .findFirst();
+    }
+
+    private static Optional<Path> findGoogleDriveBasedOnDrives() {
+        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories())
+                .stream()
+                .filter(drive -> RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
+                .filter(drive -> Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
+                .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
+                .findFirst();
+    }
+
+    private static Optional<Path> loadGoogleDrivePathFromItsDatabase(Path localDbPath) {
         try {
             Connection connectionToDb = getConnectionToDb(localDbPath);
             Statement connection = connectionToDb.createStatement();
@@ -34,36 +53,24 @@ public class GoogleDrive {
             }
             return Optional.of(Path.of(result));
         } catch (SQLException ignored) {
-            return Stream.of(defaultPath(), reasonableRename())
-                    .filter(x -> x.toFile().isDirectory())
-                    .findFirst();
+            return defaultPathIfExists();
         }
     }
 
-    private static Optional<Path> findGoogleDriveBasedOnDrives() {
-        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories())
-                .stream()
-                .filter(drive -> RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
-                .filter(drive -> Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
-                .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
-                .findFirst();
-    }
-
-    private static Path defaultWindowsPath() {
+    private static Optional<Path> defaultWindowsDriveConfigPath() {
         return dbPathRelativeToDriveRoot(Path.of(System.getenv("LOCALAPPDATA")));
     }
 
-    private static Path defaultMacPath() {
+    private static Optional<Path> defaultMacDriveConfigPath() {
         return dbPathRelativeToDriveRoot(
                 Path.of(System.getProperty("user.home"), "Library", "Application Support")
         );
     }
 
-    private static Path dbPathRelativeToDriveRoot(Path base) {
+    private static Optional<Path> dbPathRelativeToDriveRoot(Path base) {
         return Stream.of(newSyncConfigPath(base), legacySyncConfigPath(base))
                 .filter(path -> path.toFile().isFile())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Could not find Google Drive installation anywhere"));
+                .findFirst();
     }
 
     private static Path legacySyncConfigPath(Path base) {
