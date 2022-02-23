@@ -1,7 +1,10 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
+import com.google.common.collect.Lists;
+import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.OperatingSystems;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.Optional;
@@ -9,6 +12,11 @@ import java.util.stream.Stream;
 
 public class GoogleDrive {
     public static Optional<Path> getDriveRoot() {
+        Optional<Path> googleDrive = findGoogleDriveBasedOnDrives();
+        if (googleDrive.isPresent()) {
+            return googleDrive;
+        }
+
         Path localDbPath = switch (OperatingSystems.get()) {
             case MAC, LINUX -> defaultMacPath();
             case WINDOWS -> defaultWindowsPath();
@@ -32,6 +40,15 @@ public class GoogleDrive {
         }
     }
 
+    private static Optional<Path> findGoogleDriveBasedOnDrives() {
+        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories())
+                .stream()
+                .filter(drive -> RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
+                .filter(drive -> Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
+                .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
+                .findFirst();
+    }
+
     private static Path defaultWindowsPath() {
         return dbPathRelativeToDriveRoot(Path.of(System.getenv("LOCALAPPDATA")));
     }
@@ -46,7 +63,7 @@ public class GoogleDrive {
         return Stream.of(newSyncConfigPath(base), legacySyncConfigPath(base))
                 .filter(path -> path.toFile().isFile())
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Could not find Google Drive installation anywhere"));
     }
 
     private static Path legacySyncConfigPath(Path base) {

@@ -1,13 +1,19 @@
 package com.selesse.files;
 
 import com.google.common.base.Charsets;
+import mslinks.ShellLink;
+import mslinks.ShellLinkException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * File operations that wrap checked exceptions into RuntimeExceptions.
+ */
 public class RuntimeExceptionFiles {
     public static void writeString(Path path, String string) {
         File parentDirectory = path.toFile().getParentFile();
@@ -28,6 +34,25 @@ public class RuntimeExceptionFiles {
         try {
             return Files.readAllLines(path);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static FileStore getFileStore(Path path) {
+        try {
+            return Files.getFileStore(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Path resolveLnk(Path lnkFile) {
+        try {
+            if (!lnkFile.toFile().exists()) {
+                throw new RuntimeException("File doesn't exist: " + lnkFile.toAbsolutePath());
+            }
+            return Path.of(new ShellLink(lnkFile).resolveTarget());
+        } catch (IOException | ShellLinkException e) {
             throw new RuntimeException(e);
         }
     }
