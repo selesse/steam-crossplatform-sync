@@ -1,0 +1,30 @@
+games:
+- name: Hollow Knight
+  windows: "%USERPROFILE%/AppData/LocalLow/Team Cherry/Hollow Knight"
+  mac: "~/Library/Application Support/unity.Team Cherry.Hollow Knight"
+  linux: "~/.config/unity3d/Team Cherry/Hollow Knight"
+- name: The Jackbox Party Pack
+  windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/The Jackbox Party Pack/save"
+  mac: "~/Library/Application Support/Steam/steamapps/common/The Jackbox Party Pack/save"
+  linux: "~/.steam/steamapps/common/The Jackbox Party Pack/save"
+- name: Inscryption
+  windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/Inscryption/"
+- name: Legend of Grimrock
+  windows: "%USERPROFILE%/Documents/Almost Human/Legend of Grimrock"
+  mac: "~/Library/Application Support/Almost Human/Legend of Grimrock"
+- name: Oxygen Not Included
+  windows: "%USERPROFILE%/Documents/Klei/OxygenNotIncluded/save_files"
+  mac: "~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files"
+- name: Slay the Spire
+  windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves"
+  mac: "~/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves"
+- name: Unrailed!
+  windows: "%USERPROFILE%/AppData/Local/Daedalic Entertainment GmbH/Unrailed/GameState/AllPlayers/SaveGames"
+  mac: "~/Library/Application Support/UnrailedGame/GameState/AllPlayers/SaveGames"
+  linux: "~/.local/share/UnrailedGame/GameState/AllPlayers/SaveGames"
+- name: Wargroove
+  windows: "%USERPROFILE%/AppData/Roaming/Chucklefish/Wargroove/save"
+- name: Wildermyth
+  windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/Wildermyth/players"
+  mac: "~/Library/Application Support/Steam/steamapps/common/Wildermyth/wildermyth.app/Contents/Resources/players"
+  linux: "~/.steam/steamapps/common/Wildermyth/players"

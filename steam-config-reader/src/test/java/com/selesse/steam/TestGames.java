@@ -3,7 +3,6 @@ package com.selesse.steam;
 import com.google.common.base.Splitter;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.Resources;
-import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
@@ -34,10 +33,6 @@ public enum TestGames {
 
     public long getGameId() {
         return gameId;
-    }
-
-    public UserFileSystem getUserFileSystem() {
-        return new UserFileSystem(new SteamApp(RegistryParser.parse(registryFileContents())));
     }
 
     public RegistryStore getGameRegistryStore() {
