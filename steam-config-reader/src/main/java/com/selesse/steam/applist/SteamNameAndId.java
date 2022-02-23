@@ -2,8 +2,4 @@ package com.selesse.steam.applist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SteamNameAndId {
-    public String name;
-    @JsonProperty("appid")
-    public long appId;
-}
+public record SteamNameAndId(String name, @JsonProperty(value="appid") long appId) {}

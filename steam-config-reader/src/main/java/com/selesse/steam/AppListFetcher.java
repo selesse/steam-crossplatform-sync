@@ -2,6 +2,7 @@ package com.selesse.steam;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.selesse.steam.applist.SteamAppList;
 import org.slf4j.Logger;
@@ -37,6 +38,6 @@ public class AppListFetcher {
         } catch (IOException e) {
             LOGGER.info("Unable to fetch app list", e);
         }
-        return new SteamAppList();
+        return new SteamAppList(Lists.newArrayList());
     }
 }
