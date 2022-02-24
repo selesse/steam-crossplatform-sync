@@ -30,3 +30,7 @@ games:
   windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/Wildermyth/players"
   mac: "~/Library/Application Support/Steam/steamapps/common/Wildermyth/wildermyth.app/Contents/Resources/players"
   linux: "~/.steam/steamapps/common/Wildermyth/players"
+- name: Pillars of Eternity
+  windows: "%USERPROFILE%/Saved Games/Pillars of Eternity"
+  mac: "~/Library/Application Support/Pillars of Eternity"
+  linux: "~/.config/PillarsOfEternity"
