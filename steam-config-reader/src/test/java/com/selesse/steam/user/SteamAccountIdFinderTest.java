@@ -9,14 +9,15 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 public class SteamAccountIdFinderTest {
     @Test
     public void canFindUserId_whenLoginUsersIsPresent() {
         SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
-        when(userIdFinderSpy.getLoginUsersPath(OperatingSystems.get()))
-                .thenReturn(Optional.of(Resources.getResource("loginusers.vdf")));
+        doReturn(Optional.of(Resources.getResource("loginusers.vdf")))
+                .when(userIdFinderSpy).getLoginUsersPath(OperatingSystems.get());
 
         Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findMostRecentUserIdIfPresent();
         assertThat(steamAccountIdMaybe.orElseThrow())
@@ -26,8 +27,8 @@ public class SteamAccountIdFinderTest {
     @Test
     public void doesNotFindUserId_whenLoginUsersIsNotPresent() {
         var userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
-        when(userIdFinderSpy.getLoginUsersPath(OperatingSystems.get()))
-                .thenReturn(Optional.empty());
+        doReturn(Optional.empty())
+                .when(userIdFinderSpy).getLoginUsersPath(OperatingSystems.get());
 
         assertThat(userIdFinderSpy.findMostRecentUserIdIfPresent()).isEmpty();
     }

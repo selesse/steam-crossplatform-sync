@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 public class WindowsUserIdFinderTest {
     @Test
@@ -26,8 +26,7 @@ public class WindowsUserIdFinderTest {
                 ""
         );
 
-        when(windowsUserIdFinder.getActiveProcessOutput()).thenReturn(Joiner.on("\n").join(sampleOutput));
-
+        doReturn(Joiner.on("\n").join(sampleOutput)).when(windowsUserIdFinder).getActiveProcessOutput();
 
         assertThat(windowsUserIdFinder.findCurrentActiveUser())
                 .isPresent()
