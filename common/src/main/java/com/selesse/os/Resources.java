@@ -1,5 +1,6 @@
 package com.selesse.os;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -15,6 +16,14 @@ public class Resources {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static InputStream getJarResource(String name) {
+        URL resource = Resources.class.getClassLoader().getResource(name);
+        if (resource == null) {
+            throw new RuntimeException("Could not find resource \"" + name + "\" on classpath");
+        }
+        return Resources.class.getClassLoader().getResourceAsStream(name);
     }
 
     public static boolean exists(String name) {

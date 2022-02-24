@@ -6,7 +6,7 @@ import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 
 public class BypassRegistrySaveFile extends SaveFile {
     private final SaveFileOverrides saveFileOverrides;
@@ -23,8 +23,8 @@ public class BypassRegistrySaveFile extends SaveFile {
 
     private SaveFileOverrides getSaveFileOverrides() throws IOException {
         var objectMapper = new ObjectMapper();
-        Path saveOverrides = Resources.getResource("save-location-overrides.json");
-        return objectMapper.readValue(saveOverrides.toFile(), SaveFileOverrides.class);
+        InputStream inputStream = Resources.getJarResource("save-location-overrides.json");
+        return objectMapper.readValue(inputStream, SaveFileOverrides.class);
     }
 
     @Override
