@@ -20,15 +20,16 @@ public class SteamAccountIdFinder {
     SteamAccountIdFinder() {}
 
     public static Optional<SteamAccountId> findIfPresent() {
-        return new SteamAccountIdFinder().findMostRecentUserIdIfPresent();
-    }
-
-    Optional<SteamAccountId> findMostRecentUserIdIfPresent() {
         var os = OperatingSystems.get();
         if (os == OperatingSystems.OperatingSystem.WINDOWS) {
             return WindowsUserIdFinder.find();
+        } else {
+            return new SteamAccountIdFinder().findMostRecentUserIdIfPresent();
         }
-        var loginUsersFile = getLoginUsersPath(os);
+    }
+
+    Optional<SteamAccountId> findMostRecentUserIdIfPresent() {
+        var loginUsersFile = getLoginUsersPath(OperatingSystems.get());
         if (loginUsersFile.isEmpty()) {
             LOGGER.info("Could not find loginusers.vdf");
             return Optional.empty();
