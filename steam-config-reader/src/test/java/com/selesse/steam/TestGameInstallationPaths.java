@@ -2,6 +2,8 @@ package com.selesse.steam;
 
 
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.games.saves.SaveFile;
+import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,18 +41,22 @@ public class TestGameInstallationPaths {
     @Test
     public void testGame() {
         steamApp = SteamAppLoader.findByName(gameTestCase.name());
+        SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
             assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windows());
+            assertThat(saveFile.getWindowsInfo().getSymbolPath()).isEqualTo(gameTestCase.windows());
         }
         if (gameTestCase.mac() != null) {
             assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.mac());
+            assertThat(saveFile.getMacInfo().getSymbolPath()).isEqualTo(gameTestCase.mac());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
             fail(steamApp.getName() + " supports OS X but no path was provided. " +
                     "Add \"" + steamApp.getMacInstallationPath() + "\" to the file.");
         }
         if (gameTestCase.linux() != null) {
             assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linux());
+            assertThat(saveFile.getLinuxInfo().getSymbolPath()).isEqualTo(gameTestCase.linux());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " +
                     "Add \"" + steamApp.getLinuxInstallationPath() + "\" to the file.");
