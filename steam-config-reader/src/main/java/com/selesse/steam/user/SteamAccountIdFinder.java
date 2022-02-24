@@ -19,6 +19,10 @@ public class SteamAccountIdFinder {
 
     SteamAccountIdFinder() {}
 
+    public static Optional<SteamAccountId> findIfPresent() {
+        return new SteamAccountIdFinder().findMostRecentUserIdIfPresent();
+    }
+
     Optional<SteamAccountId> findMostRecentUserIdIfPresent() {
         var os = OperatingSystems.get();
         if (os == OperatingSystems.OperatingSystem.WINDOWS) {

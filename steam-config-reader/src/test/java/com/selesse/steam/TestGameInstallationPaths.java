@@ -44,19 +44,19 @@ public class TestGameInstallationPaths {
         SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
-            assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windows());
-            assertThat(saveFile.getWindowsInfo().getSymbolPath()).isEqualTo(gameTestCase.windows());
+            assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windowsPath());
+            assertThat(saveFile.getWindowsInfo().getSymbolPath()).isEqualTo(gameTestCase.windowsPath());
         }
         if (gameTestCase.mac() != null) {
-            assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.mac());
-            assertThat(saveFile.getMacInfo().getSymbolPath()).isEqualTo(gameTestCase.mac());
+            assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.macPath());
+            assertThat(saveFile.getMacInfo().getSymbolPath()).isEqualTo(gameTestCase.macPath());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
             fail(steamApp.getName() + " supports OS X but no path was provided. " +
                     "Add \"" + steamApp.getMacInstallationPath() + "\" to the file.");
         }
         if (gameTestCase.linux() != null) {
-            assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linux());
-            assertThat(saveFile.getLinuxInfo().getSymbolPath()).isEqualTo(gameTestCase.linux());
+            assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linuxPath());
+            assertThat(saveFile.getLinuxInfo().getSymbolPath()).isEqualTo(gameTestCase.linuxPath());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " +
                     "Add \"" + steamApp.getLinuxInstallationPath() + "\" to the file.");

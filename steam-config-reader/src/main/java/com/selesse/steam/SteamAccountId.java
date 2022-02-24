@@ -10,6 +10,15 @@ public record SteamAccountId(String sixtyFourBitId) {
             );
         }
     }
+
+    public String to64Bit() {
+        return sixtyFourBitId;
+    }
+
+    public String to32Bit() {
+        return "" + to32BitId();
+    }
+
     public long to64BitId() {
         return Long.parseLong(sixtyFourBitId);
     }

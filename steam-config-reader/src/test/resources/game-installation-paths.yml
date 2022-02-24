@@ -13,9 +13,9 @@ games:
   windows: "%USERPROFILE%/Documents/Almost Human/Legend of Grimrock"
   mac: "~/Library/Application Support/Almost Human/Legend of Grimrock"
 - name: Oxygen Not Included
-  windows: "%USERPROFILE%/Documents/Klei/OxygenNotIncluded/save_files"
-  mac: "~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files"
-  linux: "~/.config/unity3d/Klei/Oxygen Not Included/save_files"
+  windows: "%USERPROFILE%/Documents/Klei/OxygenNotIncluded/save_files/{64BitSteamID}"
+  mac: "~/Library/Application Support/unity.Klei.Oxygen Not Included/save_files/{64BitSteamID}"
+  linux: "~/.config/unity3d/Klei/Oxygen Not Included/save_files/{64BitSteamID}"
 - name: Slay the Spire
   windows: "%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves"
   mac: "~/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves"
