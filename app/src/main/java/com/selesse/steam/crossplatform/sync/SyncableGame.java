@@ -7,26 +7,15 @@ import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 
 import java.nio.file.Path;
 
-public class SyncableGame {
-    private final String name;
-    private final String windows;
-    private final String mac;
-    private final Long gameId;
-
-    private SyncableGame(String name, String windows, String mac, long gameId) {
-        this.name = name;
-        this.windows = windows;
-        this.mac = mac;
-        this.gameId = gameId;
-    }
-
+public record SyncableGame(String name, String windows, String mac, String linux, Long gameId) {
     public static SyncableGame fromRaw(SyncableGameRaw raw) {
-        return new SyncableGame(raw.name, raw.windows, raw.mac, raw.gameId);
+        return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId());
     }
 
     public Path getLocalPath() {
         return switch (OperatingSystems.get()) {
-            case MAC, LINUX -> Path.of(FilePathSanitizer.sanitize(mac));
+            case MAC -> Path.of(FilePathSanitizer.sanitize(mac));
+            case LINUX -> Path.of(FilePathSanitizer.sanitize(linux));
             case WINDOWS -> Path.of(FilePathSanitizer.sanitize(windows));
         };
     }
@@ -50,7 +39,8 @@ public class SyncableGame {
 
     public boolean isSupportedOnThisOs() {
         return switch (OperatingSystems.get()) {
-            case MAC, LINUX -> mac != null;
+            case MAC -> mac != null;
+            case LINUX -> linux != null;
             case WINDOWS -> windows != null;
         };
     }

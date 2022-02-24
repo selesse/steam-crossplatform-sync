@@ -27,17 +27,16 @@ public class GamesFileGenerator {
             if (steamGame.hasUserCloud() && steamGame.hasComputedInstallationPath()) {
                 String windowsPath = steamGame.getWindowsInstallationPath();
                 String macPath = steamGame.getMacInstallationPath();
+                String linuxPath = steamGame.getLinuxInstallationPath();
 
-                SyncableGameRaw syncableGame = new SyncableGameRaw();
-                syncableGame.mac = macPath;
-                syncableGame.windows = windowsPath;
-                syncableGame.name = steamGame.getName();
-                syncableGame.gameId = steamGame.getId();
+                SyncableGameRaw syncableGame = new SyncableGameRaw(
+                        windowsPath, macPath, linuxPath, steamGame.getName(), steamGame.getId()
+                );
                 syncableGames.add(syncableGame);
             }
         }
 
-        syncableGames.sort(Comparator.comparing(x -> x.name));
+        syncableGames.sort(Comparator.comparing(SyncableGameRaw::name));
         GameConfigRaw gameConfigRaw = new GameConfigRaw();
         gameConfigRaw.games = syncableGames;
         YAMLFactory yamlFactory = new YAMLFactory();
