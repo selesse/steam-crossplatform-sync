@@ -17,7 +17,7 @@ hand-crafted. Unfortunately, determining the save location of a given
 game is non-trivial. [Work is being done][work] to automatically detect as many
 games and formats as possible.
 
-[work]: https://github.com/selesse/steam-crossplatform-sync/blob/master/steam-config-reader/src/test/java/com/selesse/steam/steamcmd/games/UserFileSystemTest.java
+[work]: https://github.com/selesse/steam-crossplatform-sync/blob/master/steam-config-reader/src/test/resources/game-installation-paths.yml
 
 ## Setup
 
