@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
@@ -41,6 +42,7 @@ public class GamesFileGenerator {
         gameConfigRaw.games = syncableGames;
         YAMLFactory yamlFactory = new YAMLFactory();
         ObjectMapper objectMapper = new ObjectMapper(yamlFactory);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         try {
             objectMapper.writeValue(System.out, gameConfigRaw);
         } catch (IOException e) {
