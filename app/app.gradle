@@ -7,6 +7,19 @@ plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'org.hidetake.ssh' version '2.10.1'
+    id 'org.beryx.jlink' version '2.23.6'
+
+}
+
+jlink {
+    mergedModule {
+        requires 'java.naming'
+        requires 'java.xml'
+    }
+    launcher{
+        name = 'hello'
+        jvmArgs = ['-Dlogback.configurationFile=./logback.xml']
+    }
 }
 
 dependencies {

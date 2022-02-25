@@ -14,9 +14,10 @@ subprojects {
         testImplementation('junit:junit:4.13')
         testImplementation("org.assertj:assertj-core:3.11.1")
 
+        implementation('com.google.code.findbugs:jsr305:3.0.2')
         api('org.slf4j:slf4j-api:1.7.32')
         implementation('ch.qos.logback:logback-classic:1.2.10')
-        api('com.google.guava:guava:29.0-jre')
+        api('com.google.guava:guava:31.0-jre')
         implementation('org.fusesource.jansi:jansi:1.18')
     }
 

@@ -9,7 +9,6 @@ import com.selesse.steam.registry.windows.GetInstalledAppIdsFromRegistry;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ class WindowsSteamRegistry extends SteamRegistry {
                 .expireAfterWrite(30, TimeUnit.SECONDS)
                 .build(new CacheLoader<>() {
                     @Override
-                    public List<Long> load(@Nonnull String ignored) {
+                    public List<Long> load(String ignored) {
                         return GetInstalledAppIdsFromRegistry.get();
                     }
                 });
