@@ -1,0 +1,9 @@
+plugins {
+    id("de.jjohannes.extra-java-module-info")
+}
+
+extraJavaModuleInfo {
+    module("spark-core-2.9.3.jar", "spark.core", "2.9.3") {
+        exports("spark")
+    }
+}

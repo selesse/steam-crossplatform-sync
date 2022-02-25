@@ -1,3 +1,11 @@
 plugins {
     id 'groovy-gradle-plugin'
 }
+
+repositories {
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation("de.jjohannes.gradle:extra-java-module-info:0.11")
+}

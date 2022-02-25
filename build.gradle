@@ -5,6 +5,7 @@ plugins {
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'selesse.java-code-quality-conventions'
+    apply plugin: 'selesse.fix-spark-conventions'
 
     repositories {
         mavenCentral()

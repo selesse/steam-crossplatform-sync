@@ -8,7 +8,6 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'org.hidetake.ssh' version '2.10.1'
     id 'org.beryx.jlink' version '2.23.6'
-
 }
 
 jlink {
@@ -21,6 +20,7 @@ jlink {
         jvmArgs = ['-Dlogback.configurationFile=./logback.xml']
     }
 }
+
 
 dependencies {
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.1')
