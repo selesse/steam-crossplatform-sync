@@ -6,8 +6,8 @@ module com.selesse.steam.crossplatform.sync {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.dataformat.yaml;
     requires com.selesse.steam.config.reader;
-    requires spark.core;
-    requires logback.core;
+    requires ch.qos.logback.core;
 
     exports com.selesse.steam.crossplatform.sync;
+    exports com.selesse.steam.crossplatform.sync.serialize;
 }
