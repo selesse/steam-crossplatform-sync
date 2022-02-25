@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.games.SteamGame;
-
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -30,9 +29,8 @@ public class GamesFileGenerator {
                 String macPath = steamGame.getMacInstallationPath();
                 String linuxPath = steamGame.getLinuxInstallationPath();
 
-                SyncableGameRaw syncableGame = new SyncableGameRaw(
-                        windowsPath, macPath, linuxPath, steamGame.getName(), steamGame.getId()
-                );
+                SyncableGameRaw syncableGame =
+                        new SyncableGameRaw(windowsPath, macPath, linuxPath, steamGame.getName(), steamGame.getId());
                 syncableGames.add(syncableGame);
             }
         }

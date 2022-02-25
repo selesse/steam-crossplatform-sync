@@ -1,7 +1,6 @@
 package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
-
 import java.nio.file.Path;
 
 public class LinuxSteamRegistry extends FileBasedRegistry {

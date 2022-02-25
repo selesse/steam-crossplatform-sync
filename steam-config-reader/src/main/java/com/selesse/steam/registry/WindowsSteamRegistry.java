@@ -6,25 +6,26 @@ import com.google.common.cache.LoadingCache;
 import com.selesse.steam.registry.windows.GetCurrentlyRunningGameIdViaRegistry;
 import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
 import com.selesse.steam.registry.windows.GetInstalledAppIdsFromRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class WindowsSteamRegistry extends SteamRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
     private final LoadingCache<String, List<Long>> installedAppCache;
 
     public WindowsSteamRegistry() {
-        this.installedAppCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build(new CacheLoader<>() {
-            @Override
-            public List<Long> load(@Nonnull String ignored) {
-                return GetInstalledAppIdsFromRegistry.get();
-            }
-        });
+        this.installedAppCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(30, TimeUnit.SECONDS)
+                .build(new CacheLoader<>() {
+                    @Override
+                    public List<Long> load(@Nonnull String ignored) {
+                        return GetInstalledAppIdsFromRegistry.get();
+                    }
+                });
     }
 
     @Override
@@ -49,7 +50,8 @@ class WindowsSteamRegistry extends SteamRegistry {
     }
 
     private boolean hasGameOverlayProcessRunning() {
-        return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive)
+        return ProcessHandle.allProcesses()
+                .filter(ProcessHandle::isAlive)
                 .anyMatch(process -> process.info().command().orElseThrow().contains("Steam\\GameOverlayUI"));
     }
 }

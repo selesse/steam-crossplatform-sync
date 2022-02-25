@@ -1,14 +1,13 @@
 package com.selesse.steam;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.selesse.os.Resources;
 import com.selesse.steam.appcache.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.nio.file.Path;
 import java.util.Formatter;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class AppCacheReaderTest {
     private static AppCache appCache;

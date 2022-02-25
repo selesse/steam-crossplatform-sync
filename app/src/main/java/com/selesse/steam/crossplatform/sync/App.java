@@ -3,7 +3,6 @@ package com.selesse.steam.crossplatform.sync;
 import com.google.common.collect.Lists;
 import com.selesse.steam.crossplatform.sync.daemon.Daemon;
 import com.selesse.steam.crossplatform.sync.server.AppInfoServer;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +17,9 @@ public class App {
             if (argList.size() == 1) {
                 new SyncGameFilesService(context).runForAllGames();
             } else {
-                Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
+                Long[] gameIds = argList.subList(index + 1, args.length).stream()
+                        .map(Long::parseLong)
+                        .toArray(Long[]::new);
                 new SyncGameFilesService(context).run(gameIds);
             }
         } else if (arguments.contains("--print-games")) {
@@ -26,7 +27,9 @@ public class App {
         } else if (arguments.contains("--print-game")) {
             int index = arguments.indexOf("--print-game");
             List<String> argList = Arrays.stream(args).toList();
-            Long[] gameIds = argList.subList(index + 1, args.length).stream().map(Long::parseLong).toArray(Long[]::new);
+            Long[] gameIds = argList.subList(index + 1, args.length).stream()
+                    .map(Long::parseLong)
+                    .toArray(Long[]::new);
             new GamesFilePrinter(context).run(gameIds);
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(context).run();

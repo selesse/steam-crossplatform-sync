@@ -4,7 +4,6 @@ import ch.qos.logback.core.PropertyDefinerBase;
 import com.google.common.base.StandardSystemProperty;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-
 import java.io.File;
 import java.util.Objects;
 

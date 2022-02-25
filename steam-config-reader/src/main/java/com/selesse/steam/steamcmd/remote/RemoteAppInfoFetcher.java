@@ -17,9 +17,8 @@ public class RemoteAppInfoFetcher {
     public List<String> fetch(Long appId) {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
-            var request = HttpRequest.newBuilder(
-                    URI.create(remoteAppInfoUrl + "/app-info/" + appId)
-            ).build();
+            var request = HttpRequest.newBuilder(URI.create(remoteAppInfoUrl + "/app-info/" + appId))
+                    .build();
             var response = httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
             return response.body().toList();
         } catch (IOException | InterruptedException e) {

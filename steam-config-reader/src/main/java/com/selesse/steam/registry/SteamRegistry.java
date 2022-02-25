@@ -6,7 +6,6 @@ import com.selesse.steam.AppType;
 import com.selesse.steam.GameRegistries;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.SteamGameMetadata;
-
 import java.nio.file.Path;
 import java.util.List;
 
@@ -20,6 +19,7 @@ public abstract class SteamRegistry {
     }
 
     public abstract long getCurrentlyRunningAppId();
+
     public abstract List<Long> getInstalledAppIds();
 
     public List<SteamGameMetadata> getGamesMetadata() {
@@ -31,7 +31,8 @@ public abstract class SteamRegistry {
 
     public SteamGameMetadata getGameMetadata(Long gameId) {
         SteamApp steamApp = getSteamApp(gameId);
-        return new SteamGameMetadata(gameId, steamApp.getName(), getInstalledAppIds().contains(gameId));
+        return new SteamGameMetadata(
+                gameId, steamApp.getName(), getInstalledAppIds().contains(gameId));
     }
 
     public Path getAppCachePath() {

@@ -2,7 +2,6 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.google.common.base.Joiner;
 import com.selesse.steam.games.SteamGame;
-
 import java.util.List;
 
 public class GamesFilePrinter {

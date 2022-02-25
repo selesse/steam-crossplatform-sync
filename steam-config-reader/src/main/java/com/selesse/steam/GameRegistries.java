@@ -6,10 +6,9 @@ import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.steamcmd.SteamCmdRegistryLoader;
 import com.selesse.steam.steamcmd.remote.RemoteGameRegistryLoader;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class GameRegistries {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameRegistries.class);
@@ -24,7 +23,10 @@ public class GameRegistries {
             try {
                 return loader.load(gameId);
             } catch (RegistryNotFoundException e) {
-                LOGGER.info("Could not load game {} using {}", gameId, loader.getClass().getSimpleName());
+                LOGGER.info(
+                        "Could not load game {} using {}",
+                        gameId,
+                        loader.getClass().getSimpleName());
             }
         }
         LOGGER.error("Wasn't able to load game {} using any of the loading strategies", gameId);
@@ -40,7 +42,10 @@ public class GameRegistries {
     }
 
     private static List<GameRegistryLoader> remoteFallbackLoaders(String remoteAppInfoUrl) {
-        return List.of(new AppCacheRegistryLoader(), new SteamCmdRegistryLoader(), new RemoteGameRegistryLoader(remoteAppInfoUrl));
+        return List.of(
+                new AppCacheRegistryLoader(),
+                new SteamCmdRegistryLoader(),
+                new RemoteGameRegistryLoader(remoteAppInfoUrl));
     }
 
     private static List<GameRegistryLoader> defaultLoaders() {

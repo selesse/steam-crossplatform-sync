@@ -21,9 +21,8 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
     private static final Byte COLOR = 6;
     private static final Byte INT_64 = 7;
     private static final Byte END_OBJECT = 8;
-    private static final List<Byte> SPECIAL_BYTES = List.of(
-            BEGIN_OBJECT, STRING, INT_32, FLOAT_32, POINTER, WIDESTRING, COLOR, INT_64, END_OBJECT
-    );
+    private static final List<Byte> SPECIAL_BYTES =
+            List.of(BEGIN_OBJECT, STRING, INT_32, FLOAT_32, POINTER, WIDESTRING, COLOR, INT_64, END_OBJECT);
     private final Path path;
 
     public AppCacheBufferedReader(Path path) {

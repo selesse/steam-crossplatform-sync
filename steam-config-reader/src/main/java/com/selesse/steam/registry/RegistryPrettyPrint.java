@@ -6,7 +6,6 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.registry.implementation.RegistryValue;
-
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -42,7 +41,12 @@ public class RegistryPrettyPrint {
         }
         String indent = Strings.repeat("\t", indentLevel);
         for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
-            stringBuilder.append(indent).append("\"").append(x.getKey()).append("\"").append("\n");
+            stringBuilder
+                    .append(indent)
+                    .append("\"")
+                    .append(x.getKey())
+                    .append("\"")
+                    .append("\n");
             stringBuilder.append(indent).append("{\n");
             stringBuilder.append(prettyPrint(indentLevel + 1, x.getValue()));
             stringBuilder.append(indent).append("}\n");
@@ -63,7 +67,12 @@ public class RegistryPrettyPrint {
                 if (x.getValue() instanceof RegistryString string) {
                     stringBuilder.append(indent).append(printRegistry(string));
                 } else {
-                    stringBuilder.append(indent).append("\"").append(x.getKey()).append("\"").append("\n");
+                    stringBuilder
+                            .append(indent)
+                            .append("\"")
+                            .append(x.getKey())
+                            .append("\"")
+                            .append("\n");
                     stringBuilder.append(indent).append("{\n");
                     stringBuilder.append(prettyPrint(indentLevel + 1, x.getValue()));
                     stringBuilder.append(indent).append("}\n");
@@ -77,7 +86,8 @@ public class RegistryPrettyPrint {
     }
 
     private static String printRegistry(RegistryString registryString) {
-        return "%s%s%s\n".formatted(quote(registryString.getName()), Strings.repeat("\t", 2), quote(registryString.getValue()));
+        return "%s%s%s\n"
+                .formatted(quote(registryString.getName()), Strings.repeat("\t", 2), quote(registryString.getValue()));
     }
 
     private static String quote(String value) {

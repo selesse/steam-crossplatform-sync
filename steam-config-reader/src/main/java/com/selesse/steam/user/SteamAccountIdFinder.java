@@ -7,12 +7,11 @@ import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SteamAccountIdFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteamAccountIdFinder.class);
@@ -36,10 +35,14 @@ public class SteamAccountIdFinder {
         }
         var loginUsersRegistry = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(loginUsersFile.get()));
         var userIds = Optional.ofNullable(loginUsersRegistry.getObjectValueAsObject("users"))
-                .map(RegistryObject::getKeys).orElse(new ArrayList<>());
+                .map(RegistryObject::getKeys)
+                .orElse(new ArrayList<>());
 
         return userIds.stream()
-                .filter(userId -> loginUsersRegistry.getObjectValueAsString("users/%s/MostRecent".formatted(userId)).getValue().equals("1"))
+                .filter(userId -> loginUsersRegistry
+                        .getObjectValueAsString("users/%s/MostRecent".formatted(userId))
+                        .getValue()
+                        .equals("1"))
                 .map(SteamAccountId::new)
                 .findFirst();
     }

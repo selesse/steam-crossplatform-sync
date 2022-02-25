@@ -1,16 +1,15 @@
 package com.selesse.steam.registry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.TestAppCache;
 import com.selesse.steam.TestGames;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class RegistryPrettyPrintTest {
     @Test
@@ -23,7 +22,8 @@ public class RegistryPrettyPrintTest {
     @Test
     public void canPrettyPrintInscryptionBasedOnAppCache() {
         TestAppCache.setup();
-        RegistryStore registryStore = SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
+        RegistryStore registryStore =
+                SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);
 
         String expected = String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n";
@@ -45,7 +45,8 @@ public class RegistryPrettyPrintTest {
     @Test
     public void prettyPrinting_pathOfExile_handlesKeysWithSlashesInThem() {
         TestAppCache.setup();
-        RegistryStore registryStore = SteamAppLoader.load(TestGames.PATH_OF_EXILE.getGameId()).getRegistryStore();
+        RegistryStore registryStore =
+                SteamAppLoader.load(TestGames.PATH_OF_EXILE.getGameId()).getRegistryStore();
         String prettyPrintFromAppInfo = RegistryPrettyPrint.prettyPrint(registryStore);
 
         String expected = String.join("\n", TestGames.PATH_OF_EXILE.registryFileContentsFromFile()) + "\n";

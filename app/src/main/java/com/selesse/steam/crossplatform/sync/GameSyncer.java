@@ -3,12 +3,11 @@ package com.selesse.steam.crossplatform.sync;
 import com.selesse.files.DirectoryCopier;
 import com.selesse.files.LastModifiedResult;
 import com.selesse.files.LatestModifiedFileFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameSyncer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameSyncer.class);

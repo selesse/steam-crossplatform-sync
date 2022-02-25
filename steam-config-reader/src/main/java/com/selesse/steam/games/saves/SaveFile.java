@@ -17,7 +17,10 @@ public abstract class SaveFile {
     }
 
     public abstract boolean applies();
+
     public abstract UserFileSystemPath getMacInfo();
+
     public abstract UserFileSystemPath getWindowsInfo();
+
     public abstract UserFileSystemPath getLinuxInfo();
 }

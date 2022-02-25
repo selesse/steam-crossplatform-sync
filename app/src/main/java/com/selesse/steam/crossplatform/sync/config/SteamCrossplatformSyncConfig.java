@@ -2,9 +2,8 @@ package com.selesse.steam.crossplatform.sync.config;
 
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
-
-import javax.annotation.Nullable;
 import java.nio.file.Path;
+import javax.annotation.Nullable;
 
 public interface SteamCrossplatformSyncConfig {
     Path getConfigDirectory();
@@ -26,7 +25,8 @@ public interface SteamCrossplatformSyncConfig {
                 .map(ConfigRaw::getPathToCloudStorage)
                 .filter(x -> !x.isEmpty())
                 .map(Path::of)
-                .orElse(CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath).orElseThrow());
+                .orElse(CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath)
+                        .orElseThrow());
     }
 
     // Which folder to write into the cloud storage, relative to the root
@@ -43,7 +43,8 @@ public interface SteamCrossplatformSyncConfig {
                 .map(ConfigRaw::getGamesFileLocation)
                 .filter(x -> !x.isEmpty())
                 .map(Path::of)
-                .orElse(Path.of(getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
+                .orElse(Path.of(
+                        getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
 
     @Nullable

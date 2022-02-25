@@ -1,7 +1,6 @@
 package com.selesse.steam.registry.implementation;
 
 import com.google.common.collect.Sets;
-
 import java.util.Set;
 
 public class RegistryStore {

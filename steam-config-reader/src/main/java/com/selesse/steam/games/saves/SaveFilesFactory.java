@@ -12,7 +12,8 @@ public class SaveFilesFactory {
         if (gameInstallSaveFile.applies()) {
             return gameInstallSaveFile;
         }
-        EverythingInSaveFilesWindowsOnly everythingInSaveFilesWindowsOnly = new EverythingInSaveFilesWindowsOnly(steamApp);
+        EverythingInSaveFilesWindowsOnly everythingInSaveFilesWindowsOnly =
+                new EverythingInSaveFilesWindowsOnly(steamApp);
         if (everythingInSaveFilesWindowsOnly.applies()) {
             return everythingInSaveFilesWindowsOnly;
         }

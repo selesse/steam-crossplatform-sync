@@ -4,7 +4,6 @@ import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
-
 import java.nio.file.Path;
 
 public record SyncableGame(String name, String windows, String mac, String linux, Long gameId) {
@@ -25,8 +24,7 @@ public record SyncableGame(String name, String windows, String mac, String linux
                 config.getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(),
                 "games",
                 // This is definitely gonna be a problem at some point...
-                name.toLowerCase().replaceAll(" ", "_")
-        );
+                name.toLowerCase().replaceAll(" ", "_"));
     }
 
     public String getName() {

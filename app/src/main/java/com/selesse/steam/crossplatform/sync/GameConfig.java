@@ -1,7 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +23,8 @@ public class GameConfig {
     }
 
     public Optional<SyncableGame> getGame(Long gameId) {
-        return games.stream().filter(game -> Objects.equals(gameId, game.getGameId())).findFirst();
+        return games.stream()
+                .filter(game -> Objects.equals(gameId, game.getGameId()))
+                .findFirst();
     }
 }

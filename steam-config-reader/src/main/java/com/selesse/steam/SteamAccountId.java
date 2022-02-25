@@ -8,8 +8,7 @@ public record SteamAccountId(String sixtyFourBitId) {
     public SteamAccountId {
         if (!new Scanner(sixtyFourBitId).hasNextLong()) {
             throw new IllegalArgumentException(
-                    String.format("Expected Steam ID to be numeric, \"%s\" wasn't", sixtyFourBitId)
-            );
+                    String.format("Expected Steam ID to be numeric, \"%s\" wasn't", sixtyFourBitId));
         }
     }
 

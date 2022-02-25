@@ -13,10 +13,10 @@ public class SaveFilesRootOverrides extends SaveFile {
 
     @Override
     public boolean applies() {
-        return ufs.pathExists("savefiles") &&
-                ufs.pathExists("rootoverrides") &&
-                ufs.getObjectValueAsObject("savefiles").getKeys().size() == 1 &&
-                ufs.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
+        return ufs.pathExists("savefiles")
+                && ufs.pathExists("rootoverrides")
+                && ufs.getObjectValueAsObject("savefiles").getKeys().size() == 1
+                && ufs.getObjectValueAsObject("rootoverrides").getKeys().size() >= 1;
     }
 
     @Override
@@ -29,7 +29,11 @@ public class SaveFilesRootOverrides extends SaveFile {
         RegistryObject targetOsConfig = null;
         for (String objectKeys : rootOverrides.getKeys()) {
             RegistryObject nonWindowsConfig = rootOverrides.getObjectValueAsObject(objectKeys);
-            if (nonWindowsConfig.getObjectValueAsString("os").getValue().toLowerCase().equals(os.steamValue())) {
+            if (nonWindowsConfig
+                    .getObjectValueAsString("os")
+                    .getValue()
+                    .toLowerCase()
+                    .equals(os.steamValue())) {
                 targetOsConfig = nonWindowsConfig;
             }
         }

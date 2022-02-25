@@ -4,7 +4,6 @@ import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryObject;
-
 import java.util.List;
 
 public class FindUndetectedSaveFiles {
@@ -25,7 +24,8 @@ public class FindUndetectedSaveFiles {
                         steamGame.getInstallationPath(operatingSystem);
                     } catch (RuntimeException e) {
                         isFullyIntegrated = false;
-                        System.out.println(steamGame.getName() + " => " + operatingSystem + " - installation path not found");
+                        System.out.println(
+                                steamGame.getName() + " => " + operatingSystem + " - installation path not found");
                     }
                 }
 

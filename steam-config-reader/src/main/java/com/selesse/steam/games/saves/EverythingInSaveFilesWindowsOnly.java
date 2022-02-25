@@ -3,7 +3,6 @@ package com.selesse.steam.games.saves;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.implementation.RegistryObject;
-
 import java.util.List;
 
 public class EverythingInSaveFilesWindowsOnly extends SaveFile {
@@ -13,12 +12,14 @@ public class EverythingInSaveFilesWindowsOnly extends SaveFile {
 
     @Override
     public boolean applies() {
-        if (!ufs.pathExists("savefiles") || steamApp.getSupportedOperatingSystems().size() > 1) {
+        if (!ufs.pathExists("savefiles")
+                || steamApp.getSupportedOperatingSystems().size() > 1) {
             return false;
         }
         RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
-        List<RegistryObject> objects =
-                saveFiles.getKeys().stream().map(saveFiles::getObjectValueAsObject).toList();
+        List<RegistryObject> objects = saveFiles.getKeys().stream()
+                .map(saveFiles::getObjectValueAsObject)
+                .toList();
         return objects.stream().noneMatch(x -> x.getKeys().contains("platforms"));
     }
 

@@ -4,6 +4,6 @@ import java.util.List;
 
 public class SaveFileOverrides {
     public List<SaveFileOverride> overrides;
-    public SaveFileOverrides() {
-    }
+
+    public SaveFileOverrides() {}
 }

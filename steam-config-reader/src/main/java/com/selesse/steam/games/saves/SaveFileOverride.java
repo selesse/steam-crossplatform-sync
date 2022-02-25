@@ -6,6 +6,5 @@ public class SaveFileOverride {
     public String mac;
     public String linux;
 
-    public SaveFileOverride() {
-    }
+    public SaveFileOverride() {}
 }

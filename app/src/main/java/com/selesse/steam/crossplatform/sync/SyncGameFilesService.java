@@ -2,12 +2,11 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.crossplatform.sync.config.GameLoader;
 import com.selesse.steam.games.SteamGame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncGameFilesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncGameFilesService.class);
@@ -23,7 +22,7 @@ public class SyncGameFilesService {
     }
 
     public void run(SteamGame steamGame) {
-        run(new SteamGame[] { steamGame });
+        run(new SteamGame[] {steamGame});
     }
 
     public void run(Long[] gameIds) {
@@ -34,10 +33,9 @@ public class SyncGameFilesService {
         List<SteamGame> gamesToSync = Arrays.stream(steamGames).toList();
         GameConfig gameList = new GameLoader().loadGames(context.getConfig());
         for (SteamGame steamGame : gamesToSync) {
-            gameList.getGame(steamGame.getId()).ifPresentOrElse(
-                    this::sync,
-                    () -> LOGGER.warn("Could not find game config for {}", steamGame.getName())
-            );
+            gameList.getGame(steamGame.getId())
+                    .ifPresentOrElse(
+                            this::sync, () -> LOGGER.warn("Could not find game config for {}", steamGame.getName()));
         }
     }
 

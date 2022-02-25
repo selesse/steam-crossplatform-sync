@@ -10,6 +10,7 @@ public class GetCurrentlyRunningGameIdViaRegistry {
     public static long get() {
         String registryOutput =
                 new ProcessRunner(Splitter.on(" ").splitToList(REGISTRY_COMMAND_TO_GET_APP_ID)).runAndGetOutput();
-        return RegistryDwordParser.getValueFromOutput(registryOutput, "RunningAppId").orElseThrow();
+        return RegistryDwordParser.getValueFromOutput(registryOutput, "RunningAppId")
+                .orElseThrow();
     }
 }

@@ -2,7 +2,6 @@ package com.selesse.processes;
 
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -52,8 +51,10 @@ public class ProcessRunner {
         if (OperatingSystems.get() != OperatingSystems.OperatingSystem.WINDOWS) {
             pathEnvironmentVariable = System.getenv("PATH") + File.pathSeparator + "/usr/local/bin";
         } else {
-            String pathVariable =
-                    System.getenv().keySet().stream().filter(x -> x.equalsIgnoreCase("path")).findFirst().orElseThrow();
+            String pathVariable = System.getenv().keySet().stream()
+                    .filter(x -> x.equalsIgnoreCase("path"))
+                    .findFirst()
+                    .orElseThrow();
             pathEnvironmentVariable = System.getenv(pathVariable);
         }
         Path filePath = findAbsolutePathOfProgramInPath(programName, pathEnvironmentVariable);
@@ -73,7 +74,8 @@ public class ProcessRunner {
                     }
                 })
                 .filter(path -> Files.exists(path) && Files.isExecutable(path))
-                .findFirst().orElseThrow(() -> new RuntimeException("Could not find " + programName + " in $PATH"));
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Could not find " + programName + " in $PATH"));
     }
 
     private Path prioritizeExeProgramNameIfExists(String programName, Path path) {

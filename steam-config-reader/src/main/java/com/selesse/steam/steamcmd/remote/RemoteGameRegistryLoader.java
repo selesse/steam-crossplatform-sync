@@ -4,7 +4,6 @@ import com.selesse.steam.registry.GameRegistryLoader;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-
 import java.util.List;
 
 public class RemoteGameRegistryLoader implements GameRegistryLoader {

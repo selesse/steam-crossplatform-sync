@@ -1,15 +1,14 @@
 package com.selesse.files;
 
 import com.google.common.base.Charsets;
-import mslinks.ShellLink;
-import mslinks.ShellLinkException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import mslinks.ShellLink;
+import mslinks.ShellLinkException;
 
 /**
  * File operations that wrap checked exceptions into RuntimeExceptions.

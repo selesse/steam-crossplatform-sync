@@ -13,8 +13,8 @@ public class EverythingInSaveFiles extends SaveFile {
 
     @Override
     public boolean applies() {
-        return ufs.pathExists("savefiles") &&
-                ufs.getObjectValueAsObject("savefiles").getKeys().size() > 1;
+        return ufs.pathExists("savefiles")
+                && ufs.getObjectValueAsObject("savefiles").getKeys().size() > 1;
     }
 
     @Override

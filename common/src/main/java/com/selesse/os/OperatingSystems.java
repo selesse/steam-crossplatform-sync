@@ -2,7 +2,9 @@ package com.selesse.os;
 
 public class OperatingSystems {
     public enum OperatingSystem {
-        WINDOWS, MAC, LINUX
+        WINDOWS,
+        MAC,
+        LINUX
     }
 
     public static OperatingSystem get() {

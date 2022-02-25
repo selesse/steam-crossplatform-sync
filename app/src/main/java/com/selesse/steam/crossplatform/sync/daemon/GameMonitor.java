@@ -7,12 +7,11 @@ import com.selesse.steam.GameRunningDetector;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
 import com.selesse.steam.games.SteamGame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameMonitor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameMonitor.class);
@@ -35,7 +34,8 @@ public class GameMonitor implements Runnable {
                     onGameLaunch(runningGame);
                 } else if (currentGameId != runningGame.getId()) {
                     SteamGame newGame = context.loadGame(currentGameId);
-                    LOGGER.info("Game switch detected, closed {} but opened {}", runningGame.getName(), newGame.getName());
+                    LOGGER.info(
+                            "Game switch detected, closed {} but opened {}", runningGame.getName(), newGame.getName());
                     LOGGER.info("Game closed: {}", runningGame.getName());
                     runningGame = newGame;
                     onGameLaunch(newGame);
@@ -52,22 +52,30 @@ public class GameMonitor implements Runnable {
     private void onGameLaunch(SteamGame runningGame) {
         LOGGER.info("Game launched: {}", runningGame.getName());
 
-        findGameOverlayProcess().ifPresentOrElse(
-                processHandle -> processHandle.onExit().thenRunAsync(this),
-                () -> LOGGER.info("Couldn't find GameOverlay process")
-        );
+        findGameOverlayProcess()
+                .ifPresentOrElse(
+                        processHandle -> processHandle.onExit().thenRunAsync(this),
+                        () -> LOGGER.info("Couldn't find GameOverlay process"));
     }
 
     private Optional<ProcessHandle> findGameOverlayProcess() {
-        return ProcessHandle.allProcesses().filter(ProcessHandle::isAlive).filter(p -> {
-            String gameOverlayProcess = getGameOverlayProcessName();
-            List<String> processArguments =
-                    p.info().command().map(x -> Splitter.on(File.separatorChar).splitToList(x)).orElse(Lists.newArrayList());
-            return processArguments.size() > 0 && processArguments.get(processArguments.size() - 1).equalsIgnoreCase(gameOverlayProcess);
-        }).findFirst();
+        return ProcessHandle.allProcesses()
+                .filter(ProcessHandle::isAlive)
+                .filter(p -> {
+                    String gameOverlayProcess = getGameOverlayProcessName();
+                    List<String> processArguments = p.info()
+                            .command()
+                            .map(x -> Splitter.on(File.separatorChar).splitToList(x))
+                            .orElse(Lists.newArrayList());
+                    return processArguments.size() > 0
+                            && processArguments.get(processArguments.size() - 1).equalsIgnoreCase(gameOverlayProcess);
+                })
+                .findFirst();
     }
 
     private String getGameOverlayProcessName() {
-        return OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS ? "GameOverlayUI.exe" : "gameoverlayui";
+        return OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS
+                ? "GameOverlayUI.exe"
+                : "gameoverlayui";
     }
 }

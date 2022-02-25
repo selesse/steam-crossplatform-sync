@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.selesse.os.Resources;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -29,7 +28,8 @@ public class BypassRegistrySaveFile extends SaveFile {
 
     @Override
     public boolean applies() {
-        return saveFileOverrides.overrides.stream().anyMatch(x -> steamApp.getName().equals(x.game));
+        return saveFileOverrides.overrides.stream()
+                .anyMatch(x -> steamApp.getName().equals(x.game));
     }
 
     @Override
@@ -49,6 +49,8 @@ public class BypassRegistrySaveFile extends SaveFile {
 
     private SaveFileOverride getOverride() {
         return saveFileOverrides.overrides.stream()
-                .filter(x -> x.game.equals(steamApp.getName())).findFirst().orElseThrow();
+                .filter(x -> x.game.equals(steamApp.getName()))
+                .findFirst()
+                .orElseThrow();
     }
 }

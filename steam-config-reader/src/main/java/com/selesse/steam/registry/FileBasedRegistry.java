@@ -6,7 +6,6 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
-
 import java.nio.file.Path;
 import java.util.List;
 
@@ -36,8 +35,11 @@ public abstract class FileBasedRegistry extends SteamRegistry {
         if (object == null) {
             return Lists.newArrayList();
         }
-        return object.getKeys().stream().map(Long::valueOf)
-                .filter(this::isInstalled).sorted().toList();
+        return object.getKeys().stream()
+                .map(Long::valueOf)
+                .filter(this::isInstalled)
+                .sorted()
+                .toList();
     }
 
     private RegistryObject getAppsRegistryObject() {
@@ -50,7 +52,7 @@ public abstract class FileBasedRegistry extends SteamRegistry {
 
     private boolean isInstalled(Long gameId) {
         RegistryObject registryObject = getRegistryObject(gameId);
-        return registryObject.pathExists("installed") &&
-                registryObject.getObjectValueAsString("installed").getValue().equals("1");
+        return registryObject.pathExists("installed")
+                && registryObject.getObjectValueAsString("installed").getValue().equals("1");
     }
 }

@@ -14,14 +14,16 @@ public class GameInstallSaveFile extends SaveFile {
 
     @Override
     public boolean applies() {
-        return gameRegistry.pathExists("config/installdir") &&
-                ufs.pathExists("savefiles/0/root") &&
-                hasGameInstallInProperties();
+        return gameRegistry.pathExists("config/installdir")
+                && ufs.pathExists("savefiles/0/root")
+                && hasGameInstallInProperties();
     }
 
     private boolean hasGameInstallInProperties() {
-        return (ufs.pathExists("rootoverrides/0/useinstead") &&
-                ufs.getObjectValueAsString("rootoverrides/0/useinstead").getValue().equals("gameinstall"))
+        return (ufs.pathExists("rootoverrides/0/useinstead")
+                        && ufs.getObjectValueAsString("rootoverrides/0/useinstead")
+                                .getValue()
+                                .equals("gameinstall"))
                 || ufs.getObjectValueAsString("savefiles/0/root").getValue().equals("gameinstall");
     }
 
@@ -37,7 +39,8 @@ public class GameInstallSaveFile extends SaveFile {
 
     private UserFileSystemPath getUserFileSystemPath(SteamOperatingSystem os) {
         if (!ufs.pathExists("rootoverrides")) {
-            return new UserFileSystemPath(computeRoot(os.toOperatingSystem()), getWindowsInfo().getPath());
+            return new UserFileSystemPath(
+                    computeRoot(os.toOperatingSystem()), getWindowsInfo().getPath());
         }
         RegistryObject targetOsObject = null;
         RegistryObject rootOverrides = ufs.getObjectValueAsObject("rootoverrides");
@@ -50,7 +53,8 @@ public class GameInstallSaveFile extends SaveFile {
         String root;
         String path;
         if (targetOsObject != null && targetOsObject.pathExists("useinstead")) {
-            String useInsteadValue = targetOsObject.getObjectValueAsString("useinstead").getValue();
+            String useInsteadValue =
+                    targetOsObject.getObjectValueAsString("useinstead").getValue();
             if (useInsteadValue.equals("gameinstall")) {
                 root = computeRoot(os.toOperatingSystem());
             } else {
@@ -81,7 +85,8 @@ public class GameInstallSaveFile extends SaveFile {
     }
 
     private String computeRoot(OperatingSystems.OperatingSystem os) {
-        String installationDir = gameRegistry.getObjectValueAsString("config/installdir").getValue();
+        String installationDir =
+                gameRegistry.getObjectValueAsString("config/installdir").getValue();
         return SteamInstallationPaths.get(os) + "/" + installationDir;
     }
 }

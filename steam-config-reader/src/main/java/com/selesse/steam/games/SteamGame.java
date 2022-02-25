@@ -4,7 +4,6 @@ import com.selesse.os.OperatingSystems;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.registry.implementation.RegistryStore;
-
 import java.util.List;
 import java.util.stream.Stream;
 

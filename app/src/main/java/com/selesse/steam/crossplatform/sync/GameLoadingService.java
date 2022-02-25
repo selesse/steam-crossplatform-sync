@@ -9,15 +9,14 @@ import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameLoadingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameLoadingService.class);
@@ -63,7 +62,8 @@ public class GameLoadingService {
     }
 
     private long getDaysSinceModification(long lastModified) {
-        LocalDateTime localLastModified = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
+        LocalDateTime localLastModified =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
         return Math.abs(ChronoUnit.DAYS.between(LocalDateTime.now(), localLastModified));
     }
 }

@@ -3,7 +3,6 @@ package com.selesse.steam.crossplatform.sync.cloud;
 import com.google.common.collect.Lists;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.OperatingSystems;
-
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.sql.*;
@@ -17,12 +16,15 @@ public class GoogleDrive {
             return googleDrive;
         }
 
-        Optional<Path> localDbPathMaybe = switch (OperatingSystems.get()) {
-            case MAC, LINUX -> defaultMacDriveConfigPath();
-            case WINDOWS -> defaultWindowsDriveConfigPath();
-        };
+        Optional<Path> localDbPathMaybe =
+                switch (OperatingSystems.get()) {
+                    case MAC, LINUX -> defaultMacDriveConfigPath();
+                    case WINDOWS -> defaultWindowsDriveConfigPath();
+                };
 
-        return localDbPathMaybe.map(GoogleDrive::loadGoogleDrivePathFromItsDatabase).orElse(defaultPathIfExists());
+        return localDbPathMaybe
+                .map(GoogleDrive::loadGoogleDrivePathFromItsDatabase)
+                .orElse(defaultPathIfExists());
     }
 
     private static Optional<Path> defaultPathIfExists() {
@@ -32,10 +34,11 @@ public class GoogleDrive {
     }
 
     private static Optional<Path> findGoogleDriveBasedOnDrives() {
-        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories())
-                .stream()
-                .filter(drive -> RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
-                .filter(drive -> Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
+        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
+                .filter(drive ->
+                        RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
+                .filter(drive ->
+                        Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
                 .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
                 .findFirst();
     }
@@ -62,9 +65,7 @@ public class GoogleDrive {
     }
 
     private static Optional<Path> defaultMacDriveConfigPath() {
-        return dbPathRelativeToDriveRoot(
-                Path.of(System.getProperty("user.home"), "Library", "Application Support")
-        );
+        return dbPathRelativeToDriveRoot(Path.of(System.getProperty("user.home"), "Library", "Application Support"));
     }
 
     private static Optional<Path> dbPathRelativeToDriveRoot(Path base) {
@@ -78,7 +79,14 @@ public class GoogleDrive {
     }
 
     private static Path newSyncConfigPath(Path base) {
-        return Path.of(base.toAbsolutePath().toString(), "Google", "DriveFS", "migration", "bns_config", "user_default", "sync_config.db");
+        return Path.of(
+                base.toAbsolutePath().toString(),
+                "Google",
+                "DriveFS",
+                "migration",
+                "bns_config",
+                "user_default",
+                "sync_config.db");
     }
 
     private static Connection getConnectionToDb(Path dbPath) throws SQLException {

@@ -6,7 +6,6 @@ import com.selesse.os.Resources;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-
 import java.nio.file.Path;
 import java.util.List;
 

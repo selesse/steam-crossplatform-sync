@@ -2,7 +2,6 @@ package com.selesse.steam.registry.implementation;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,7 +1,6 @@
 package com.selesse.steam.steamcmd;
 
 import com.google.common.collect.Lists;
-
 import java.io.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

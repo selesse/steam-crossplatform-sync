@@ -1,7 +1,6 @@
 package com.selesse.steam.registry.implementation;
 
 import com.google.common.collect.Iterables;
-
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -35,7 +34,7 @@ public class RegistryParser {
 
     private static RegistryValue parseValue(List<String> blockScope) {
         RegistryObject registryObject = new RegistryObject();
-        for (int currentLineNumber = 0; currentLineNumber < blockScope.size();) {
+        for (int currentLineNumber = 0; currentLineNumber < blockScope.size(); ) {
             String line = blockScope.get(currentLineNumber);
             if (isString(line)) {
                 RegistryString string = parseRegistryString(line);

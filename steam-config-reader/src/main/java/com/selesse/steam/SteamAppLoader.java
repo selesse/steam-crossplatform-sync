@@ -5,7 +5,6 @@ import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
-
 import java.util.Collection;
 
 public class SteamAppLoader {
@@ -32,7 +31,10 @@ public class SteamAppLoader {
 
         RegistryObject registryObject = apps.stream()
                 .map(steamApp -> convert(steamApp.vdfObject()))
-                .filter(registry -> registry.pathExists("common/name") && registry.getObjectValueAsString("common/name").getValue().equals(name))
+                .filter(registry -> registry.pathExists("common/name")
+                        && registry.getObjectValueAsString("common/name")
+                                .getValue()
+                                .equals(name))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Could not find app named " + name));
 
@@ -64,5 +66,4 @@ public class SteamAppLoader {
         }
         return appCache;
     }
-
 }

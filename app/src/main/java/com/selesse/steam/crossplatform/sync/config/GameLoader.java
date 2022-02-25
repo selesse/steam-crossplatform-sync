@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.selesse.steam.crossplatform.sync.GameConfig;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
-
 import java.io.IOException;
 
 public class GameLoader {

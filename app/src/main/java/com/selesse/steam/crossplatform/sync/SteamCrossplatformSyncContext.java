@@ -3,7 +3,6 @@ package com.selesse.steam.crossplatform.sync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
-
 import java.util.List;
 
 public class SteamCrossplatformSyncContext {

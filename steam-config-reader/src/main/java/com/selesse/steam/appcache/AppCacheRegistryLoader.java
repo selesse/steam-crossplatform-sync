@@ -5,7 +5,7 @@ import com.selesse.steam.registry.GameRegistryLoader;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryStore;
 
-public class AppCacheRegistryLoader implements GameRegistryLoader  {
+public class AppCacheRegistryLoader implements GameRegistryLoader {
     @Override
     public RegistryStore load(long gameId) throws RegistryNotFoundException {
         return SteamAppLoader.load(gameId).getRegistryStore();

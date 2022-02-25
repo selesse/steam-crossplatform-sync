@@ -3,7 +3,6 @@ package com.selesse.steam.registry.windows;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.selesse.processes.ProcessRunner;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -4,11 +4,10 @@ import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.appcache.AppCacheBufferedReader;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.SteamRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Path;
 import java.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppCacheReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheReader.class);
