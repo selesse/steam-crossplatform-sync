@@ -9,10 +9,15 @@ import java.util.function.Supplier;
 public class FileBackedCache {
     private final Function<Path, Boolean> cacheLoadingCriteria;
     private final Supplier<List<String>> loadingMechanism;
+    private final Function<List<String>, Boolean> successfulLoadCriteria;
 
-    FileBackedCache(Function<Path, Boolean> cacheLoadingCriteria, Supplier<List<String>> loadingMechanism) {
+    FileBackedCache(
+            Function<Path, Boolean> cacheLoadingCriteria,
+            Supplier<List<String>> loadingMechanism,
+            Function<List<String>, Boolean> successfulLoadCriteria) {
         this.cacheLoadingCriteria = cacheLoadingCriteria;
         this.loadingMechanism = loadingMechanism;
+        this.successfulLoadCriteria = successfulLoadCriteria;
     }
 
     public List<String> getLines(Path path) {
@@ -21,7 +26,9 @@ public class FileBackedCache {
             return RuntimeExceptionFiles.readAllLines(path);
         }
         List<String> lines = loadingMechanism.get();
-        RuntimeExceptionFiles.writeString(path, String.join("\n", lines));
+        if (successfulLoadCriteria.apply(lines)) {
+            RuntimeExceptionFiles.writeString(path, String.join("\n", lines));
+        }
         return lines;
     }
 }

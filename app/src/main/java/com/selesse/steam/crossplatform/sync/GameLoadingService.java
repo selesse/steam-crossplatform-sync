@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class GameLoadingService {
         FileBackedCache fileBackedCache = new FileBackedCacheBuilder()
                 .setCacheLoadingCriteria(this::accurateEnoughGameCache)
                 .setLoadingMechanism(() -> RegistryPrettyPrint.prettyPrint(gameRegistries.load(gameId)))
+                .setSuccessfulLoadCriteria(x -> x.size() > 3)
                 .build();
         Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
         RegistryStore registryStore = RegistryParser.parse(fileBackedCache.getLines(cachedRegistryStore));
@@ -56,11 +58,13 @@ public class GameLoadingService {
 
     public List<SteamGame> fetchAllGamesOrLoadInstalledGames() {
         Optional<SteamAccountId> steamAccountIdMaybe = SteamAccountIdFinder.findIfPresent();
-        return steamAccountIdMaybe.map(this::attemptToFetchPublicGamesList).orElse(loadInstalledGames());
+        return steamAccountIdMaybe.flatMap(this::attemptToFetchPublicGamesList).orElse(loadInstalledGames());
     }
 
-    private List<SteamGame> attemptToFetchPublicGamesList(SteamAccountId accountId) {
-        Path cachedGameList = getCachedGameList(accountId);
+    private Optional<List<SteamGame>> attemptToFetchPublicGamesList(SteamAccountId accountId) {
+        Path cachedGameList = Path.of(config.getCacheDirectory().toString(), accountId.to64Bit() + ".xml");
+        Function<List<String>, Boolean> validGameList =
+                lines -> !String.join("\n", lines).trim().isEmpty();
         FileBackedCache fileBackedCache = new FileBackedCacheBuilder()
                 .setCacheLoadingCriteria(this::accurateEnoughGameListCache)
                 .setLoadingMechanism(() -> {
@@ -68,18 +72,18 @@ public class GameLoadingService {
                     try {
                         return remoteGameListFetcher.getOutputFromRemote();
                     } catch (IOException | InterruptedException e) {
-                        LOGGER.error("Unable to fetch remote game list", e);
+                        LOGGER.warn("Unable to fetch remote game list");
                         return "";
                     }
                 })
+                .setSuccessfulLoadCriteria(validGameList)
                 .build();
         List<String> lines = fileBackedCache.getLines(cachedGameList);
+        if (!validGameList.apply(lines)) {
+            return Optional.empty();
+        }
         var appIdList = new XmlGamesParser().getAppIdList(accountId, String.join("\n", lines));
-        return appIdList.stream().map(this::loadGame).toList();
-    }
-
-    private Path getCachedGameList(SteamAccountId accountId) {
-        return Path.of(config.getCacheDirectory().toString(), accountId.to64Bit() + ".xml");
+        return Optional.of(appIdList.stream().map(this::loadGame).toList());
     }
 
     private boolean accurateEnoughGameCache(Path path) {
