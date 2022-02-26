@@ -2,7 +2,7 @@ package com.selesse.steam.games.saves;
 
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
-import com.selesse.steam.games.SteamInstallationPaths;
+import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 
 public class SaveFileObject {
@@ -17,8 +17,7 @@ public class SaveFileObject {
     public String getRoot(OperatingSystems.OperatingSystem os) {
         String root = object.getObjectValueAsString("root").getValue();
         if (root.equals("gameinstall")) {
-            String installationDirectory = steamApp.getInstallationDirectory();
-            return SteamInstallationPaths.get(os) + "/" + installationDirectory;
+            return steamApp.getInstallationDirectory(os);
         }
         return root;
     }
@@ -41,5 +40,14 @@ public class SaveFileObject {
 
     public boolean isRecursive() {
         return object.getObjectValueAsString("recursive").getValue().equals("1");
+    }
+
+    public boolean hasPlatform() {
+        return object.pathExists("platforms");
+    }
+
+    public OperatingSystems.OperatingSystem getPlatform() {
+        String value = object.getObjectValueAsString("platforms/1").getValue();
+        return SteamOperatingSystem.fromString(value).toOperatingSystem();
     }
 }

@@ -2,6 +2,7 @@ package com.selesse.steam;
 
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
@@ -32,6 +33,10 @@ public class SteamApp {
 
     public String getInstallationDirectory() {
         return registryStore.getObjectValueAsString("config/installdir").getValue();
+    }
+
+    public String getInstallationDirectory(OperatingSystems.OperatingSystem os) {
+        return SteamInstallationPaths.get(os) + "/" + getInstallationDirectory();
     }
 
     public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {
