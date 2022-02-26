@@ -38,3 +38,5 @@ games:
   windows: "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games"
   mac: "~/Documents/Spiderweb Software/Avadon Save Games"
   linux: "$XDG_DATA_HOME/Avadon"
+- name: "A Fisherman's Tale"
+  windows: "%USERPROFILE%/AppData/Local/Fisherman/Saved/SaveGames"

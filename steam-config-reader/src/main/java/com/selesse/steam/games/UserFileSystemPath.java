@@ -31,16 +31,19 @@ public class UserFileSystemPath {
     }
 
     public String getPath() {
-        return new SteamAccountPathReplacer().replace(path);
+        return new SteamAccountPathReplacer().replace(backslashToForwardSlash(path));
     }
 
     public String getSymbolPath() {
         String convertedRoot = SteamPathConverter.convert(root);
-        convertedRoot = convertedRoot.replaceAll(Pattern.quote("\\"), "/");
         if (path.startsWith("/") || convertedRoot.endsWith("/")) {
             return convertedRoot + getPath();
         }
-        return convertedRoot + "/" + getPath();
+        return backslashToForwardSlash(convertedRoot) + "/" + getPath();
+    }
+
+    public String backslashToForwardSlash(String value) {
+        return value.replaceAll(Pattern.quote("\\"), "/");
     }
 
     public String getLiteralPath() {
