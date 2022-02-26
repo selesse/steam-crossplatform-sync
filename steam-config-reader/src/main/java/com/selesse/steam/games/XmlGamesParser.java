@@ -53,5 +53,4 @@ public class XmlGamesParser {
             return appIds;
         }
     }
-
 }

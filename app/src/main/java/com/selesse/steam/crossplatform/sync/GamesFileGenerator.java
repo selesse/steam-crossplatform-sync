@@ -30,8 +30,8 @@ public class GamesFileGenerator {
                     String macPath = steamGame.getMacInstallationPath();
                     String linuxPath = steamGame.getLinuxInstallationPath();
 
-                    SyncableGameRaw syncableGame =
-                            new SyncableGameRaw(windowsPath, macPath, linuxPath, steamGame.getName(), steamGame.getId());
+                    SyncableGameRaw syncableGame = new SyncableGameRaw(
+                            windowsPath, macPath, linuxPath, steamGame.getName(), steamGame.getId());
                     syncableGames.add(syncableGame);
                 } catch (RuntimeException e) {
                     System.err.println("Error trying to generate " + steamGame);

@@ -9,13 +9,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RemoteGameListFetcher {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteGameListFetcher.class);
     private final SteamAccountId accountId;
-    private String output;
 
     public RemoteGameListFetcher(SteamAccountId accountId) {
         this.accountId = accountId;
@@ -24,7 +20,7 @@ public class RemoteGameListFetcher {
     public List<Long> fetchGameIdList() {
         var endpoint = "https://steamcommunity.com/profiles/%s/games?xml=1".formatted(accountId.to64Bit());
         try {
-            output = getOutputFromHttpConnection(endpoint);
+            String output = getOutputFromHttpConnection(endpoint);
 
             return new XmlGamesParser().getAppIdList(accountId, output);
         } catch (InterruptedException | IOException e) {
@@ -32,8 +28,9 @@ public class RemoteGameListFetcher {
         }
     }
 
-    public String getOutput() {
-        return output;
+    public String getOutputFromRemote() throws IOException, InterruptedException {
+        var endpoint = "https://steamcommunity.com/profiles/%s/games?xml=1".formatted(accountId.to64Bit());
+        return getOutputFromHttpConnection(endpoint);
     }
 
     @VisibleForTesting

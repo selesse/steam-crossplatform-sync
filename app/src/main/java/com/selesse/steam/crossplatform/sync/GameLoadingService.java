@@ -1,7 +1,8 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.caches.FileBackedCache;
+import com.selesse.caches.FileBackedCacheBuilder;
 import com.selesse.files.FileModified;
-import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.GameRegistries;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
@@ -14,7 +15,7 @@ import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.user.SteamAccountIdFinder;
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -39,19 +40,12 @@ public class GameLoadingService {
     }
 
     public SteamGame loadGame(long gameId) {
-        RegistryStore registryStore = null;
-
+        FileBackedCache fileBackedCache = new FileBackedCacheBuilder()
+                .setCacheLoadingCriteria(this::accurateEnoughGameCache)
+                .setLoadingMechanism(() -> RegistryPrettyPrint.prettyPrint(gameRegistries.load(gameId)))
+                .build();
         Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
-        if (accurateEnoughGameCache(cachedRegistryStore.toFile())) {
-            List<String> lines = RuntimeExceptionFiles.readAllLines(cachedRegistryStore);
-            if (lines.size() > 3) {
-                registryStore = RegistryParser.parse(lines);
-            }
-        }
-        if (registryStore == null) {
-            registryStore = gameRegistries.load(gameId);
-            RuntimeExceptionFiles.writeString(cachedRegistryStore, RegistryPrettyPrint.prettyPrint(registryStore));
-        }
+        RegistryStore registryStore = RegistryParser.parse(fileBackedCache.getLines(cachedRegistryStore));
         SteamGameMetadata gameMetadata = steamRegistry.getGameMetadata(gameId);
         return new SteamGame(gameMetadata, registryStore);
     }
@@ -62,22 +56,25 @@ public class GameLoadingService {
 
     public List<SteamGame> fetchAllGamesOrLoadInstalledGames() {
         Optional<SteamAccountId> steamAccountIdMaybe = SteamAccountIdFinder.findIfPresent();
-        var steamGamesMaybe = steamAccountIdMaybe.map(this::attemptToFetchPublicGamesList);
-        return steamGamesMaybe.orElse(loadInstalledGames());
+        return steamAccountIdMaybe.map(this::attemptToFetchPublicGamesList).orElse(loadInstalledGames());
     }
 
     private List<SteamGame> attemptToFetchPublicGamesList(SteamAccountId accountId) {
-        List<Long> appIdList;
         Path cachedGameList = getCachedGameList(accountId);
-        if (accurateEnoughGameListCache(cachedGameList.toFile())) {
-            List<String> xmlFile = RuntimeExceptionFiles.readAllLines(cachedGameList);
-            appIdList = new XmlGamesParser().getAppIdList(accountId, String.join("\n", xmlFile));
-        } else {
-            LOGGER.info("Fetching games.xml for steam ID {} to get games list", accountId.to64Bit());
-            RemoteGameListFetcher remoteGameListFetcher = new RemoteGameListFetcher(accountId);
-            appIdList = remoteGameListFetcher.fetchGameIdList();
-            RuntimeExceptionFiles.writeString(cachedGameList, remoteGameListFetcher.getOutput());
-        }
+        FileBackedCache fileBackedCache = new FileBackedCacheBuilder()
+                .setCacheLoadingCriteria(this::accurateEnoughGameListCache)
+                .setLoadingMechanism(() -> {
+                    RemoteGameListFetcher remoteGameListFetcher = new RemoteGameListFetcher(accountId);
+                    try {
+                        return remoteGameListFetcher.getOutputFromRemote();
+                    } catch (IOException | InterruptedException e) {
+                        LOGGER.error("Unable to fetch remote game list", e);
+                        return "";
+                    }
+                })
+                .build();
+        List<String> lines = fileBackedCache.getLines(cachedGameList);
+        var appIdList = new XmlGamesParser().getAppIdList(accountId, String.join("\n", lines));
         return appIdList.stream().map(this::loadGame).toList();
     }
 
@@ -85,11 +82,11 @@ public class GameLoadingService {
         return Path.of(config.getCacheDirectory().toString(), accountId.to64Bit() + ".xml");
     }
 
-    private boolean accurateEnoughGameCache(File file) {
-        return file.exists() && FileModified.getDaysSinceModification(file) < 30;
+    private boolean accurateEnoughGameCache(Path path) {
+        return path.toFile().exists() && FileModified.getDaysSinceModification(path.toFile()) < 30;
     }
 
-    private boolean accurateEnoughGameListCache(File file) {
-        return file.exists() && FileModified.getHoursSinceModification(file) < 1;
+    private boolean accurateEnoughGameListCache(Path path) {
+        return path.toFile().exists() && FileModified.getHoursSinceModification(path.toFile()) < 1;
     }
 }
