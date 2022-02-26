@@ -3,6 +3,7 @@ package com.selesse.steam;
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.UserFileSystem;
+import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -40,16 +41,28 @@ public class SteamApp {
                 .toList();
     }
 
-    public String getMacInstallationPath() {
-        return new UserFileSystem(this).getMacInstallationPath();
-    }
-
     public String getWindowsInstallationPath() {
         return new UserFileSystem(this).getWindowsInstallationPath();
     }
 
+    public List<UserFileSystemPath> getWindowsInstallationPaths() {
+        return new UserFileSystem(this).getWindowsInstallationPaths();
+    }
+
+    public String getMacInstallationPath() {
+        return new UserFileSystem(this).getMacInstallationPath();
+    }
+
+    public List<UserFileSystemPath> getMacInstallationPaths() {
+        return new UserFileSystem(this).getMacInstallationPaths();
+    }
+
     public String getLinuxInstallationPath() {
         return new UserFileSystem(this).getLinuxInstallationPath();
+    }
+
+    public List<UserFileSystemPath> getLinuxInstallationPaths() {
+        return new UserFileSystem(this).getLinuxInstallationPaths();
     }
 
     public boolean hasUserFileSystem() {

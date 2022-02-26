@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.RegistryPrettyPrint;
@@ -43,19 +44,37 @@ public class TestGameInstallationPaths {
         SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
-            assertThat(steamApp.getWindowsInstallationPath()).isEqualTo(gameTestCase.windowsPath());
-            assertThat(saveFile.getWindowsInfo().getSymbolPath()).isEqualTo(gameTestCase.windowsPath());
+            var windowsInstallationPaths = steamApp.getWindowsInstallationPaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(windowsInstallationPaths).isEqualTo(gameTestCase.windowsPath());
+            var windowsSavePaths = saveFile.getWindowsSavePaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(windowsSavePaths).isEqualTo(gameTestCase.windowsPath());
         }
         if (gameTestCase.mac() != null) {
-            assertThat(steamApp.getMacInstallationPath()).isEqualTo(gameTestCase.macPath());
-            assertThat(saveFile.getMacInfo().getSymbolPath()).isEqualTo(gameTestCase.macPath());
+            var macInstallationPaths = steamApp.getMacInstallationPaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(macInstallationPaths).isEqualTo(gameTestCase.macPath());
+            var macSavePaths = saveFile.getMacSavePaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(macSavePaths).isEqualTo(gameTestCase.macPath());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
             fail(steamApp.getName() + " supports OS X but no path was provided. " + "Add \""
                     + steamApp.getMacInstallationPath() + "\" to the file.");
         }
         if (gameTestCase.linux() != null) {
-            assertThat(steamApp.getLinuxInstallationPath()).isEqualTo(gameTestCase.linuxPath());
-            assertThat(saveFile.getLinuxInfo().getSymbolPath()).isEqualTo(gameTestCase.linuxPath());
+            var linuxInstallationPaths = steamApp.getLinuxInstallationPaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(linuxInstallationPaths).isEqualTo(gameTestCase.linuxPath());
+            var linuxSavePaths = saveFile.getLinuxSavePaths().stream()
+                    .map(UserFileSystemPath::getSymbolPath)
+                    .toList();
+            assertThat(linuxSavePaths).isEqualTo(gameTestCase.linuxPath());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " + "Add \""
                     + steamApp.getLinuxInstallationPath() + "\" to the file.");

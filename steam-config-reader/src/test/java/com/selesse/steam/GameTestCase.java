@@ -8,17 +8,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public record GameTestCase(String name, String windows, String mac, String linux) {
-    public String windowsPath() {
-        return new SteamAccountPathReplacer().replace(windows());
+public record GameTestCase(String name, List<String> windows, List<String> mac, List<String> linux) {
+    public List<String> windowsPath() {
+        return windows().stream()
+                .map(x -> new SteamAccountPathReplacer().replace(x))
+                .toList();
     }
 
-    public String macPath() {
-        return new SteamAccountPathReplacer().replace(mac());
+    public List<String> macPath() {
+        return mac().stream()
+                .map(x -> new SteamAccountPathReplacer().replace(x))
+                .toList();
     }
 
-    public String linuxPath() {
-        return new SteamAccountPathReplacer().replace(linux());
+    public List<String> linuxPath() {
+        return linux().stream()
+                .map(x -> new SteamAccountPathReplacer().replace(x))
+                .toList();
     }
 
     @Override
