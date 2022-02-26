@@ -1,6 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.selesse.steam.crossplatform.sync.config.GameLoader;
+import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
 import com.selesse.steam.games.SteamGame;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class SyncGameFilesService {
     }
 
     public void runForAllGames() {
-        GameConfig gameList = new GameLoader().loadGames(context.getConfig());
+        GameConfig gameList = new GamesToSyncLoader().loadGames(context.getConfig());
         gameList.getGames().forEach(this::sync);
     }
 
@@ -31,7 +31,7 @@ public class SyncGameFilesService {
 
     public void run(SteamGame[] steamGames) {
         List<SteamGame> gamesToSync = Arrays.stream(steamGames).toList();
-        GameConfig gameList = new GameLoader().loadGames(context.getConfig());
+        GameConfig gameList = new GamesToSyncLoader().loadGames(context.getConfig());
         for (SteamGame steamGame : gamesToSync) {
             gameList.getGame(steamGame.getId())
                     .ifPresentOrElse(

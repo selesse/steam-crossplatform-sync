@@ -6,7 +6,7 @@ import com.selesse.steam.crossplatform.sync.GameConfig;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import java.io.IOException;
 
-public class GameLoader {
+public class GamesToSyncLoader {
     public GameConfig loadGames(SteamCrossplatformSyncConfig config) {
         var mapper = new ObjectMapper(new YAMLFactory());
         mapper.findAndRegisterModules();
