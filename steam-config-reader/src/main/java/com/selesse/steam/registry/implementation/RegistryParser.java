@@ -7,7 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegistryParser {
-    private static final Pattern lineMatchingPattern = Pattern.compile("\t*\"(.+?)\"\t*\"(.*)\"");
+    private static final Pattern lineMatchingPattern = Pattern.compile("\t*\"(.+?)\"\t*\"(.*)\"", Pattern.DOTALL);
+    private static final Pattern multiLinePatternStart = Pattern.compile("\t*\"(.+?)\"\t*\"[^\"]*");
 
     public static RegistryStore parse(List<String> lines) {
         return collapseRegistryStoreIfNecessary(parseWithoutRegistryCollapse(lines));
@@ -40,6 +41,13 @@ public class RegistryParser {
                 RegistryString string = parseRegistryString(line);
                 registryObject.put(string.getName(), string);
                 currentLineNumber++;
+            } else if (isMultilineString(line)) {
+                int stringLength = getMultilineStringLength(currentLineNumber, blockScope);
+                String collapsedString =
+                        String.join("\n", blockScope.subList(currentLineNumber, currentLineNumber + stringLength));
+                RegistryString string = parseRegistryString(collapsedString);
+                registryObject.put(string.getName(), string);
+                currentLineNumber = currentLineNumber + stringLength;
             } else {
                 if (currentLineNumber + 1 < blockScope.size()) {
                     String nextLine = blockScope.get(currentLineNumber + 1);
@@ -57,6 +65,21 @@ public class RegistryParser {
             }
         }
         return registryObject;
+    }
+
+    private static boolean isMultilineString(String line) {
+        return multiLinePatternStart.matcher(line).matches();
+    }
+
+    private static int getMultilineStringLength(int currentLineNumber, List<String> blockScope) {
+        int stopIndex = -1;
+        for (int i = currentLineNumber + 1; i < blockScope.size(); i++) {
+            if (blockScope.get(i).matches("(.*)?\"")) {
+                stopIndex = i;
+                break;
+            }
+        }
+        return stopIndex - currentLineNumber + 1;
     }
 
     private static String extractKeyName(String line) {
