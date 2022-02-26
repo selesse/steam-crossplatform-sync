@@ -15,11 +15,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GameLoadingService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GameLoadingService.class);
     private final GameRegistries gameRegistries;
     private final SteamRegistry steamRegistry;
     private final SteamCrossplatformSyncConfig config;

@@ -30,10 +30,6 @@ public class SteamCrossplatformSyncContext {
         return gameLoadingService.loadGame(gameId);
     }
 
-    public List<SteamGame> loadInstalledGames() {
-        return gameLoadingService.loadInstalledGames();
-    }
-
     // The locally installed game list is pretty isn't representative of the games that you have on your account because
     // it's OS-specific. It's better if the functionality that relies on listing your games behaves more holistically,
     // so that generating your game list is the same no matter what OS you try to run it on.
@@ -41,6 +37,10 @@ public class SteamCrossplatformSyncContext {
         Optional<SteamAccountId> steamAccountIdMaybe = SteamAccountIdFinder.findIfPresent();
         var steamGamesMaybe = steamAccountIdMaybe.map(this::attemptToFetchPublicGamesList);
         return steamGamesMaybe.orElse(loadInstalledGames());
+    }
+
+    private List<SteamGame> loadInstalledGames() {
+        return gameLoadingService.loadInstalledGames();
     }
 
     private List<SteamGame> attemptToFetchPublicGamesList(SteamAccountId accountId) {
