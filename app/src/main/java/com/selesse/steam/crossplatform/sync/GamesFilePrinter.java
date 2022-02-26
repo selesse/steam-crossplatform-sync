@@ -2,6 +2,8 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.google.common.base.Joiner;
 import com.selesse.steam.games.SteamGame;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GamesFilePrinter {
@@ -12,7 +14,8 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamGame> steamGames = context.fetchAllGamesOrLoadInstalledGames();
+        List<SteamGame> steamGames = new ArrayList<>(context.fetchAllGamesOrLoadInstalledGames());
+        steamGames.sort(Comparator.comparing(SteamGame::getName));
         for (SteamGame steamGame : steamGames) {
             printSteamGame(steamGame);
         }
