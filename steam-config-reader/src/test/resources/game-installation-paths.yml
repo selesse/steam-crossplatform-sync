@@ -25,7 +25,7 @@ games:
   mac: ["~/Library/Application Support/UnrailedGame/GameState/AllPlayers/SaveGames"]
   linux: ["~/.local/share/UnrailedGame/GameState/AllPlayers/SaveGames"]
 - name: Wargroove
-  windows: ["%USERPROFILE%/AppData/Roaming/Chucklefish/Wargroove/save"]
+  windows: ["%USERPROFILE%/AppData/Roaming/Chucklefish/Wargroove/save/*"]
 - name: Wildermyth
   windows: ["%PROGRAMFILES(X86)%/Steam/steamapps/common/Wildermyth/players"]
   mac: ["~/Library/Application Support/Steam/steamapps/common/Wildermyth/wildermyth.app/Contents/Resources/players"]
@@ -39,4 +39,10 @@ games:
   mac: ["~/Documents/Spiderweb Software/Avadon Save Games"]
   linux: ["$XDG_DATA_HOME/Avadon"]
 - name: "A Fisherman's Tale"
-  windows: ["%USERPROFILE%/AppData/Local/Fisherman/Saved/SaveGames"]
+  windows: ["%USERPROFILE%/AppData/Local/Fisherman/Saved/SaveGames/*.sav"]
+- name: "Age of Empires II (2013)"
+  windows:
+    - "%PROGRAMFILES(X86)%/Steam/steamapps/common/Age2HD/Profiles/*.nfp"
+    - "%PROGRAMFILES(X86)%/Steam/steamapps/common/Age2HD/Profiles/*.hki"
+    - "%PROGRAMFILES(X86)%/Steam/steamapps/common/Age2HD/SaveGame/*.aoe2spgame"
+    - "%PROGRAMFILES(X86)%/Steam/steamapps/common/Age2HD/SaveGame/*.aoe2mpgame"

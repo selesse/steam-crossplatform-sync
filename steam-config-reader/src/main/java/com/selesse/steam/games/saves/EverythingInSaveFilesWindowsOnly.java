@@ -1,5 +1,7 @@
 package com.selesse.steam.games.saves;
 
+import static com.selesse.os.OperatingSystems.OperatingSystem.WINDOWS;
+
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.implementation.RegistryObject;
@@ -30,17 +32,27 @@ public class EverythingInSaveFilesWindowsOnly extends SaveFile {
 
     @Override
     public UserFileSystemPath getWindowsInfo() {
-        RegistryObject object;
-        if (ufs.pathExists("savefiles/0")) {
-            object = ufs.getObjectValueAsObject("savefiles/0");
-        } else if (ufs.pathExists("savefiles/1")) {
-            object = ufs.getObjectValueAsObject("savefiles/1");
-        } else {
-            throw new IllegalArgumentException("Did not know how to parse savefiles");
-        }
-        String root = object.getObjectValueAsString("root").getValue();
-        String path = object.getObjectValueAsString("path").getValue();
-        return new UserFileSystemPath(root, path);
+        RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
+        var saveFileObjects = saveFiles.getKeys().stream()
+                .map(x -> new SaveFileObject(steamApp, saveFiles.getObjectValueAsObject(x)))
+                .toList();
+        SaveFileObject saveFileObject = saveFileObjects.stream()
+                .filter(object -> object.hasRoot() && object.hasPath())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unable to parse savefile"));
+        return new UserFileSystemPath(saveFileObject.getRoot(WINDOWS), saveFileObject.getPath());
+    }
+
+    @Override
+    public List<UserFileSystemPath> getWindowsSavePaths() {
+        RegistryObject saveFiles = ufs.getObjectValueAsObject("savefiles");
+        var saveFileObjects = saveFiles.getKeys().stream()
+                .map(x -> new SaveFileObject(steamApp, saveFiles.getObjectValueAsObject(x)))
+                .toList();
+        return saveFileObjects.stream()
+                .filter(object -> object.hasRoot() && object.hasPath())
+                .map(object -> UserFileSystemPath.fromSaveFile(object, WINDOWS))
+                .toList();
     }
 
     @Override

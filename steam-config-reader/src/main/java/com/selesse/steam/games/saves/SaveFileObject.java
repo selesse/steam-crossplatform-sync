@@ -1,24 +1,26 @@
 package com.selesse.steam.games.saves;
 
+import com.selesse.os.OperatingSystems;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.registry.implementation.RegistryObject;
 
 public class SaveFileObject {
+    private final SteamApp steamApp;
     private final RegistryObject object;
 
-    public SaveFileObject(RegistryObject object) {
+    public SaveFileObject(SteamApp steamApp, RegistryObject object) {
+        this.steamApp = steamApp;
         this.object = object;
     }
 
-    public boolean hasRoot() {
-        return object.pathExists("root");
-    }
-
-    public String getRoot() {
-        return object.getObjectValueAsString("root").getValue();
-    }
-
-    public boolean hasPath() {
-        return object.pathExists("root");
+    public String getRoot(OperatingSystems.OperatingSystem os) {
+        String root = object.getObjectValueAsString("root").getValue();
+        if (root.equals("gameinstall")) {
+            String installationDirectory = steamApp.getInstallationDirectory();
+            return SteamInstallationPaths.get(os) + "/" + installationDirectory;
+        }
+        return root;
     }
 
     public String getPath() {

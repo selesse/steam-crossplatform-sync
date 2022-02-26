@@ -30,6 +30,10 @@ public class SteamApp {
         return AppType.fromString(objectValueAsString);
     }
 
+    public String getInstallationDirectory() {
+        return registryStore.getObjectValueAsString("config/installdir").getValue();
+    }
+
     public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {
         if (!getRegistryStore().pathExists("common/oslist")) {
             return List.of(OperatingSystems.OperatingSystem.WINDOWS);

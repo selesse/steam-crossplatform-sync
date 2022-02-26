@@ -4,16 +4,31 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.selesse.os.FilePathSanitizer;
+import com.selesse.os.OperatingSystems;
+import com.selesse.steam.games.saves.SaveFileObject;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class UserFileSystemPath {
     private final String root;
     private final String path;
+    private String pattern;
+    private boolean recursive;
 
     public UserFileSystemPath(String root, String path) {
         this.root = root;
         this.path = path;
+    }
+
+    public static UserFileSystemPath fromSaveFile(SaveFileObject object, OperatingSystems.OperatingSystem os) {
+        var userFileSystemPath = new UserFileSystemPath(object.getRoot(os), object.getPath());
+        if (object.hasPattern()) {
+            userFileSystemPath.pattern = object.getPattern();
+        }
+        if (object.hasRecursive()) {
+            userFileSystemPath.recursive = object.isRecursive();
+        }
+        return userFileSystemPath;
     }
 
     public UserFileSystemPath(String fullPath) {
@@ -39,7 +54,11 @@ public class UserFileSystemPath {
         if (path.startsWith("/") || convertedRoot.endsWith("/")) {
             return convertedRoot + getPath();
         }
-        return backslashToForwardSlash(convertedRoot) + "/" + getPath();
+        String symbolPath = backslashToForwardSlash(convertedRoot) + "/" + getPath();
+        if (pattern != null) {
+            symbolPath += "/" + pattern;
+        }
+        return symbolPath;
     }
 
     public String backslashToForwardSlash(String value) {
