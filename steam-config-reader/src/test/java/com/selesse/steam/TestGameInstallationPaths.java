@@ -67,14 +67,16 @@ public class TestGameInstallationPaths {
                     + steamApp.getMacInstallationPath() + "\" to the file.");
         }
         if (gameTestCase.linux() != null) {
-            var linuxInstallationPaths = steamApp.getLinuxInstallationPaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(linuxInstallationPaths).isEqualTo(gameTestCase.linuxPath());
-            var linuxSavePaths = saveFile.getLinuxSavePaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(linuxSavePaths).isEqualTo(gameTestCase.linuxPath());
+            if (!gameTestCase.linux().contains("unsupported")) {
+                var linuxInstallationPaths = steamApp.getLinuxInstallationPaths().stream()
+                        .map(UserFileSystemPath::getSymbolPath)
+                        .toList();
+                assertThat(linuxInstallationPaths).isEqualTo(gameTestCase.linuxPath());
+                var linuxSavePaths = saveFile.getLinuxSavePaths().stream()
+                        .map(UserFileSystemPath::getSymbolPath)
+                        .toList();
+                assertThat(linuxSavePaths).isEqualTo(gameTestCase.linuxPath());
+            }
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " + "Add \""
                     + steamApp.getLinuxInstallationPath() + "\" to the file.");

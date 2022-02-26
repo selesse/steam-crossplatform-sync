@@ -44,9 +44,49 @@ games:
   mac: ["~/Library/Application Support/Pillars of Eternity/*.savegame"]
   linux: ["~/.config/PillarsOfEternity/*.savegame"]
 - name: "Avadon: The Black Fortress"
-  windows: ["%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games"]
-  mac: ["~/Documents/Spiderweb Software/Avadon Save Games"]
-  linux: ["$XDG_DATA_HOME/Avadon"]
+  windows:
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save0/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save1/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save2/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save3/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save4/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save5/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save6/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save7/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save8/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save9/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save10/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save11/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save12/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save13/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save14/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save15/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save16/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save17/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save18/*"
+    - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save19/*"
+  mac:
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save0/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save1/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save2/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save3/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save4/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save5/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save6/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save7/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save8/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save9/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save10/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save11/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save12/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save13/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save14/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save15/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save16/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save17/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save18/*"
+    - "~/Documents/Spiderweb Software/Avadon Saved Games/Save19/*"
+  linux: ["unsupported"]
 - name: "A Fisherman's Tale"
   windows: ["%USERPROFILE%/AppData/Local/Fisherman/Saved/SaveGames/*.sav"]
 - name: "Age of Empires II (2013)"

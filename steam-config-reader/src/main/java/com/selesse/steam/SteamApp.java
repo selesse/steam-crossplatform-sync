@@ -50,6 +50,10 @@ public class SteamApp {
                 .toList();
     }
 
+    public boolean supports(OperatingSystems.OperatingSystem operatingSystem) {
+        return getSupportedOperatingSystems().contains(operatingSystem);
+    }
+
     public String getWindowsInstallationPath() {
         return new UserFileSystem(this).getWindowsInstallationPath();
     }
