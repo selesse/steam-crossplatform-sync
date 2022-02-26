@@ -5,6 +5,12 @@
       "windows": "%PROGRAMFILES(X86)%/Steam/steamapps/common/SlayTheSpire/saves",
       "mac": "~/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/saves",
       "linux": "~/.steam/steamapps/common/SlayTheSpire/saves"
+    },
+    {
+      "game": "Avadon: The Black Fortress",
+      "windows": "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games",
+      "mac": "~/Documents/Spiderweb Software/Avadon Save Games",
+      "linux": "$XDG_DATA_HOME/Avadon"
     }
   ]
 }

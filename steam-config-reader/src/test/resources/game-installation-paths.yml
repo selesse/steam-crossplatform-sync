@@ -34,3 +34,7 @@ games:
   windows: "%USERPROFILE%/Saved Games/Pillars of Eternity"
   mac: "~/Library/Application Support/Pillars of Eternity"
   linux: "~/.config/PillarsOfEternity"
+- name: "Avadon: The Black Fortress"
+  windows: "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games"
+  mac: "~/Documents/Spiderweb Software/Avadon Save Games"
+  linux: "$XDG_DATA_HOME/Avadon"
