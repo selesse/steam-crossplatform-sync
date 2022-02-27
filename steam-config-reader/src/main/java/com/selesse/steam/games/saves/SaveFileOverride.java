@@ -1,10 +1,3 @@
 package com.selesse.steam.games.saves;
 
-public class SaveFileOverride {
-    public String game;
-    public String windows;
-    public String mac;
-    public String linux;
-
-    public SaveFileOverride() {}
-}
+public record SaveFileOverride(String game, String windows, String mac, String linux) {}

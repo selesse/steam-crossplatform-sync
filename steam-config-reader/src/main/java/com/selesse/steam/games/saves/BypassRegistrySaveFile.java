@@ -28,28 +28,28 @@ public class BypassRegistrySaveFile extends SaveFile {
 
     @Override
     public boolean applies() {
-        return saveFileOverrides.overrides.stream()
-                .anyMatch(x -> steamApp.getName().equals(x.game));
+        return saveFileOverrides.overrides().stream()
+                .anyMatch(x -> steamApp.getName().equals(x.game()));
     }
 
     @Override
     public UserFileSystemPath getMacInfo() {
-        return new UserFileSystemPath(getOverride().mac);
+        return new UserFileSystemPath(getOverride().mac());
     }
 
     @Override
     public UserFileSystemPath getWindowsInfo() {
-        return new UserFileSystemPath(getOverride().windows);
+        return new UserFileSystemPath(getOverride().windows());
     }
 
     @Override
     public UserFileSystemPath getLinuxInfo() {
-        return new UserFileSystemPath(getOverride().linux);
+        return new UserFileSystemPath(getOverride().linux());
     }
 
     private SaveFileOverride getOverride() {
-        return saveFileOverrides.overrides.stream()
-                .filter(x -> x.game.equals(steamApp.getName()))
+        return saveFileOverrides.overrides().stream()
+                .filter(x -> x.game().equals(steamApp.getName()))
                 .findFirst()
                 .orElseThrow();
     }
