@@ -7,6 +7,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.steam.games.saves.SaveFileObject;
+import com.selesse.steam.registry.SteamOperatingSystem;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,12 @@ public class UserFileSystemPath {
             userFileSystemPath.recursive = object.isRecursive();
         }
         if (object.hasPlatform()) {
-            userFileSystemPath.platform = object.getPlatform();
+            if (object.getPlatform().equals("all")) {
+                userFileSystemPath.platform = os;
+            } else {
+                userFileSystemPath.platform =
+                        SteamOperatingSystem.fromString(object.getPlatform()).toOperatingSystem();
+            }
         }
         return userFileSystemPath;
     }

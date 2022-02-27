@@ -2,7 +2,6 @@ package com.selesse.steam.games.saves;
 
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
-import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 
 public class SaveFileObject {
@@ -46,8 +45,7 @@ public class SaveFileObject {
         return object.pathExists("platforms");
     }
 
-    public OperatingSystems.OperatingSystem getPlatform() {
-        String value = object.getObjectValueAsString("platforms/1").getValue();
-        return SteamOperatingSystem.fromString(value).toOperatingSystem();
+    public String getPlatform() {
+        return object.getObjectValueAsString("platforms/1").getValue();
     }
 }
