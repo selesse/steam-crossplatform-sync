@@ -1,26 +1,19 @@
 package com.selesse.files;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 public class LatestModifiedFileFinder {
-    private final Path root;
+    private final SyncablePath root;
 
-    public LatestModifiedFileFinder(Path root) {
+    public LatestModifiedFileFinder(SyncablePath root) {
         this.root = root;
     }
 
     public LastModifiedResult getLastModified() {
-        LatestModifiedFileVisitor visitor = new LatestModifiedFileVisitor();
-        try {
-            Files.walkFileTree(root, visitor);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        LatestModifiedFileVisitor visitor = new LatestModifiedFileVisitor(root.getPathMatcher());
+        RuntimeExceptionFiles.walkFileTree(root.getBaseDirectory(), visitor);
         if (visitor.getLatestLastModified() == -1) {
             return LastModifiedResult.doesNotExist();
         }

@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileStore;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -52,6 +53,14 @@ public class RuntimeExceptionFiles {
             }
             return Path.of(new ShellLink(lnkFile).resolveTarget());
         } catch (IOException | ShellLinkException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void walkFileTree(Path base, FileVisitor<? super Path> fileVisitor) {
+        try {
+            Files.walkFileTree(base, fileVisitor);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

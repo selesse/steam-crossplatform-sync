@@ -1,8 +1,8 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.files.SyncablePath;
 import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
 import com.selesse.steam.games.SteamGame;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -41,11 +41,12 @@ public class SyncGameFilesService {
 
     private void sync(SyncableGame game) {
         if (game.isSupportedOnThisOs()) {
-            Path localPath = game.getLocalPath();
-            Path cloudSyncPath = game.getLocalCloudSyncPath(context.getConfig());
+            SyncablePath syncableLocalPath =
+                    new SyncablePath(game.getLocalPath().getParent(), game.getLocalPath());
+            SyncablePath syncableLocalCloudPath = new SyncablePath(game.getLocalCloudSyncPath(context.getConfig()));
 
             LOGGER.info("Checking {}", game.getName());
-            GameSyncer.sync(localPath, cloudSyncPath);
+            GameSyncer.sync(syncableLocalPath, syncableLocalCloudPath);
         } else {
             LOGGER.info("Did not check {} because it is unsupported on this OS", game.getName());
         }

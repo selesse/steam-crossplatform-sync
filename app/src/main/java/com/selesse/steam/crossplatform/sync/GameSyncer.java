@@ -1,10 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.selesse.files.DirectoryCopier;
-import com.selesse.files.LastModifiedResult;
-import com.selesse.files.LatestModifiedFileFinder;
-import java.io.IOException;
-import java.nio.file.Path;
+import com.selesse.files.*;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +8,7 @@ import org.slf4j.LoggerFactory;
 public class GameSyncer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameSyncer.class);
 
-    public static void sync(Path local, Path cloudSyncPath) {
+    public static void sync(SyncablePath local, SyncablePath cloudSyncPath) {
         LatestModifiedFileFinder latestModifiedLocalFinder = new LatestModifiedFileFinder(local);
         LatestModifiedFileFinder latestModifiedSyncFinder = new LatestModifiedFileFinder(cloudSyncPath);
 
@@ -49,13 +45,7 @@ public class GameSyncer {
         }
     }
 
-    private static void copyFiles(Path a, Path b) {
-        try {
-            LOGGER.info("Copying {} into {}", a.toAbsolutePath(), b.toAbsolutePath());
-            DirectoryCopier.recursiveCopy(a.toFile(), b.toFile());
-        } catch (IOException e) {
-            LOGGER.error("Error trying to copy {} into {}", a.toAbsolutePath(), b.toAbsolutePath());
-            throw new RuntimeException(e);
-        }
+    private static void copyFiles(SyncablePath source, SyncablePath destination) {
+        SyncablePathsCopier.copy(source, destination);
     }
 }

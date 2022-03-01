@@ -4,10 +4,16 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.attribute.BasicFileAttributes;
 
 class LatestModifiedFileVisitor implements FileVisitor<Path> {
+    private final PathMatcher pathMatcher;
     private long latestLastModified = -1;
+
+    public LatestModifiedFileVisitor(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
+    }
 
     public long getLatestLastModified() {
         return latestLastModified;
@@ -20,7 +26,9 @@ class LatestModifiedFileVisitor implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-        latestLastModified = Math.max(attrs.lastModifiedTime().toMillis(), latestLastModified);
+        if (pathMatcher.matches(file)) {
+            latestLastModified = Math.max(attrs.lastModifiedTime().toMillis(), latestLastModified);
+        }
         return FileVisitResult.CONTINUE;
     }
 

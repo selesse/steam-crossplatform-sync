@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 public class DirectoryCopier {
+
     public static void recursiveCopy(File source, File destination) throws IOException {
         if (source.isDirectory()) {
             copyFolder(source, destination);
@@ -32,11 +33,16 @@ public class DirectoryCopier {
         }
     }
 
-    private static void copyFile(File source, File destination) throws IOException {
-        if (destination.exists()) {
-            destination.delete();
+    static void copyFile(File source, File destination) {
+        try {
+            if (destination.exists()) {
+                destination.delete();
+            }
+            createParentFolderIfNecessary(destination);
+            Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
     }
 
     private static void createParentFolderIfNecessary(File file) {
