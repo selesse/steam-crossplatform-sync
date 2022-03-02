@@ -24,7 +24,13 @@ public class SyncablePath {
 
     public PathMatcher getPathMatcher() {
         if (pattern != null && pattern.getFileName().toString().contains("*")) {
-            String syntaxAndPattern = "glob:" + pattern.toAbsolutePath();
+            String syntaxAndPattern;
+            if (pattern.getFileName().toString().equals("*")) {
+                // Convert * to ** - assume recursive
+                syntaxAndPattern = "glob:" + pattern.toAbsolutePath() + "*";
+            } else {
+                syntaxAndPattern = "glob:" + pattern.toAbsolutePath();
+            }
             return FileSystems.getDefault().getPathMatcher(syntaxAndPattern);
         }
         return path -> true;
