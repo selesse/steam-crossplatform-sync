@@ -51,7 +51,14 @@ public class SyncGameFilesService {
             SyncablePath syncableLocalCloudPath = new SyncablePath(game.getLocalCloudSyncPath(context.getConfig()));
             List<Path> localPaths = game.getLocalPaths();
             for (Path localPath : localPaths) {
-                SyncablePath syncableLocalPath = new SyncablePath(localPath.getParent(), localPath);
+                var steamAccountIdMaybe = context.getSteamAccountIdIfPresent();
+                Path parent = localPath.getParent();
+                if (steamAccountIdMaybe != null) {
+                    if (parent.endsWith(steamAccountIdMaybe.to64Bit())) {
+                        parent = parent.getParent();
+                    }
+                }
+                SyncablePath syncableLocalPath = new SyncablePath(parent, localPath);
                 GameSyncer.sync(syncableLocalPath, syncableLocalCloudPath);
             }
         } else {
