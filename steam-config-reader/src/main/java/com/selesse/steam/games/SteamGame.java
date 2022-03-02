@@ -56,12 +56,24 @@ public class SteamGame {
         return app.getWindowsInstallationPath();
     }
 
+    public List<UserFileSystemPath> getWindowsInstallationPaths() {
+        return app.getWindowsInstallationPaths();
+    }
+
     public String getMacInstallationPath() {
         return app.getMacInstallationPath();
     }
 
+    public List<UserFileSystemPath> getMacInstallationPaths() {
+        return app.getMacInstallationPaths();
+    }
+
     public String getLinuxInstallationPath() {
         return app.getLinuxInstallationPath();
+    }
+
+    public List<UserFileSystemPath> getLinuxInstallationPaths() {
+        return app.getLinuxInstallationPaths();
     }
 
     public boolean isGame() {

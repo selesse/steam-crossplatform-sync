@@ -5,17 +5,25 @@ import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
-public record SyncableGame(String name, String windows, String mac, String linux, Long gameId) {
+public record SyncableGame(String name, List<String> windows, List<String> mac, List<String> linux, Long gameId) {
     public static SyncableGame fromRaw(SyncableGameRaw raw) {
         return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId());
     }
 
-    public Path getLocalPath() {
+    public List<Path> getLocalPaths() {
         return switch (OperatingSystems.get()) {
-            case MAC -> Path.of(FilePathSanitizer.sanitize(mac));
-            case LINUX -> Path.of(FilePathSanitizer.sanitize(linux));
-            case WINDOWS -> Path.of(FilePathSanitizer.sanitize(windows));
+            case WINDOWS -> windows().stream()
+                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .toList();
+            case MAC -> mac().stream()
+                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .toList();
+            case LINUX -> linux().stream()
+                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .toList();
         };
     }
 
@@ -37,9 +45,9 @@ public record SyncableGame(String name, String windows, String mac, String linux
 
     public boolean isSupportedOnThisOs() {
         return switch (OperatingSystems.get()) {
-            case MAC -> mac != null;
-            case LINUX -> linux != null;
-            case WINDOWS -> windows != null;
+            case WINDOWS -> Optional.ofNullable(windows()).map(x -> !x.isEmpty()).orElse(false);
+            case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
+            case LINUX -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
         };
     }
 }
