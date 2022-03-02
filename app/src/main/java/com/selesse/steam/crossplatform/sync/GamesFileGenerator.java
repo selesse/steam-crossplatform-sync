@@ -26,17 +26,13 @@ public class GamesFileGenerator {
 
         for (SteamGame steamGame : steamGames) {
             if (steamGame.hasUserCloud() && steamGame.hasComputedInstallationPath()) {
-                try {
-                    List<String> windowsPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.WINDOWS);
-                    List<String> macPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.MAC);
-                    List<String> linuxPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.LINUX);
+                List<String> windowsPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.WINDOWS);
+                List<String> macPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.MAC);
+                List<String> linuxPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.LINUX);
 
-                    SyncableGameRaw syncableGame = new SyncableGameRaw(
-                            windowsPaths, macPaths, linuxPaths, steamGame.getName(), steamGame.getId());
-                    syncableGames.add(syncableGame);
-                } catch (RuntimeException e) {
-                    System.err.println("Error trying to generate " + steamGame);
-                }
+                SyncableGameRaw syncableGame =
+                        new SyncableGameRaw(windowsPaths, macPaths, linuxPaths, steamGame.getName(), steamGame.getId());
+                syncableGames.add(syncableGame);
             }
         }
 
