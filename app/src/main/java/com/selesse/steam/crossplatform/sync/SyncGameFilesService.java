@@ -42,9 +42,13 @@ public class SyncGameFilesService {
 
     private void sync(SyncableGame game) {
         if (game.isSupportedOnThisOs()) {
-            SyncablePath syncableLocalCloudPath = new SyncablePath(game.getLocalCloudSyncPath(context.getConfig()));
-
+            if (!game.sync()) {
+                LOGGER.info("Not syncing {} due to its configuration", game.getName());
+                return;
+            }
             LOGGER.info("Checking {}", game.getName());
+
+            SyncablePath syncableLocalCloudPath = new SyncablePath(game.getLocalCloudSyncPath(context.getConfig()));
             List<Path> localPaths = game.getLocalPaths();
             for (Path localPath : localPaths) {
                 SyncablePath syncableLocalPath = new SyncablePath(localPath.getParent(), localPath);

@@ -8,9 +8,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public record SyncableGame(String name, List<String> windows, List<String> mac, List<String> linux, Long gameId) {
+public record SyncableGame(
+        String name, List<String> windows, List<String> mac, List<String> linux, Long gameId, boolean sync) {
     public static SyncableGame fromRaw(SyncableGameRaw raw) {
-        return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId());
+        return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId(), raw.sync());
     }
 
     public List<Path> getLocalPaths() {
@@ -45,7 +46,9 @@ public record SyncableGame(String name, List<String> windows, List<String> mac, 
 
     public boolean isSupportedOnThisOs() {
         return switch (OperatingSystems.get()) {
-            case WINDOWS -> Optional.ofNullable(windows()).map(x -> !x.isEmpty()).orElse(false);
+            case WINDOWS -> Optional.ofNullable(windows())
+                    .map(x -> !x.isEmpty())
+                    .orElse(false);
             case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
             case LINUX -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
         };

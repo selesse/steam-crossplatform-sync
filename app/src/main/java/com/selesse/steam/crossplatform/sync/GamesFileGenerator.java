@@ -30,8 +30,8 @@ public class GamesFileGenerator {
                 List<String> macPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.MAC);
                 List<String> linuxPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.LINUX);
 
-                SyncableGameRaw syncableGame =
-                        new SyncableGameRaw(windowsPaths, macPaths, linuxPaths, steamGame.getName(), steamGame.getId());
+                SyncableGameRaw syncableGame = new SyncableGameRaw(
+                        windowsPaths, macPaths, linuxPaths, steamGame.getName(), steamGame.getId(), true);
                 syncableGames.add(syncableGame);
             }
         }

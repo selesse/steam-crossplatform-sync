@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"name", "gameId", "windows", "mac", "linux"})
+@JsonPropertyOrder({"name", "gameId", "windows", "mac", "linux", "sync"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record SyncableGameRaw(List<String> windows, List<String> mac, List<String> linux, String name, long gameId) {}
+public record SyncableGameRaw(
+        List<String> windows, List<String> mac, List<String> linux, String name, long gameId, boolean sync) {}
