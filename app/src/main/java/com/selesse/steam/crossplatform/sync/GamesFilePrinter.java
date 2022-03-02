@@ -34,17 +34,25 @@ public class GamesFilePrinter {
             System.out.println("  Supported OSes: " + Joiner.on(", ").join(steamGame.supportedOperatingSystems()));
             if (steamGame.hasUserCloud()) {
                 if (steamGame.hasWindowsPath()) {
-                    System.out.println("  Windows path: " + steamGame.getWindowsInstallationPath());
+                    steamGame
+                            .getWindowsInstallationPaths()
+                            .forEach(path -> System.out.println("  Windows path: " + path.getSymbolPath()));
                 }
                 if (steamGame.hasMacPath()) {
-                    System.out.println("  Mac path: " + steamGame.getMacInstallationPath());
+                    steamGame
+                            .getMacInstallationPaths()
+                            .forEach(path -> System.out.println("  Mac path: " + path.getSymbolPath()));
                 }
                 if (steamGame.hasLinuxPath()) {
-                    System.out.println("  Linux path: " + steamGame.getLinuxInstallationPath());
+                    steamGame
+                            .getLinuxInstallationPaths()
+                            .forEach(path -> System.out.println("  Linux path: " + path.getSymbolPath()));
                 }
                 if (!steamGame.hasComputedInstallationPath()) {
                     System.out.println("  Did not compute installation path for " + steamGame);
                 }
+            } else {
+                System.out.println("  No save data found");
             }
             System.out.println("");
         }

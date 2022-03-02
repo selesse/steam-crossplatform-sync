@@ -44,32 +44,20 @@ public class SteamGame {
         return app.hasUserFileSystem();
     }
 
-    public String getInstallationPath(OperatingSystems.OperatingSystem operatingSystem) {
+    public List<UserFileSystemPath> getInstallationPaths(OperatingSystems.OperatingSystem operatingSystem) {
         return switch (operatingSystem) {
-            case WINDOWS -> getWindowsInstallationPath();
-            case MAC -> getMacInstallationPath();
-            case LINUX -> getLinuxInstallationPath();
+            case WINDOWS -> getWindowsInstallationPaths();
+            case MAC -> getMacInstallationPaths();
+            case LINUX -> getLinuxInstallationPaths();
         };
-    }
-
-    public String getWindowsInstallationPath() {
-        return app.getWindowsInstallationPath();
     }
 
     public List<UserFileSystemPath> getWindowsInstallationPaths() {
         return app.getWindowsInstallationPaths();
     }
 
-    public String getMacInstallationPath() {
-        return app.getMacInstallationPath();
-    }
-
     public List<UserFileSystemPath> getMacInstallationPaths() {
         return app.getMacInstallationPaths();
-    }
-
-    public String getLinuxInstallationPath() {
-        return app.getLinuxInstallationPath();
     }
 
     public List<UserFileSystemPath> getLinuxInstallationPaths() {
@@ -89,9 +77,19 @@ public class SteamGame {
         return metadata.toString();
     }
 
+    public boolean hasWindowsPath() {
+        try {
+            return getWindowsInstallationPaths() != null
+                    && !getWindowsInstallationPaths().isEmpty();
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
     public boolean hasMacPath() {
         try {
-            return getMacInstallationPath() != null;
+            return getMacInstallationPaths() != null
+                    && !getMacInstallationPaths().isEmpty();
         } catch (RuntimeException e) {
             return false;
         }
@@ -99,15 +97,8 @@ public class SteamGame {
 
     public boolean hasLinuxPath() {
         try {
-            return getLinuxInstallationPath() != null;
-        } catch (RuntimeException e) {
-            return false;
-        }
-    }
-
-    public boolean hasWindowsPath() {
-        try {
-            return getWindowsInstallationPath() != null;
+            return getLinuxInstallationPaths() != null
+                    && !getLinuxInstallationPaths().isEmpty();
         } catch (RuntimeException e) {
             return false;
         }

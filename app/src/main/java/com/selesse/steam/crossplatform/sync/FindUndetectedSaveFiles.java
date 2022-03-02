@@ -2,6 +2,7 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamGame;
+import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.List;
@@ -21,7 +22,10 @@ public class FindUndetectedSaveFiles {
                 List<OperatingSystems.OperatingSystem> operatingSystems = steamGame.supportedOperatingSystems();
                 for (OperatingSystems.OperatingSystem operatingSystem : operatingSystems) {
                     try {
-                        steamGame.getInstallationPath(operatingSystem);
+                        List<UserFileSystemPath> installationPaths = steamGame.getInstallationPaths(operatingSystem);
+                        if (installationPaths.isEmpty()) {
+                            throw new RuntimeException("Did not find installation path for OS " + operatingSystem);
+                        }
                     } catch (RuntimeException e) {
                         isFullyIntegrated = false;
                         System.out.println(
