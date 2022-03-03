@@ -27,7 +27,6 @@ public class GameLoadingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameLoadingService.class);
 
     private final GameRegistries gameRegistries;
-    private final SteamRegistry steamRegistry;
     private final SteamCrossplatformSyncConfig config;
 
     public GameLoadingService(SteamCrossplatformSyncConfig config) {
@@ -37,7 +36,6 @@ public class GameLoadingService {
         } else {
             gameRegistries = GameRegistries.build();
         }
-        steamRegistry = SteamRegistry.getInstance();
     }
 
     public SteamGame loadGame(long gameId) {
@@ -48,12 +46,14 @@ public class GameLoadingService {
                 .build();
         Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
         RegistryStore registryStore = RegistryParser.parse(fileBackedCache.getLines(cachedRegistryStore));
-        SteamGameMetadata gameMetadata = steamRegistry.getGameMetadata(gameId);
+        SteamGameMetadata gameMetadata = SteamRegistry.getInstance().getGameMetadata(gameId);
         return new SteamGame(gameMetadata, registryStore);
     }
 
     public List<SteamGame> loadInstalledGames() {
-        return steamRegistry.getInstalledAppIds().stream().map(this::loadGame).toList();
+        return SteamRegistry.getInstance().getInstalledAppIds().stream()
+                .map(this::loadGame)
+                .toList();
     }
 
     public List<SteamGame> fetchAllGamesOrLoadInstalledGames() {

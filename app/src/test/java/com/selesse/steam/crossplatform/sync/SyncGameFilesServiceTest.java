@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import com.selesse.files.FileVisitors;
-import com.selesse.steam.SteamAccountId;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,35 +37,5 @@ public class SyncGameFilesServiceTest {
                 .containsExactly(Path.of(
                         tempCloudPath.toAbsolutePath().toString(),
                         tempFile.getFileName().toString()));
-    }
-
-    @Test
-    public void canHandleGameWithSteamId() throws IOException {
-        SteamCrossplatformSyncContext context = spy(new SteamCrossplatformSyncContext());
-        SyncGameFilesService syncGameFilesService = new SyncGameFilesService(context);
-
-        doReturn(new SteamAccountId("1234")).when(context).getSteamAccountIdIfPresent();
-
-        Path tempBaseDir = Files.createTempDirectory("sync-test");
-        Path steamDirPath = Path.of(tempBaseDir.toAbsolutePath() + "/1234");
-        boolean mkdirs = steamDirPath.toFile().mkdirs();
-        assert mkdirs;
-        Path tempFile = Files.createTempFile(steamDirPath, "bob", ".dat");
-
-        Path tempCloudPath = Files.createTempDirectory("sync-test-cloud");
-
-        SyncableGame gameSupportedOnAllOses = spy(new SyncableGame(
-                "Torchlight 2",
-                List.of(steamDirPath.toAbsolutePath() + "/{64BitSteamId}"),
-                List.of(steamDirPath.toAbsolutePath() + "/{64BitSteamId}"),
-                List.of(steamDirPath.toAbsolutePath() + "/{64BitSteamId}"),
-                367520L,
-                true));
-        doReturn(tempCloudPath).when(gameSupportedOnAllOses).getLocalCloudSyncPath(any());
-        syncGameFilesService.sync(gameSupportedOnAllOses);
-
-        assertThat(FileVisitors.listAll(tempCloudPath))
-                .containsExactly(Path.of(tempCloudPath.toAbsolutePath() + "/1234/"
-                        + tempFile.getFileName().toString()));
     }
 }
