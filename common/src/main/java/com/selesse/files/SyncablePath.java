@@ -6,14 +6,14 @@ import java.nio.file.PathMatcher;
 import java.util.List;
 
 public class SyncablePath {
-    private final Path path;
-    private Path pattern;
+    private final PatternSupportedPath path;
+    private PatternSupportedPath pattern;
 
-    public SyncablePath(Path baseDirectory) {
+    public SyncablePath(PatternSupportedPath baseDirectory) {
         this.path = baseDirectory;
     }
 
-    public SyncablePath(Path baseDirectory, Path pattern) {
+    public SyncablePath(PatternSupportedPath baseDirectory, PatternSupportedPath pattern) {
         this.path = baseDirectory;
         this.pattern = pattern;
     }
@@ -23,14 +23,8 @@ public class SyncablePath {
     }
 
     public PathMatcher getPathMatcher() {
-        if (pattern != null && pattern.getFileName().toString().contains("*")) {
-            String syntaxAndPattern;
-            if (pattern.getFileName().toString().equals("*")) {
-                // Convert * to ** - assume recursive
-                syntaxAndPattern = "glob:" + pattern.toAbsolutePath() + "*";
-            } else {
-                syntaxAndPattern = "glob:" + pattern.toAbsolutePath();
-            }
+        if (pattern != null && pattern.hasPattern()) {
+            String syntaxAndPattern = pattern.toGlobPath();
             return FileSystems.getDefault().getPathMatcher(syntaxAndPattern);
         }
         return path -> true;

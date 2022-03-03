@@ -1,9 +1,10 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.selesse.files.PatternSupportedPath;
 import com.selesse.files.SyncablePath;
 import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
 import com.selesse.steam.games.SteamGame;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -40,7 +41,8 @@ public class SyncGameFilesService {
         }
     }
 
-    private void sync(SyncableGame game) {
+    @VisibleForTesting
+    void sync(SyncableGame game) {
         if (game.isSupportedOnThisOs()) {
             if (!game.sync()) {
                 LOGGER.info("Not syncing {} due to its configuration", game.getName());
@@ -48,11 +50,12 @@ public class SyncGameFilesService {
             }
             LOGGER.info("Checking {}", game.getName());
 
-            SyncablePath syncableLocalCloudPath = new SyncablePath(game.getLocalCloudSyncPath(context.getConfig()));
-            List<Path> localPaths = game.getLocalPaths();
-            for (Path localPath : localPaths) {
+            SyncablePath syncableLocalCloudPath =
+                    new SyncablePath(PatternSupportedPath.fromPath(game.getLocalCloudSyncPath(context.getConfig())));
+            List<PatternSupportedPath> localPaths = game.getLocalPaths();
+            for (PatternSupportedPath localPath : localPaths) {
                 var steamAccountIdMaybe = context.getSteamAccountIdIfPresent();
-                Path parent = localPath.getParent();
+                PatternSupportedPath parent = localPath.getParent();
                 if (steamAccountIdMaybe != null) {
                     if (parent.endsWith(steamAccountIdMaybe.to64Bit())) {
                         parent = parent.getParent();

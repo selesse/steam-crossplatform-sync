@@ -10,10 +10,11 @@ import org.junit.Test;
 public class SyncablePathsCopierTest {
     @Test
     public void canSyncFromPseudoHollowKnight() throws IOException {
-        Path fakePath1 = createTempDirectory("hollow-knight");
-        Path fakePattern = Path.of(fakePath1.toAbsolutePath().toString(), "*.dat");
-        Path file = createTempFile(fakePath1, "file", ".dat");
-        Path fakePath2 = createTempDirectory("hollow-knight-2");
+        PatternSupportedPath fakePath1 = createTempDirectory("hollow-knight");
+        PatternSupportedPath fakePattern = PatternSupportedPath.of(
+                "%s/*.dat".formatted(fakePath1.toAbsolutePath().toString()));
+        Path file = createTempFile(fakePath1.toAbsolutePath(), "file", ".dat");
+        PatternSupportedPath fakePath2 = createTempDirectory("hollow-knight-2");
 
         SyncablePath source = new SyncablePath(fakePath1, fakePattern);
         SyncablePath destination = new SyncablePath(fakePath2);
@@ -28,14 +29,15 @@ public class SyncablePathsCopierTest {
 
     @Test
     public void canSyncWhenThePathIsNested() throws IOException {
-        Path fakePath1 = createTempDirectory("hollow-knight");
+        PatternSupportedPath fakePath1 = createTempDirectory("hollow-knight");
         Path nestedFakePath = Path.of(fakePath1.toAbsolutePath().toString(), "/saves");
         boolean mkdirs = nestedFakePath.toFile().mkdirs();
         assert mkdirs;
         Path file = createTempFile(nestedFakePath, "file", ".dat");
-        Path fakePath2 = createTempDirectory("hollow-knight-2");
+        PatternSupportedPath fakePath2 = createTempDirectory("hollow-knight-2");
 
-        Path fakePattern = Path.of(fakePath1.toAbsolutePath().toString(), "/saves/*.dat");
+        PatternSupportedPath fakePattern = PatternSupportedPath.of(
+                "%s/saves/*.dat".formatted(fakePath1.toAbsolutePath().toString()));
         SyncablePath source = new SyncablePath(fakePath1, fakePattern);
         SyncablePath destination = new SyncablePath(fakePath2);
 
@@ -49,14 +51,15 @@ public class SyncablePathsCopierTest {
 
     @Test
     public void willRecursivelySyncFiles_ifThePatternIsAGlob() throws IOException {
-        Path fakePath1 = createTempDirectory("hollow-knight");
+        PatternSupportedPath fakePath1 = createTempDirectory("hollow-knight");
         Path nestedFakePath = Path.of(fakePath1.toAbsolutePath().toString(), "/saves");
         boolean mkdirs = nestedFakePath.toFile().mkdirs();
         assert mkdirs;
         Path file = createTempFile(nestedFakePath, "file", ".dat");
-        Path fakePath2 = createTempDirectory("hollow-knight-2");
+        PatternSupportedPath fakePath2 = createTempDirectory("hollow-knight-2");
 
-        Path fakePattern = Path.of(fakePath1.toAbsolutePath().toString(), "/*");
+        PatternSupportedPath fakePattern = PatternSupportedPath.of(
+                "%s/*".formatted(fakePath1.toAbsolutePath().toString()));
         SyncablePath source = new SyncablePath(fakePath1, fakePattern);
         SyncablePath destination = new SyncablePath(fakePath2);
 
@@ -68,15 +71,15 @@ public class SyncablePathsCopierTest {
                         "/saves/" + file.getFileName().toString()));
     }
 
-    private static Path createTempDirectory(String pattern) throws IOException {
+    private static PatternSupportedPath createTempDirectory(String pattern) throws IOException {
         Path tempDirectory = Files.createTempDirectory(pattern);
         tempDirectory.toFile().deleteOnExit();
-        return tempDirectory;
+        return PatternSupportedPath.fromPath(tempDirectory);
     }
 
     private static Path createTempFile(Path directory, String name, String suffix) throws IOException {
-        Path tempDirectory = Files.createTempFile(directory, name, suffix);
-        tempDirectory.toFile().deleteOnExit();
-        return tempDirectory;
+        Path tempFile = Files.createTempFile(directory, name, suffix);
+        tempFile.toFile().deleteOnExit();
+        return tempFile;
     }
 }

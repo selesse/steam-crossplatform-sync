@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.selesse.files.PatternSupportedPath;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
@@ -14,16 +15,16 @@ public record SyncableGame(
         return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId(), raw.sync());
     }
 
-    public List<Path> getLocalPaths() {
+    public List<PatternSupportedPath> getLocalPaths() {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> windows().stream()
-                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                     .toList();
             case MAC -> mac().stream()
-                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                     .toList();
             case LINUX -> linux().stream()
-                    .map(path -> Path.of(FilePathSanitizer.sanitize(path)))
+                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                     .toList();
         };
     }
