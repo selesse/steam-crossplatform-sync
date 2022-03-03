@@ -16,15 +16,19 @@ import org.slf4j.LoggerFactory;
 public class SteamAccountIdFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteamAccountIdFinder.class);
 
-    SteamAccountIdFinder() {}
+    protected SteamAccountIdFinder() {}
 
-    public static Optional<SteamAccountId> findIfPresent() {
+    public Optional<SteamAccountId> find() {
         var os = OperatingSystems.get();
         if (os == OperatingSystems.OperatingSystem.WINDOWS) {
             return WindowsUserIdFinder.find();
         } else {
             return new SteamAccountIdFinder().findMostRecentUserIdIfPresent();
         }
+    }
+
+    public static Optional<SteamAccountId> findIfPresent() {
+        return new SteamAccountIdFinder().find();
     }
 
     Optional<SteamAccountId> findMostRecentUserIdIfPresent() {

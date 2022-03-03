@@ -5,11 +5,11 @@ import static com.selesse.os.OperatingSystems.OperatingSystem;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.selesse.files.OsAgnosticPaths;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.steam.games.saves.SaveFileObject;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class UserFileSystemPath {
     private final String root;
@@ -115,6 +115,6 @@ public class UserFileSystemPath {
     }
 
     private String backslashToForwardSlash(String value) {
-        return value.replaceAll(Pattern.quote("\\"), "/");
+        return OsAgnosticPaths.of(value);
     }
 }

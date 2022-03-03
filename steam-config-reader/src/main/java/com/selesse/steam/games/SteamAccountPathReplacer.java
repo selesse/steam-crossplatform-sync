@@ -3,6 +3,7 @@ package com.selesse.steam.games;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.user.SteamAccountIdFinder;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class SteamAccountPathReplacer {
     private final SteamAccountId steamAccountId;
@@ -11,9 +12,17 @@ public class SteamAccountPathReplacer {
         steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
     }
 
+    public SteamAccountPathReplacer(SteamAccountIdFinder accountIdFinder) {
+        steamAccountId = accountIdFinder.find().orElse(null);
+    }
+
     public String replace(String path) {
-        return path.replace("{64BitSteamID}", sixtyFourBitReplacement())
+        String replacement = path.replace("{64BitSteamID}", sixtyFourBitReplacement())
                 .replace("{Steam3AccountID}", thirtyTwoBitReplacement());
+        if (replacement.contains("//")) {
+            return replacement.replaceAll(Pattern.quote("//"), "/");
+        }
+        return replacement;
     }
 
     private String sixtyFourBitReplacement() {
