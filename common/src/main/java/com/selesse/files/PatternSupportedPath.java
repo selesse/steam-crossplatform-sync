@@ -58,7 +58,8 @@ public class PatternSupportedPath {
 
     public boolean hasPattern() {
         List<String> parts = Splitter.on("/").splitToList(path);
-        return Iterables.getLast(parts).contains("*");
+        String last = Iterables.getLast(parts);
+        return last.contains("*") || last.contains("?");
     }
 
     private boolean recursivelyIncludeEverything() {
