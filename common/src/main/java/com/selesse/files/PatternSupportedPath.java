@@ -67,6 +67,10 @@ public class PatternSupportedPath {
         return last.contains("*") || last.contains("?");
     }
 
+    public String asParts() {
+        return path;
+    }
+
     private boolean recursivelyIncludeEverything() {
         List<String> parts = Splitter.on("/").splitToList(path);
         return Iterables.getLast(parts).equals("*");
@@ -78,5 +82,25 @@ public class PatternSupportedPath {
             return Path.of(Joiner.on("/").join(parts.subList(0, parts.size() - 1)));
         }
         return Path.of(path);
+    }
+
+    public String getPattern() {
+        return Iterables.getLast(Splitter.on("/").splitToList(path));
+    }
+
+    public PatternSupportedPath relativize(PatternSupportedPath localPath) {
+        if (localPath.hasPattern()) {
+            return PatternSupportedPath.of(getPathOrParentPathIfAsterisk().relativize(localPath.toAbsolutePath()) + "/"
+                    + localPath.getPattern());
+        }
+        return PatternSupportedPath.of(
+                toAbsolutePath().relativize(localPath.toAbsolutePath()).toString());
+    }
+
+    public PatternSupportedPath resolve(PatternSupportedPath relativize) {
+        if (relativize.asParts().startsWith("/")) {
+            return PatternSupportedPath.of(path + relativize.asParts());
+        }
+        return PatternSupportedPath.of(path + "/" + relativize.asParts());
     }
 }

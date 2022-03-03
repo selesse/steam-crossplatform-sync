@@ -50,8 +50,6 @@ public class SyncGameFilesService {
             }
             LOGGER.info("Checking {}", game.getName());
 
-            SyncablePath syncableLocalCloudPath =
-                    new SyncablePath(PatternSupportedPath.fromPath(game.getLocalCloudSyncPath(context.getConfig())));
             List<PatternSupportedPath> localPaths = game.getLocalPaths();
             for (PatternSupportedPath localPath : localPaths) {
                 var steamAccountIdMaybe = context.getSteamAccountIdIfPresent();
@@ -62,6 +60,10 @@ public class SyncGameFilesService {
                     }
                 }
                 SyncablePath syncableLocalPath = new SyncablePath(parent, localPath);
+                PatternSupportedPath cloudPath =
+                        PatternSupportedPath.fromPath(game.getLocalCloudSyncPath(context.getConfig()));
+                PatternSupportedPath relativeToCloudPath = cloudPath.resolve(parent.relativize(localPath));
+                SyncablePath syncableLocalCloudPath = new SyncablePath(cloudPath, relativeToCloudPath);
                 GameSyncer.sync(syncableLocalPath, syncableLocalCloudPath);
             }
         } else {
