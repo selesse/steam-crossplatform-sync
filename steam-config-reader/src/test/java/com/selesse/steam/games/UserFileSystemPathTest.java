@@ -17,9 +17,16 @@ public class UserFileSystemPathTest {
                 .map(SteamAccountId::to64Bit)
                 .orElse("");
 
-        assertThat(userFileSystemPath.getSymbolPath())
-                .isEqualTo(
-                        "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/%s/"
-                                .formatted(steamAccountId));
+        // TODO: Need to improve this - maybe replace "" with "**"
+        if (steamAccountId.equals("")) {
+            assertThat(userFileSystemPath.getSymbolPath())
+                    .isEqualTo(
+                            "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/");
+        } else {
+            assertThat(userFileSystemPath.getSymbolPath())
+                    .isEqualTo(
+                            "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/%s/"
+                                    .formatted(steamAccountId));
+        }
     }
 }
