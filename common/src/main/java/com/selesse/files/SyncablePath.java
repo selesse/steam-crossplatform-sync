@@ -27,6 +27,9 @@ public class SyncablePath {
             String syntaxAndPattern = pattern.toGlobPath();
             return FileSystems.getDefault().getPathMatcher(syntaxAndPattern);
         }
+        if (pattern != null) {
+            return path -> path.getFileName().toString().equals(pattern.getFileName());
+        }
         return path -> true;
     }
 

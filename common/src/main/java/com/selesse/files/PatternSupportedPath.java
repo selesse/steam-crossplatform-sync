@@ -34,6 +34,11 @@ public class PatternSupportedPath {
         return new PatternSupportedPath(path.toAbsolutePath().toString());
     }
 
+    public String getFileName() {
+        assert !hasPattern();
+        return Iterables.getLast(Splitter.on("/").splitToList(path));
+    }
+
     public PatternSupportedPath getParent() {
         if (hasPattern()) {
             return fromPath(getPathOrParentPathIfAsterisk());
