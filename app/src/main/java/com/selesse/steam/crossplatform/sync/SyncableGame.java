@@ -33,8 +33,7 @@ public record SyncableGame(
         return Path.of(
                 config.getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(),
                 "games",
-                // This is definitely gonna be a problem at some point...
-                name.toLowerCase().replaceAll(" ", "_"));
+                name.toLowerCase().replaceAll(" ", "_").replaceAll("[^a-z0-9_]", ""));
     }
 
     public String getName() {
