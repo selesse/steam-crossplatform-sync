@@ -8,3 +8,4 @@ out/
 release/
 .env
 log/
+bin/
