@@ -15,18 +15,11 @@ public class UserFileSystemPathTest {
 
         String steamAccountId = SteamAccountIdFinder.findIfPresent()
                 .map(SteamAccountId::to64Bit)
-                .orElse("");
+                .orElse("**");
 
-        // TODO: Need to improve this - maybe replace "" with "**"
-        if (steamAccountId.equals("")) {
-            assertThat(userFileSystemPath.getSymbolPath())
-                    .isEqualTo(
-                            "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/");
-        } else {
-            assertThat(userFileSystemPath.getSymbolPath())
-                    .isEqualTo(
-                            "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/%s/"
-                                    .formatted(steamAccountId));
-        }
+        assertThat(userFileSystemPath.getSymbolPath())
+                .isEqualTo(
+                        "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/%s/"
+                                .formatted(steamAccountId));
     }
 }

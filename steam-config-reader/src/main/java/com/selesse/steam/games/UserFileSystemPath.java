@@ -65,7 +65,7 @@ public class UserFileSystemPath {
     }
 
     public String getPath() {
-        String path = new SteamAccountPathReplacer().replace(backslashToForwardSlash(this.path));
+        String path = new SteamAccountPathReplacer().replace(backslashToForwardSlash(this.path), "**");
         if (pattern != null) {
             if (!path.endsWith("/")) {
                 path += "/";
