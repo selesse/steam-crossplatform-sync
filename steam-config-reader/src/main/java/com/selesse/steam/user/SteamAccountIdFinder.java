@@ -1,5 +1,6 @@
 package com.selesse.steam.user;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
@@ -16,9 +17,10 @@ import org.slf4j.LoggerFactory;
 public class SteamAccountIdFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteamAccountIdFinder.class);
 
-    protected SteamAccountIdFinder() {}
+    @VisibleForTesting
+    SteamAccountIdFinder() {}
 
-    public Optional<SteamAccountId> find() {
+    private Optional<SteamAccountId> find() {
         var os = OperatingSystems.get();
         if (os == OperatingSystems.OperatingSystem.WINDOWS) {
             return WindowsUserIdFinder.find();
