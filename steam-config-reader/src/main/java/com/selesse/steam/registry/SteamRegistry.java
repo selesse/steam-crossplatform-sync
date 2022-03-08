@@ -36,10 +36,19 @@ public abstract class SteamRegistry {
     }
 
     public Path getAppCachePath() {
+        return Path.of(getBasePath(), "appcache/appinfo.vdf");
+    }
+
+    public Path getLibraryCachePath() {
+        return Path.of(getBasePath(), "appcache/librarycache");
+    }
+
+    private String getBasePath() {
         return switch (OperatingSystems.get()) {
-            case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam\\appcache\\appinfo.vdf");
-            case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam/appcache/appinfo.vdf"));
-            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam/appcache/appinfo.vdf"));
+            case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam").toString();
+            case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
+                    .toString();
+            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam")).toString();
         };
     }
 
