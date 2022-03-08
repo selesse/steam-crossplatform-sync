@@ -3,9 +3,7 @@ package com.selesse.steam.registry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.selesse.os.Resources;
-import com.selesse.steam.games.SteamGameMetadata;
 import java.nio.file.Path;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,12 +51,5 @@ public class FileBasedRegistryTest {
                         (long) 607050,
                         (long) 646570,
                         (long) 734070);
-    }
-
-    @Test
-    public void canReadGameMetadata() {
-        List<SteamGameMetadata> gameMetadata = fileBasedRegistry.getGamesMetadata();
-
-        assertThat(gameMetadata).contains(new SteamGameMetadata(367520, "Hollow Knight", true));
     }
 }

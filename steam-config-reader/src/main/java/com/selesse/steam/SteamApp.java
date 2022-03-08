@@ -21,6 +21,11 @@ public class SteamApp {
         return registryStore;
     }
 
+    public long getId() {
+        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/gameid");
+        return Long.parseLong(objectValueAsString.getValue());
+    }
+
     public String getName() {
         RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/name");
         return objectValueAsString.getValue();

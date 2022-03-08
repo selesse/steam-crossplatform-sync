@@ -11,21 +11,17 @@ public class SteamGame {
     private final SteamGameMetadata metadata;
     private final SteamApp app;
 
-    public SteamGame(SteamGameMetadata metadata, RegistryStore config) {
-        this.metadata = metadata;
+    public SteamGame(RegistryStore config) {
         this.app = new SteamApp(config);
+        this.metadata = new SteamGameMetadata(getId(), getName());
     }
 
     public String getName() {
-        return metadata.name();
+        return app.getName();
     }
 
     public RegistryStore getRegistryStore() {
         return app.getRegistryStore();
-    }
-
-    public boolean isInstalled() {
-        return metadata.installed();
     }
 
     public AppType getAppType() {
@@ -33,7 +29,7 @@ public class SteamGame {
     }
 
     public long getId() {
-        return metadata.gameId();
+        return app.getId();
     }
 
     public List<OperatingSystems.OperatingSystem> supportedOperatingSystems() {

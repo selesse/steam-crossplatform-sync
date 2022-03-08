@@ -6,9 +6,7 @@ import com.selesse.files.FileModified;
 import com.selesse.steam.GameRegistries;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
-import com.selesse.steam.games.SteamGameMetadata;
 import com.selesse.steam.registry.RegistryPrettyPrint;
-import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import java.nio.file.Path;
@@ -35,8 +33,7 @@ public class GameLoadingService {
                 .build();
         Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
         RegistryStore registryStore = RegistryParser.parse(fileBackedCache.getLines(cachedRegistryStore));
-        SteamGameMetadata gameMetadata = SteamRegistry.getInstance().getGameMetadata(gameId);
-        return new SteamGame(gameMetadata, registryStore);
+        return new SteamGame(registryStore);
     }
 
     public List<SteamGame> loadGames(List<Long> gameIds) {

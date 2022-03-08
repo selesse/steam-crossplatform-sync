@@ -1,8 +1,8 @@
 package com.selesse.steam.games;
 
-public record SteamGameMetadata(long gameId, String name, boolean installed) {
+public record SteamGameMetadata(long gameId, String name) {
     @Override
     public String toString() {
-        return name + " (" + gameId + ") " + (installed ? "installed" : "not installed");
+        return name + " (" + gameId + ")";
     }
 }

@@ -1,6 +1,5 @@
 package com.selesse.steam;
 
-import com.selesse.steam.games.SteamGameMetadata;
 import com.selesse.steam.registry.SteamRegistry;
 
 public class GameRunningDetector {
@@ -10,12 +9,5 @@ public class GameRunningDetector {
 
     public static long getCurrentlyRunningGameId() {
         return SteamRegistry.getInstance().getCurrentlyRunningAppId();
-    }
-
-    public static SteamGameMetadata getCurrentlyRunningGameMetadata() {
-        return SteamRegistry.getInstance().getGamesMetadata().stream()
-                .filter(x -> x.gameId() == SteamRegistry.getInstance().getCurrentlyRunningAppId())
-                .findFirst()
-                .orElseThrow();
     }
 }
