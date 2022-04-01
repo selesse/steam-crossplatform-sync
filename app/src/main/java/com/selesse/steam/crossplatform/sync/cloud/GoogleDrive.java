@@ -28,7 +28,7 @@ public class GoogleDrive {
     }
 
     private static Optional<Path> defaultPathIfExists() {
-        return Stream.of(defaultPath(), reasonableRename())
+        return Stream.of(defaultPath(), defaultLegacyPath(), reasonableRename())
                 .filter(x -> x.toFile().isDirectory())
                 .findFirst();
     }
@@ -94,6 +94,10 @@ public class GoogleDrive {
     }
 
     private static Path defaultPath() {
+        return Path.of(System.getProperty("user.home"), "Google Drive", "My Drive");
+    }
+
+    private static Path defaultLegacyPath() {
         return Path.of(System.getProperty("user.home"), "Google Drive");
     }
 
