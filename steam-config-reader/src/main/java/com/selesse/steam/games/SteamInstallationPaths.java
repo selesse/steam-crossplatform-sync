@@ -12,6 +12,7 @@ public class SteamInstallationPaths {
             case MAC -> "~/Library/Application Support/Steam";
             case WINDOWS -> "%PROGRAMFILES(X86)%/Steam";
             case LINUX -> "~/.steam";
+            case STEAM_OS -> "~/.steam/steam";
         };
     }
 }

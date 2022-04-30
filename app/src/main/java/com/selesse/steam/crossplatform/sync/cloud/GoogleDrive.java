@@ -18,7 +18,7 @@ public class GoogleDrive {
 
         Optional<Path> localDbPathMaybe =
                 switch (OperatingSystems.get()) {
-                    case MAC, LINUX -> defaultMacDriveConfigPath();
+                    case MAC, LINUX, STEAM_OS -> defaultMacDriveConfigPath();
                     case WINDOWS -> defaultWindowsDriveConfigPath();
                 };
 

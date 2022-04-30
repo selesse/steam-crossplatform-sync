@@ -53,7 +53,7 @@ public class GamesFileGenerator {
                 switch (os) {
                     case MAC -> steamGame.getMacInstallationPaths();
                     case WINDOWS -> steamGame.getWindowsInstallationPaths();
-                    case LINUX -> steamGame.getLinuxInstallationPaths();
+                    case LINUX, STEAM_OS -> steamGame.getLinuxInstallationPaths();
                 };
         if (installationPaths == null) {
             return null;

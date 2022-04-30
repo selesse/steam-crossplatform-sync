@@ -23,7 +23,7 @@ public record SyncableGame(
             case MAC -> mac().stream()
                     .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                     .toList();
-            case LINUX -> linux().stream()
+            case LINUX, STEAM_OS -> linux().stream()
                     .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                     .toList();
         };
@@ -50,7 +50,7 @@ public record SyncableGame(
                     .map(x -> !x.isEmpty())
                     .orElse(false);
             case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
-            case LINUX -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
+            case LINUX, STEAM_OS -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
         };
     }
 }

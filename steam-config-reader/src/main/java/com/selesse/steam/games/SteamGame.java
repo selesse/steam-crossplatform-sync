@@ -44,7 +44,7 @@ public class SteamGame {
         return switch (operatingSystem) {
             case WINDOWS -> getWindowsInstallationPaths();
             case MAC -> getMacInstallationPaths();
-            case LINUX -> getLinuxInstallationPaths();
+            case LINUX, STEAM_OS -> getLinuxInstallationPaths();
         };
     }
 
