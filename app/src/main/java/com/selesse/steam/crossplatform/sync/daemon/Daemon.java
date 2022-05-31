@@ -25,7 +25,8 @@ public class Daemon implements Runnable {
             timeUnitFrequency = TimeUnit.SECONDS;
         }
         GameMonitor command = new GameMonitor(context);
-        ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(command, 0, period, timeUnitFrequency);
+        ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(
+                getExceptionTolerantRunnable(command), 0, period, timeUnitFrequency);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down game monitor daemon");
             command.run();
@@ -36,5 +37,15 @@ public class Daemon implements Runnable {
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("Error scheduling daemon", e);
         }
+    }
+
+    private Runnable getExceptionTolerantRunnable(Runnable runnable) {
+        return () -> {
+            try {
+                runnable.run();
+            } catch (RuntimeException e) {
+                LOGGER.info("Execution exception", e);
+            }
+        };
     }
 }
