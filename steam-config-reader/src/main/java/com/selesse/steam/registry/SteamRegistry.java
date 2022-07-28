@@ -34,7 +34,8 @@ public abstract class SteamRegistry {
             case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
                     .toString();
             case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam")).toString();
-            case STEAM_OS -> Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
+            case STEAM_OS -> Path.of(FilePathSanitizer.sanitize("~/.steam/steam"))
+                    .toString();
         };
     }
 

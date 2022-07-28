@@ -50,7 +50,9 @@ public record SyncableGame(
                     .map(x -> !x.isEmpty())
                     .orElse(false);
             case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
-            case LINUX, STEAM_OS -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
+            case LINUX, STEAM_OS -> Optional.ofNullable(linux())
+                    .map(x -> !x.isEmpty())
+                    .orElse(false);
         };
     }
 }
