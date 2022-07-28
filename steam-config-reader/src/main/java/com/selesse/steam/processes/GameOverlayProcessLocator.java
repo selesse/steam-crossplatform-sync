@@ -27,6 +27,7 @@ public class GameOverlayProcessLocator {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> "GameOverlayUI.exe";
             case MAC, LINUX -> "gameoverlayui";
+            case STEAM_OS -> "reaper";
         };
     }
 }
