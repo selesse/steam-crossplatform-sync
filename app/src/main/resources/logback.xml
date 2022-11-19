@@ -24,6 +24,7 @@
 
     <logger name="org.eclipse.jetty" level="WARN"/>
     <logger name="spark.http.matching.MatcherFilter" level="WARN"/>
+    <logger name="org.flywaydb" level="WARN"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

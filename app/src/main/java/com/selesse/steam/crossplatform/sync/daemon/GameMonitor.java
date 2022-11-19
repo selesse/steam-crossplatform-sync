@@ -5,6 +5,7 @@ import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
 import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
+import com.selesse.steamcrossplatformsync.gamesessions.GameSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class GameMonitor implements Runnable {
 
     private final SteamCrossplatformSyncContext context;
     private SteamGame runningGame;
+    private GameSession gameSession;
 
     public GameMonitor(SteamCrossplatformSyncContext context) {
         this.context = context;
@@ -43,6 +45,7 @@ public class GameMonitor implements Runnable {
     }
 
     private void onGameLaunch(SteamGame runningGame) {
+        gameSession = GameSession.start(runningGame);
         LOGGER.info("Game launched: {}", runningGame.getName());
 
         GameOverlayProcessLocator.locate()
@@ -52,6 +55,7 @@ public class GameMonitor implements Runnable {
     }
 
     private void onGameClosed(SteamGame runningGame) {
+        gameSession.finish();
         LOGGER.info("Game closed: {}", runningGame.getName());
         LOGGER.info("Running sync service for {}", runningGame.getName());
         new SyncGameFilesService(context).run(runningGame);

@@ -15,6 +15,7 @@ dependencies {
     implementation('com.sparkjava:spark-core:2.9.3')
     implementation(project(':steam-config-reader'))
     implementation(project(':common'))
+    implementation(project(':game-session-tracker'))
 }
 
 application {
