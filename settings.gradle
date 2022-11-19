@@ -9,6 +9,7 @@
 
 rootProject.name = 'steam-crossplatform-sync'
 include('app')
+include('game-session-tracker')
 include('common')
 include('steam-config-reader')
 

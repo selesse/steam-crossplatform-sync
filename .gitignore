@@ -9,3 +9,5 @@ release/
 .env
 log/
 bin/
+
+*.sqlite3

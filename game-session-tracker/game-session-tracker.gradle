@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation('org.flywaydb:flyway-core:9.8.1')
+    implementation('org.xerial:sqlite-jdbc:3.39.3.0')
+    implementation(project(':steam-config-reader'))
+    implementation(project(':common'))
+}
