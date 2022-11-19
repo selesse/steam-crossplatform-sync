@@ -31,14 +31,12 @@ public class GameMonitor implements Runnable {
                     SteamGame newGame = context.loadGame(currentGameId);
                     LOGGER.info(
                             "Game switch detected, closed {} but opened {}", runningGame.getName(), newGame.getName());
-                    LOGGER.info("Game closed: {}", runningGame.getName());
+                    onGameClosed(runningGame);
                     runningGame = newGame;
                     onGameLaunch(newGame);
                 }
             } else if (runningGame != null) {
-                LOGGER.info("Game closed: {}", runningGame.getName());
-                LOGGER.info("Running sync service for {}", runningGame.getName());
-                new SyncGameFilesService(context).run(runningGame);
+                onGameClosed(runningGame);
                 runningGame = null;
             }
         }
@@ -51,5 +49,11 @@ public class GameMonitor implements Runnable {
                 .ifPresentOrElse(
                         processHandle -> processHandle.onExit().thenRunAsync(this),
                         () -> LOGGER.info("Couldn't find game overlay process"));
+    }
+
+    private void onGameClosed(SteamGame runningGame) {
+        LOGGER.info("Game closed: {}", runningGame.getName());
+        LOGGER.info("Running sync service for {}", runningGame.getName());
+        new SyncGameFilesService(context).run(runningGame);
     }
 }
