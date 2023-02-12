@@ -40,26 +40,19 @@ class GameSessionRepository {
 
     public void save(GameSessionRecord gameSessionRecord) {
         try (Connection connection = Database.getConnection(sqliteFile)) {
-            long gameId = insertOrFetchGameId(connection, gameSessionRecord);
-            insertGamingSession(connection, gameId, gameSessionRecord);
+            insertOrIgnoreGame(connection, gameSessionRecord);
+            insertGamingSession(connection, gameSessionRecord.game().getId(), gameSessionRecord);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static long insertOrFetchGameId(Connection connection, GameSessionRecord gameSessionRecord)
+    private static void insertOrIgnoreGame(Connection connection, GameSessionRecord gameSessionRecord)
             throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(INSERT_GAME);
         preparedStatement.setString(1, gameSessionRecord.game().getName());
         preparedStatement.setLong(2, gameSessionRecord.game().getId());
         preparedStatement.executeUpdate();
-        long gameId = preparedStatement.getGeneratedKeys().getLong(1);
-        if (gameId == 0) {
-            var statement = connection.prepareStatement(FETCH_GAME);
-            statement.setString(1, gameSessionRecord.game().getName());
-            gameId = statement.executeQuery().getLong(1);
-        }
-        return gameId;
     }
 
     private void insertGamingSession(Connection connection, long gameId, GameSessionRecord gameSessionRecord)
