@@ -38,7 +38,7 @@ public class AppCacheReaderTest {
 
     @Test
     public void testCanParseRightNumberOfApps() {
-        assertThat(appCache.size()).isEqualTo(1947);
+        assertThat(appCache.size()).isEqualTo(2134);
     }
 
     @Test

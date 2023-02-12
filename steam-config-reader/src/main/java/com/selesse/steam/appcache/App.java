@@ -8,4 +8,5 @@ public record App(
         int picsToken,
         byte[] sha1,
         int changeNumber,
+        byte[] sha1Binary,
         VdfObject vdfObject) {}
