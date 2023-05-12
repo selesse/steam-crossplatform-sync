@@ -8,7 +8,7 @@ public class TestAppCache {
 
     public static void setup() {
         if (appCache == null) {
-            appCache = new AppCacheReader().load(Resources.getResource("appinfo.vdf"));
+            appCache = new AppCacheReader().load(Resources.getResource("appinfo-pre-dec-2022.vdf"));
         }
         SteamAppLoader.primeAppCache(appCache);
     }

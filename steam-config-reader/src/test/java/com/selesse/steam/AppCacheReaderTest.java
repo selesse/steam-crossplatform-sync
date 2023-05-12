@@ -14,7 +14,7 @@ public class AppCacheReaderTest {
 
     @BeforeClass
     public static void setup() {
-        Path path = Resources.getResource("appinfo.vdf");
+        Path path = Resources.getResource("appinfo-pre-dec-2022.vdf");
         appCache = new AppCacheReader().load(path);
     }
 
@@ -38,7 +38,7 @@ public class AppCacheReaderTest {
 
     @Test
     public void testCanParseRightNumberOfApps() {
-        assertThat(appCache.size()).isEqualTo(2134);
+        assertThat(appCache.size()).isEqualTo(1947);
     }
 
     @Test

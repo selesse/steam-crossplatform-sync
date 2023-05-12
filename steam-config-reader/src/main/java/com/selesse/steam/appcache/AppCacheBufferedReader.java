@@ -33,7 +33,10 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
     public AppCache call() throws Exception {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             String firstFourBytes = readFourBytes(bufferedInputStream);
-            assert firstFourBytes.equals("28 44 56 7");
+            if (!(firstFourBytes.equals("27 44 56 7") || firstFourBytes.equals("28 44 56 7"))) {
+                throw new IllegalStateException("Unknown app cache format: " + firstFourBytes);
+            }
+            boolean parseSha1Binary = firstFourBytes.equals("28 44 56 7");
             String nextByte = readFourBytes(bufferedInputStream);
             assert nextByte.equals("1 0 0 0");
             AppCache appCache = new AppCache();
@@ -48,7 +51,10 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
                 int picsToken = parse64Int(bufferedInputStream);
                 byte[] sha1 = getSha1(bufferedInputStream);
                 int changeNumber = parse32Int(bufferedInputStream);
-                byte[] sha1Binary = getSha1(bufferedInputStream);
+                byte[] sha1Binary = null;
+                if (parseSha1Binary) {
+                    sha1Binary = getSha1(bufferedInputStream);
+                }
 
                 byte b = parseOneByte(bufferedInputStream);
                 assert b == BEGIN_OBJECT;
