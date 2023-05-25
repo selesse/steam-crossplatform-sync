@@ -1,0 +1,13 @@
+[Unit]
+Description=steam-crossplatform-sync
+
+[Service]
+User=deck
+ExecStart=/bin/bash -c '. /home/deck/.localrc; java -jar /home/deck/git/steam-crossplatform-sync/app/build/libs/app-all.jar'
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
