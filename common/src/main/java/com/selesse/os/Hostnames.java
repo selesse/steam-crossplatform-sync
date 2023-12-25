@@ -20,7 +20,7 @@ public class Hostnames {
 
     private static String fallbackHostname() {
         try {
-            Process hostnameProcess = Runtime.getRuntime().exec("hostname");
+            Process hostnameProcess = new ProcessBuilder("hostname").start();
             return new BufferedReader(new InputStreamReader(hostnameProcess.getInputStream())).readLine();
         } catch (IOException e) {
             throw new RuntimeException(e);
