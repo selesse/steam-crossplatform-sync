@@ -12,20 +12,16 @@ public class LinuxSteamRegistry extends FileBasedRegistry {
 
     @Override
     public long getCurrentlyRunningAppId() {
-        long currentlyRunningAppId = super.getCurrentlyRunningAppId();
-        if (currentlyRunningAppId == 0) {
-            return GameOverlayProcessLocator.locate()
-                    .map(reaperProcess -> {
-                        var processArguments = reaperProcess.info().arguments().orElse(new String[] {});
-                        for (String argument : processArguments) {
-                            if (argument.contains("AppId=")) {
-                                return Long.parseLong(argument.split("=")[1]);
-                            }
+        return GameOverlayProcessLocator.locate()
+                .map(reaperProcess -> {
+                    var processArguments = reaperProcess.info().arguments().orElse(new String[] {});
+                    for (String argument : processArguments) {
+                        if (argument.contains("AppId=")) {
+                            return Long.parseLong(argument.split("=")[1]);
                         }
-                        return 0L;
-                    })
-                    .orElse(0L);
-        }
-        return currentlyRunningAppId;
+                    }
+                    return 0L;
+                })
+                .orElse(0L);
     }
 }

@@ -17,8 +17,8 @@ public class GameOverlayProcessLocator {
                             .command()
                             .map(x -> Splitter.on(File.separatorChar).splitToList(x))
                             .orElse(Lists.newArrayList());
-                    return processArguments.size() > 0
-                            && processArguments.get(processArguments.size() - 1).equalsIgnoreCase(gameOverlayProcess);
+                    return !processArguments.isEmpty()
+                            && processArguments.getLast().equalsIgnoreCase(gameOverlayProcess);
                 })
                 .findFirst();
     }

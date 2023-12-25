@@ -5,7 +5,6 @@ import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import com.selesse.steam.registry.implementation.RegistryStore;
-import com.selesse.steam.registry.implementation.RegistryString;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -25,10 +24,7 @@ public abstract class FileBasedRegistry extends SteamRegistry {
         }
     }
 
-    public long getCurrentlyRunningAppId() {
-        RegistryString value = registryStore.getObjectValueAsString("Registry/HKCU/Software/Valve/Steam/RunningAppID");
-        return Long.parseLong(value.getValue());
-    }
+    public abstract long getCurrentlyRunningAppId();
 
     public List<Long> getInstalledAppIds() {
         RegistryObject object = getAppsRegistryObject();

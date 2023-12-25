@@ -3,18 +3,15 @@ package com.selesse.steam.registry;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.selesse.steam.registry.windows.GetCurrentlyRunningGameIdViaRegistry;
+import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
 import com.selesse.steam.registry.windows.GetInstalledAppIdsFromRegistry;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class WindowsSteamRegistry extends SteamRegistry {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WindowsSteamRegistry.class);
     private final LoadingCache<String, List<Long>> installedAppCache;
 
     public WindowsSteamRegistry() {
@@ -30,14 +27,10 @@ class WindowsSteamRegistry extends SteamRegistry {
 
     @Override
     public long getCurrentlyRunningAppId() {
-        long registryValue = GetCurrentlyRunningGameIdViaRegistry.get();
-        if (registryValue == 0 && hasGameOverlayProcessRunning()) {
-            // For whatever reason, sometimes Steam's registry value is incorrectly set to 0.
-            // This makes us more robust at the expense of being slightly more expensive to run.
-            LOGGER.info("Steam's registry said the app ID was 0, but we detected the GameOverlay");
+        if (GameOverlayProcessLocator.locate().isPresent()) {
             return GetGameIdFromGameOverlay.get();
         }
-        return registryValue;
+        return 0L;
     }
 
     @Override
@@ -47,11 +40,5 @@ class WindowsSteamRegistry extends SteamRegistry {
         } catch (ExecutionException e) {
             return GetInstalledAppIdsFromRegistry.get();
         }
-    }
-
-    private boolean hasGameOverlayProcessRunning() {
-        return ProcessHandle.allProcesses()
-                .filter(ProcessHandle::isAlive)
-                .anyMatch(process -> process.info().command().orElseThrow().contains("Steam\\GameOverlayUI"));
     }
 }
