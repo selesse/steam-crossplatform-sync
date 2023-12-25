@@ -1,5 +1,5 @@
 plugins {
-    id "com.diffplug.spotless" version "6.3.0" apply false
+    id "com.diffplug.spotless" version "6.23.3" apply false
 }
 
 subprojects {
@@ -24,7 +24,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
+            languageVersion = JavaLanguageVersion.of(21)
             vendor = JvmVendorSpec.ADOPTIUM
         }
     }
