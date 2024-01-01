@@ -13,7 +13,7 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logging_directory}/steam-crossplatform-sync.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logging_directory}/steam-crossplatform-sync.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logging_directory}/%d{yyyy/MM, aux}/steam-crossplatform-sync.%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <append>true</append>
         <immediateFlush>true</immediateFlush>
