@@ -33,13 +33,18 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
     public AppCache call() throws Exception {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             String firstFourBytes = readFourBytes(bufferedInputStream);
-            if (!(firstFourBytes.equals("27 44 56 7") || firstFourBytes.equals("28 44 56 7"))) {
+            if (!(firstFourBytes.equals("27 44 56 7") || firstFourBytes.equals("28 44 56 7") || firstFourBytes.equals("29 44 56 7")) ) {
                 throw new IllegalStateException("Unknown app cache format: " + firstFourBytes);
             }
-            boolean parseSha1Binary = firstFourBytes.equals("28 44 56 7");
+            boolean parseSha1Binary = firstFourBytes.equals("28 44 56 7") || firstFourBytes.equals("29 44 56 7");
             String nextByte = readFourBytes(bufferedInputStream);
             assert nextByte.equals("1 0 0 0");
             AppCache appCache = new AppCache();
+            StringCache stringCache = null;
+            if (firstFourBytes.equals("29 44 56 7")) {
+                long offsetToStringTable = parse64Int(bufferedInputStream);
+                stringCache = new StringCacheReader(path, offsetToStringTable).read();
+            }
             while (true) {
                 int appId = parse32Int(bufferedInputStream);
                 if (appId == 0) {
@@ -58,7 +63,7 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
 
                 byte b = parseOneByte(bufferedInputStream);
                 assert b == BEGIN_OBJECT;
-                VdfObject object = parseVdfObject(bufferedInputStream);
+                VdfObject object = parseVdfObject(bufferedInputStream, stringCache);
                 b = parseOneByte(bufferedInputStream);
                 assert b == END_OBJECT;
 
@@ -70,21 +75,27 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
         }
     }
 
-    private VdfObject parseVdfObject(BufferedInputStream bufferedInputStream) throws IOException {
-        List<Byte> currentData = getBytes(bufferedInputStream);
-        String keyName = new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
+    private VdfObject parseVdfObject(BufferedInputStream bufferedInputStream, StringCache stringCache) throws IOException {
+        String keyName;
+        if (stringCache == null) {
+            List<Byte> currentData = getBytes(bufferedInputStream);
+            keyName = new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
+        } else {
+            int index = parseOneByte(bufferedInputStream);
+            keyName = stringCache.get(index);
+        }
         VdfObject vdfObject = new VdfObject(keyName);
 
         byte nextByte;
         while ((nextByte = parseOneByte(bufferedInputStream)) != END_OBJECT) {
             if (nextByte == BEGIN_OBJECT) {
-                VdfObject nestedObject = parseVdfObject(bufferedInputStream);
+                VdfObject nestedObject = parseVdfObject(bufferedInputStream, stringCache);
                 vdfObject.add(nestedObject);
             } else if (nextByte == STRING) {
-                VdfString vdfString = parseStringValue(bufferedInputStream);
+                VdfString vdfString = parseStringValue(bufferedInputStream, stringCache);
                 vdfObject.add(vdfString);
             } else if (nextByte == INT_32) {
-                VdfInteger vdfIntValue = parseIntValue(bufferedInputStream);
+                VdfInteger vdfIntValue = parseIntValue(bufferedInputStream, stringCache);
                 vdfObject.add(vdfIntValue);
             } else {
                 throw new RuntimeException(
@@ -105,19 +116,34 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
         return currentData;
     }
 
-    private VdfInteger parseIntValue(BufferedInputStream bufferedInputStream) throws IOException {
-        List<Byte> bytes = getBytes(bufferedInputStream);
-        String keyName = new String(byteListToByteArray(bytes));
-        int value = parse32Int(bufferedInputStream);
-        return new VdfInteger(keyName, value);
+    private VdfInteger parseIntValue(BufferedInputStream bufferedInputStream, StringCache stringCache) throws IOException {
+        if (stringCache == null) {
+            List<Byte> bytes = getBytes(bufferedInputStream);
+            String keyName = new String(byteListToByteArray(bytes));
+            int value = parse32Int(bufferedInputStream);
+            return new VdfInteger(keyName, value);
+        } else {
+            int stringKeyIndex = parseOneByte(bufferedInputStream);
+            String keyName = stringCache.get(stringKeyIndex);
+            int value = parseOneByte(bufferedInputStream);
+            return new VdfInteger(keyName, value);
+        }
     }
 
-    private VdfString parseStringValue(BufferedInputStream bufferedInputStream) throws IOException {
-        List<Byte> bytes = getBytes(bufferedInputStream);
-        String keyName = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
-        List<Byte> bytes1 = getBytes(bufferedInputStream);
-        String value = new String(byteListToByteArray(bytes1), StandardCharsets.UTF_8);
-        return new VdfString(keyName, value);
+    private VdfString parseStringValue(BufferedInputStream bufferedInputStream, StringCache stringCache) throws IOException {
+        if (stringCache == null) {
+            List<Byte> bytes = getBytes(bufferedInputStream);
+            String keyName = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
+            List<Byte> bytes1 = getBytes(bufferedInputStream);
+            String value = new String(byteListToByteArray(bytes1), StandardCharsets.UTF_8);
+            return new VdfString(keyName, value);
+        } else {
+            int stringKeyIndex = parseOneByte(bufferedInputStream);
+            String keyName = stringCache.get(stringKeyIndex);
+            int stringValueIndex = parseOneByte(bufferedInputStream);
+            String value = stringCache.get(stringValueIndex);
+            return new VdfString(keyName, value);
+        }
     }
 
     private String readFourBytes(BufferedInputStream bufferedInputStream) throws IOException {
