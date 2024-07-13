@@ -33,17 +33,13 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
     public AppCache call() throws Exception {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             String firstFourBytes = readFourBytes(bufferedInputStream);
-            if (!(firstFourBytes.equals("27 44 56 7")
-                    || firstFourBytes.equals("28 44 56 7")
-                    || firstFourBytes.equals("29 44 56 7"))) {
-                throw new IllegalStateException("Unknown app cache format: " + firstFourBytes);
-            }
-            boolean parseSha1Binary = firstFourBytes.equals("28 44 56 7") || firstFourBytes.equals("29 44 56 7");
+            AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
+            boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
             String nextByte = readFourBytes(bufferedInputStream);
             assert nextByte.equals("1 0 0 0");
             AppCache appCache = new AppCache();
             StringCache stringCache = null;
-            if (firstFourBytes.equals("29 44 56 7")) {
+            if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
                 long offsetToStringTable = parse64Int(bufferedInputStream);
                 stringCache = new StringCacheReader(path, offsetToStringTable).read();
             }
