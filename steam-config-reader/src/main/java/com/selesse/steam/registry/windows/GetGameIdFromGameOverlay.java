@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class GetGameIdFromGameOverlay {
     private static final List<String> COMMAND =
-            Lists.newArrayList("wmic", "process", "where", "name='GameOverlayUI.exe'", "get", "CommandLine");
+            Lists.newArrayList("wmic", "process", "where", "name='GameOverlayUI64.exe'", "get", "CommandLine");
 
     public static long get() {
         String commandLineOutput = new ProcessRunner(COMMAND).runAndGetOutput();
