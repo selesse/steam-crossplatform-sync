@@ -43,11 +43,8 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
                 long offsetToStringTable = parse64Int(bufferedInputStream);
                 stringCache = new StringCacheReader(path, offsetToStringTable).read();
             }
-            while (true) {
-                int appId = parse32Int(bufferedInputStream);
-                if (appId == 0) {
-                    break;
-                }
+            int appId;
+            while ((appId = parse32Int(bufferedInputStream)) != 0) {
                 int size = parse32Int(bufferedInputStream);
                 int infoState = parse32Int(bufferedInputStream);
                 int lastUpdated = parse32Int(bufferedInputStream);
