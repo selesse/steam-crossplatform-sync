@@ -16,14 +16,20 @@ import org.junit.runners.Parameterized.Parameters;
 public class AppCacheAllFormatsTest {
 
     private final String fileName;
+    private final int expectedAppCount;
 
-    public AppCacheAllFormatsTest(String fileName) {
+    public AppCacheAllFormatsTest(String fileName, int expectedAppCount) {
         this.fileName = fileName;
+        this.expectedAppCount = expectedAppCount;
     }
 
     @Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {{"appinfo.vdf"}, {"appinfo-pre-dec-2022.vdf"}, {"appinfo-magic-28.vdf"}});
+        return Arrays.asList(new Object[][] {
+            {"appinfo.vdf", 3469},
+            {"appinfo-pre-dec-2022.vdf", 1947},
+            {"appinfo-magic-28.vdf", 2134}
+        });
     }
 
     @Test
@@ -31,6 +37,6 @@ public class AppCacheAllFormatsTest {
         Path path = Resources.getResource(fileName);
         AppCache appCache = new AppCacheReader().load(path);
         assertThat(appCache).isNotNull();
-        assertThat(appCache.size()).isPositive();
+        assertThat(appCache.size()).isEqualTo(expectedAppCount);
     }
 }
