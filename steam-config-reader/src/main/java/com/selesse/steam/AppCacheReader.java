@@ -19,15 +19,15 @@ public class AppCacheReader {
     public AppCache load(Path path) {
         AppCacheBufferedReader appCacheBufferedReader = new AppCacheBufferedReader(path);
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
-        try {
+        try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+            Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
             return submit.get(2, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             LOGGER.info("Interrupted while trying to read app cache", e);
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RegistryNotFoundException();
-        } finally {
-            executorService.shutdown();
         }
     }
 }

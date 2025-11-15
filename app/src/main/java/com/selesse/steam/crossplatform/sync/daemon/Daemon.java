@@ -17,25 +17,29 @@ public class Daemon implements Runnable {
 
     public void run() {
         LOGGER.info("Initializing game monitor daemon");
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
-        int period = 1;
-        TimeUnit timeUnitFrequency = TimeUnit.MINUTES;
-        if (fast) {
-            period = 5;
-            timeUnitFrequency = TimeUnit.SECONDS;
-        }
-        GameMonitor command = new GameMonitor(context);
-        ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(
-                getExceptionTolerantRunnable(command), 0, period, timeUnitFrequency);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("Shutting down game monitor daemon");
-            command.run();
-        }));
+        try (ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2)) {
+            int period = 1;
+            TimeUnit timeUnitFrequency = TimeUnit.MINUTES;
+            if (fast) {
+                period = 5;
+                timeUnitFrequency = TimeUnit.SECONDS;
+            }
+            GameMonitor command = new GameMonitor(context);
+            ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(
+                    getExceptionTolerantRunnable(command), 0, period, timeUnitFrequency);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOGGER.info("Shutting down game monitor daemon");
+                command.run();
+            }));
 
-        try {
-            scheduledFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("Error scheduling daemon", e);
+            try {
+                scheduledFuture.get();
+            } catch (InterruptedException e) {
+                LOGGER.error("Error scheduling daemon", e);
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                LOGGER.error("Error scheduling daemon", e);
+            }
         }
     }
 
