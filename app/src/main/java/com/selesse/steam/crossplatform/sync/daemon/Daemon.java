@@ -1,6 +1,9 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
+import com.selesse.steam.AppCacheReader;
+import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
+import com.selesse.steam.registry.RegistryNotFoundException;
 import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,22 @@ public class Daemon implements Runnable {
     }
 
     public void run() {
+        ensureAppCacheIsReadable();
+        initializeDaemon();
+    }
+
+    private void ensureAppCacheIsReadable() {
+        AppCacheReader appCacheReader = new AppCacheReader();
+        try {
+            AppCache appCache = appCacheReader.load();
+            LOGGER.info("Found {} games in the app cache", appCache.getApps().size());
+        } catch (RegistryNotFoundException e) {
+            LOGGER.error("App cache could not be read - did the cache format change?", e);
+            throw e;
+        }
+    }
+
+    private void initializeDaemon() {
         LOGGER.info("Initializing game monitor daemon");
         try (ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2)) {
             int period = 1;
