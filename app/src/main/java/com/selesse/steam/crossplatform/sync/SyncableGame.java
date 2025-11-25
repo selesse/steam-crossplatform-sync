@@ -17,15 +17,18 @@ public record SyncableGame(
 
     public List<PatternSupportedPath> getLocalPaths() {
         return switch (OperatingSystems.get()) {
-            case WINDOWS -> windows().stream()
-                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
-                    .toList();
-            case MAC -> mac().stream()
-                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
-                    .toList();
-            case LINUX, STEAM_OS -> linux().stream()
-                    .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
-                    .toList();
+            case WINDOWS ->
+                windows().stream()
+                        .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
+                        .toList();
+            case MAC ->
+                mac().stream()
+                        .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
+                        .toList();
+            case LINUX, STEAM_OS ->
+                linux().stream()
+                        .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
+                        .toList();
         };
     }
 
@@ -46,13 +49,11 @@ public record SyncableGame(
 
     public boolean isSupportedOnThisOs() {
         return switch (OperatingSystems.get()) {
-            case WINDOWS -> Optional.ofNullable(windows())
-                    .map(x -> !x.isEmpty())
-                    .orElse(false);
+            case WINDOWS ->
+                Optional.ofNullable(windows()).map(x -> !x.isEmpty()).orElse(false);
             case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
-            case LINUX, STEAM_OS -> Optional.ofNullable(linux())
-                    .map(x -> !x.isEmpty())
-                    .orElse(false);
+            case LINUX, STEAM_OS ->
+                Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
         };
     }
 }

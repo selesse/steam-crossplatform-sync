@@ -23,8 +23,7 @@ public class RegistryParserTest {
 
     @Test
     public void canParseGnarlyMultilineStrings() {
-        String value =
-                """
+        String value = """
                 \t\t\t\t"string"
                 \t\t\t\t{
                 \t\t\t\t\t"admin_rights"\t\t"No administrator rights."

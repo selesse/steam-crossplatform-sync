@@ -31,11 +31,12 @@ public abstract class SteamRegistry {
     private String getBasePath() {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam").toString();
-            case MAC -> Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
-                    .toString();
+            case MAC ->
+                Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
+                        .toString();
             case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam")).toString();
-            case STEAM_OS -> Path.of(FilePathSanitizer.sanitize("~/.steam/steam"))
-                    .toString();
+            case STEAM_OS ->
+                Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
         };
     }
 
