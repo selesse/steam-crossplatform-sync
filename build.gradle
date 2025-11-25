@@ -4,10 +4,17 @@ plugins {
 
 subprojects {
     apply plugin: 'java-library'
-    apply plugin: 'selesse.java-code-quality-conventions'
+    apply plugin: 'com.diffplug.spotless'
 
     repositories {
         mavenCentral()
+    }
+
+    spotless {
+        java {
+            removeUnusedImports()
+            palantirJavaFormat()
+        }
     }
 
     dependencies {
