@@ -1,12 +1,8 @@
-import com.selesse.JavaHomeLocator
-import com.selesse.RestartDaemon
-import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.hidetake.ssh' version '2.10.1'
+    id 'com.selesse.daemon-app' version '0.2.0'
 }
 
 dependencies {
@@ -23,10 +19,6 @@ application {
 }
 
 ext {
-    os = DefaultNativePlatform.currentOperatingSystem
-    macConfigDirectory = (java.util.Optional.ofNullable(System.getenv("XDG_CONFIG_HOME"))
-            .orElse(System.getProperty("user.home") + "/.config")) + "/steam-crossplatform-sync"
-
     propertiesFile = new File("${project.rootDir}/.env")
     remoteProperties = new Properties()
     if (propertiesFile.exists()) {
@@ -53,43 +45,13 @@ task remoteRelease {
     }
 }
 
-task localRelease(type: Copy) {
-    from shadowJar.outputs
-    into file("release")
-}
-
-task localOsRelease(type: Copy) {
-    from shadowJar.outputs
-    into {
-        if (project.ext.os.windows) {
-            return file(System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\startup")
-        } else if (project.ext.os.macOsX) {
-            copy {
-                from file('plist/com.selesse.steam-crossplatform-sync.plist.template')
-                into "${System.getProperty("user.home")}/Library/LaunchAgents/"
-                rename { filename -> filename.replace('.template', '') }
-                filter(ReplaceTokens, tokens: [
-                        "PROGRAM_HOME": project.ext.macConfigDirectory,
-                        'JAVA_HOME'   : JavaHomeLocator.locate(project)
-                ])
-            }
-            return file(project.ext.macConfigDirectory)
-        }
-    }
-}
-
-task restartDaemon() {
-    doLast {
-        def pathToShadowJar = new File(localOsRelease.outputs.files.singleFile, shadowJar.archiveFileName.get())
-        new RestartDaemon(project, pathToShadowJar).restart()
-    }
-}
-
-localOsRelease.finalizedBy(restartDaemon)
-
-localRelease.dependsOn localOsRelease
-remoteRelease.dependsOn shadowJar
-
 shadowJar {
     mainClassName = 'com.selesse.steam.crossplatform.sync.App'
 }
+
+daemonApp {
+    serviceId = 'com.selesse.steam-crossplatform-sync'
+    jarTask = tasks.shadowJar
+}
+
+remoteRelease.dependsOn shadowJar
