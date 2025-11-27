@@ -38,6 +38,9 @@ public class RemoteGameListFetcher {
         HttpClient httpClient = HttpClient.newHttpClient();
         var request = HttpRequest.newBuilder(URI.create(endpoint)).build();
         var response = httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
+        if (response.statusCode() == 302) {
+            throw new LoginRequiredException();
+        }
         return String.join("\n", response.body().toList());
     }
 }

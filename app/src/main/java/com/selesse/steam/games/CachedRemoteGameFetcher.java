@@ -35,7 +35,7 @@ public class CachedRemoteGameFetcher implements InstalledGameFetcher {
                     RemoteGameListFetcher remoteGameListFetcher = new RemoteGameListFetcher(accountId);
                     try {
                         return remoteGameListFetcher.getOutputFromRemote();
-                    } catch (IOException | InterruptedException e) {
+                    } catch (LoginRequiredException | IOException | InterruptedException e) {
                         LOGGER.warn("Unable to fetch remote game list");
                         return "";
                     }
