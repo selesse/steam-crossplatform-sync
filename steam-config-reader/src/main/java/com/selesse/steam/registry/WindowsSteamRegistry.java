@@ -9,7 +9,7 @@ import com.selesse.steam.registry.windows.GetInstalledAppIdsFromRegistry;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 class WindowsSteamRegistry extends SteamRegistry {
     private final LoadingCache<String, List<Long>> installedAppCache;
@@ -19,7 +19,7 @@ class WindowsSteamRegistry extends SteamRegistry {
                 .expireAfterWrite(30, TimeUnit.SECONDS)
                 .build(new CacheLoader<>() {
                     @Override
-                    public List<Long> load(@Nonnull String ignored) {
+                    public List<Long> load(@NonNull String ignored) {
                         return GetInstalledAppIdsFromRegistry.get();
                     }
                 });

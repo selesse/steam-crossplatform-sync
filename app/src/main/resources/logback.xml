@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <define name="logging_directory" class="com.selesse.LoggingDirectoryProperty"/>
-    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+    <shutdownHook class="ch.qos.logback.core.hook.DefaultShutdownHook"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <withJansi>false</withJansi>
         <encoder>
             <pattern>%date %thread %highlight(%-5level) %cyan(%logger{0}) - %boldWhite(%msg) %n</pattern>
         </encoder>

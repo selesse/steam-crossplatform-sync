@@ -1,7 +1,5 @@
 package com.selesse.steam;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.selesse.steam.applist.SteamAppList;
@@ -13,6 +11,8 @@ import java.net.URI;
 import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 public class AppListFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppListFetcher.class);
@@ -34,9 +34,8 @@ public class AppListFetcher {
             InputStream inputStream = urlConnection.getInputStream();
             String appListString = CharStreams.toString(new InputStreamReader(inputStream));
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonParser jsonParser =
-                    objectMapper.readTree(appListString).path("applist").traverse();
-            return objectMapper.readValue(jsonParser, SteamAppList.class);
+            JsonNode appListNode = objectMapper.readTree(appListString).path("applist");
+            return objectMapper.treeToValue(appListNode, SteamAppList.class);
         } catch (IOException e) {
             LOGGER.info("Unable to fetch app list", e);
         }

@@ -1,11 +1,11 @@
 package com.selesse.steam.games.saves;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.selesse.os.Resources;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import java.io.IOException;
 import java.io.InputStream;
+import tools.jackson.databind.ObjectMapper;
 
 public class BypassRegistrySaveFile extends SaveFile {
     private final SaveFileOverrides saveFileOverrides;

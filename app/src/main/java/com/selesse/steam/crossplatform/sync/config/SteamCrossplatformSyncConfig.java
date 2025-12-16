@@ -3,7 +3,7 @@ package com.selesse.steam.crossplatform.sync.config;
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface SteamCrossplatformSyncConfig {
     Path getConfigDirectory();

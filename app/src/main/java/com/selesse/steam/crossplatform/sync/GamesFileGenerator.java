@@ -1,16 +1,15 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.games.UserFileSystemPath;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 
 public class GamesFileGenerator {
     private final SteamCrossplatformSyncContext context;
@@ -41,11 +40,7 @@ public class GamesFileGenerator {
         gameConfigRaw.games = syncableGames;
         YAMLFactory yamlFactory = new YAMLFactory();
         ObjectMapper objectMapper = new ObjectMapper(yamlFactory);
-        try {
-            objectMapper.writeValue(System.out, gameConfigRaw);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        objectMapper.writeValue(System.out, gameConfigRaw);
     }
 
     private List<String> getPathsOrNull(SteamGame steamGame, OperatingSystems.OperatingSystem os) {
