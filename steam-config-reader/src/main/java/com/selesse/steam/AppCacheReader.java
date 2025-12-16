@@ -21,7 +21,7 @@ public class AppCacheReader {
 
         try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
             Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
-            return submit.get(2, TimeUnit.SECONDS);
+            return submit.get(4, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             LOGGER.info("Interrupted while trying to read app cache", e);
             if (e instanceof InterruptedException) {
