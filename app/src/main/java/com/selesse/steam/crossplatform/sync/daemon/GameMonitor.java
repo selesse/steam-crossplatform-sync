@@ -36,6 +36,8 @@ public class GameMonitor implements Runnable {
                     onGameClosed(runningGame);
                     runningGame = newGame;
                     onGameLaunch(newGame);
+                } else {
+                    gameSession.recordActive();
                 }
             } else if (runningGame != null) {
                 onGameClosed(runningGame);

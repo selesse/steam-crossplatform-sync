@@ -30,7 +30,7 @@ public class GameSessionRepositoryTest {
         doReturn("Hollow Knight").when(mockGame).getName();
         doReturn(367520L).when(mockGame).getId();
         GameSessionRecord gameSessionRecord = new GameSessionRecord(
-                OffsetDateTime.now(), OffsetDateTime.now().plus(1, ChronoUnit.HOURS), mockGame, "my-hostname");
+                OffsetDateTime.now(), OffsetDateTime.now().plus(1, ChronoUnit.HOURS), mockGame, "my-hostname", 3600);
         GameSessionRepository.getInstance(testDatabase).save(gameSessionRecord);
     }
 }

@@ -36,7 +36,7 @@ class GameSessionRepository {
     private static final String INSERT_GAME = "INSERT OR IGNORE INTO GAMES (NAME, STEAM_APP_ID) VALUES (?, ?)";
     private static final String FETCH_GAME = "SELECT steam_app_id FROM GAMES WHERE NAME = ?";
     private static final String SESSION_INSERT =
-            "INSERT INTO GAMING_SESSIONS (HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID) VALUES (?, ?, ?, ?)";
+            "INSERT INTO GAMING_SESSIONS (HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID, ACTIVE_PLAYTIME_SECONDS) VALUES (?, ?, ?, ?, ?)";
 
     public void save(GameSessionRecord gameSessionRecord) {
         try (Connection connection = Database.getConnection(sqliteFile)) {
@@ -62,6 +62,7 @@ class GameSessionRepository {
         preparedStatement.setString(2, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(gameSessionRecord.startedAt()));
         preparedStatement.setString(3, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(gameSessionRecord.finishedAt()));
         preparedStatement.setLong(4, gameId);
+        preparedStatement.setLong(5, gameSessionRecord.activePlaytimeSeconds());
         preparedStatement.executeUpdate();
     }
 }
