@@ -4,6 +4,7 @@ import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.SyncGameFilesService;
 import com.selesse.steam.games.SteamGame;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSession;
+import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +18,10 @@ record KnownGame(SteamGame steamGame, GameSession session) implements TrackedGam
 
     @Override
     public void onClosed(SteamCrossplatformSyncContext context) {
-        session.finish();
+        GameSessionRecord record = session.finish();
         LOGGER.info("Game closed: {}", steamGame.getName());
         LOGGER.info("Running sync service for {}", steamGame.getName());
         new SyncGameFilesService(context).run(steamGame);
+        HookRunner.runSessionEndHook(context.getConfig(), record);
     }
 }

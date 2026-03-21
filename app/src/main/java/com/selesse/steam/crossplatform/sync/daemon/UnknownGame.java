@@ -2,6 +2,7 @@ package com.selesse.steam.crossplatform.sync.daemon;
 
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSession;
+import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,8 @@ record UnknownGame(long gameId, GameSession session) implements TrackedGame {
 
     @Override
     public void onClosed(SteamCrossplatformSyncContext context) {
-        session.finish();
+        GameSessionRecord record = session.finish();
         LOGGER.info("Game closed (app ID: {}, name could not be resolved)", gameId);
+        HookRunner.runSessionEndHook(context.getConfig(), record);
     }
 }

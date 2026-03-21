@@ -55,12 +55,13 @@ public class GameSession {
         return activePlaytimeSeconds;
     }
 
-    public void finish() {
+    public GameSessionRecord finish() {
         recordActive();
         var finishedAt = OffsetDateTime.now(clock);
 
-        GameSessionRepository.getInstance()
-                .save(new GameSessionRecord(
-                        startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), activePlaytimeSeconds));
+        var record = new GameSessionRecord(
+                startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), activePlaytimeSeconds);
+        GameSessionRepository.getInstance().save(record);
+        return record;
     }
 }

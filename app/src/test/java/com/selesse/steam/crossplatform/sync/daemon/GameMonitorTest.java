@@ -22,6 +22,7 @@ import org.mockito.MockedStatic;
 public class GameMonitorTest {
     private GameSessionRepository repository;
     private SteamCrossplatformSyncContext context;
+    private SteamCrossplatformSyncConfig syncConfig;
     private SteamGame brotato;
     private SteamGame hollowKnight;
 
@@ -37,12 +38,15 @@ public class GameMonitorTest {
         Database.prepare(sqliteFile);
         repository = GameSessionRepository.getInstance(sqliteFile);
 
-        // Stub sync config with an empty games file so sync is always a no-op in tests
+        // Stub sync config with an empty games file so sync is always a no-op in tests,
+        // and an empty config directory so HookRunner finds no hook to execute.
         Path gamesFile = Files.createTempFile("games", ".yml");
         gamesFile.toFile().deleteOnExit();
         Files.writeString(gamesFile, "games: []\n");
-        SteamCrossplatformSyncConfig syncConfig = mock(SteamCrossplatformSyncConfig.class);
+        Path emptyConfigDir = Files.createTempDirectory("game-monitor-test-config");
+        syncConfig = mock(SteamCrossplatformSyncConfig.class);
         doReturn(gamesFile).when(syncConfig).getGamesFile();
+        doReturn(emptyConfigDir).when(syncConfig).getConfigDirectory();
 
         context = mock(SteamCrossplatformSyncContext.class);
         doReturn(syncConfig).when(context).getConfig();
@@ -74,7 +78,7 @@ public class GameMonitorTest {
         }
 
         assertThat(repository.findUnknownGameIds()).isEmpty();
-        verify(context, times(1)).getConfig();
+        verify(syncConfig, times(1)).getGamesFile();
     }
 
     @Test
@@ -95,7 +99,7 @@ public class GameMonitorTest {
         }
 
         assertThat(repository.findUnknownGameIds()).containsExactly(99L);
-        verify(context, never()).getConfig();
+        verify(syncConfig, never()).getGamesFile();
     }
 
     @Test
@@ -113,12 +117,12 @@ public class GameMonitorTest {
             monitor.run();
             monitor.run();
 
-            verify(context, never()).getConfig();
+            verify(syncConfig, never()).getGamesFile();
 
             detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
             monitor.run();
 
-            verify(context, times(1)).getConfig();
+            verify(syncConfig, times(1)).getGamesFile();
         }
     }
 
@@ -144,7 +148,7 @@ public class GameMonitorTest {
         }
 
         assertThat(repository.findUnknownGameIds()).isEmpty();
-        verify(context, times(2)).getConfig();
+        verify(syncConfig, times(2)).getGamesFile();
     }
 
     @Test
@@ -169,6 +173,6 @@ public class GameMonitorTest {
         }
 
         assertThat(repository.findUnknownGameIds()).containsExactly(99L);
-        verify(context, times(1)).getConfig();
+        verify(syncConfig, times(1)).getGamesFile();
     }
 }
