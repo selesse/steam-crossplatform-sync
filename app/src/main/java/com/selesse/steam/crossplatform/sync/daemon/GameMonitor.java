@@ -15,6 +15,7 @@ public class GameMonitor implements Runnable {
     private final SteamCrossplatformSyncContext context;
     private SteamGame runningGame;
     private GameSession gameSession;
+    private long unknownGameId = -1;
 
     public GameMonitor(SteamCrossplatformSyncContext context) {
         this.context = context;
@@ -27,8 +28,19 @@ public class GameMonitor implements Runnable {
                 long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
 
                 if (runningGame == null) {
-                    runningGame = context.loadGame(currentGameId);
-                    onGameLaunch(runningGame);
+                    if (unknownGameId == currentGameId) {
+                        gameSession.recordActive();
+                    } else {
+                        try {
+                            runningGame = context.loadGame(currentGameId);
+                            unknownGameId = -1;
+                            onGameLaunch(runningGame);
+                        } catch (RuntimeException e) {
+                            LOGGER.warn("Could not load game {}, tracking session by app ID only", currentGameId, e);
+                            unknownGameId = currentGameId;
+                            onUnknownGameLaunch(currentGameId);
+                        }
+                    }
                 } else if (currentGameId != runningGame.getId()) {
                     SteamGame newGame = context.loadGame(currentGameId);
                     LOGGER.info(
@@ -42,6 +54,8 @@ public class GameMonitor implements Runnable {
             } else if (runningGame != null) {
                 onGameClosed(runningGame);
                 runningGame = null;
+            } else if (unknownGameId != -1) {
+                onUnknownGameClosed();
             }
         }
     }
@@ -56,10 +70,27 @@ public class GameMonitor implements Runnable {
                         () -> LOGGER.info("Couldn't find game overlay process"));
     }
 
+    private void onUnknownGameLaunch(long gameId) {
+        gameSession = GameSession.start(gameId, null);
+        LOGGER.info("Game launched (app ID: {}, name could not be resolved)", gameId);
+
+        GameOverlayProcessLocator.locate()
+                .ifPresentOrElse(
+                        processHandle -> processHandle.onExit().thenRunAsync(this),
+                        () -> LOGGER.info("Couldn't find game overlay process"));
+    }
+
     private void onGameClosed(SteamGame runningGame) {
         gameSession.finish();
         LOGGER.info("Game closed: {}", runningGame.getName());
         LOGGER.info("Running sync service for {}", runningGame.getName());
         new SyncGameFilesService(context).run(runningGame);
+    }
+
+    private void onUnknownGameClosed() {
+        gameSession.finish();
+        LOGGER.info("Game closed (app ID: {}, name could not be resolved)", unknownGameId);
+        gameSession = null;
+        unknownGameId = -1;
     }
 }

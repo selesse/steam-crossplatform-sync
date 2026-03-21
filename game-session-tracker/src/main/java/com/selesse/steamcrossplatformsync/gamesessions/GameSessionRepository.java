@@ -5,10 +5,13 @@ import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteDatabaseLo
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-class GameSessionRepository {
+public class GameSessionRepository {
     private static GameSessionRepository instance;
 
     public static GameSessionRepository getInstance() {
@@ -18,7 +21,7 @@ class GameSessionRepository {
         return instance;
     }
 
-    static GameSessionRepository getInstance(SqliteFile sqliteFile) {
+    public static GameSessionRepository getInstance(SqliteFile sqliteFile) {
         instance = new GameSessionRepository(sqliteFile);
         return instance;
     }
@@ -41,7 +44,7 @@ class GameSessionRepository {
     public void save(GameSessionRecord gameSessionRecord) {
         try (Connection connection = Database.getConnection(sqliteFile)) {
             insertOrIgnoreGame(connection, gameSessionRecord);
-            insertGamingSession(connection, gameSessionRecord.game().getId(), gameSessionRecord);
+            insertGamingSession(connection, gameSessionRecord.gameId(), gameSessionRecord);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -50,9 +53,36 @@ class GameSessionRepository {
     private static void insertOrIgnoreGame(Connection connection, GameSessionRecord gameSessionRecord)
             throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(INSERT_GAME);
-        preparedStatement.setString(1, gameSessionRecord.game().getName());
-        preparedStatement.setLong(2, gameSessionRecord.game().getId());
+        preparedStatement.setString(1, gameSessionRecord.gameName());
+        preparedStatement.setLong(2, gameSessionRecord.gameId());
         preparedStatement.executeUpdate();
+    }
+
+    public List<Long> findUnknownGameIds() {
+        String sql = "SELECT STEAM_APP_ID FROM GAMES WHERE NAME IS NULL OR NAME = ''";
+        try (Connection connection = Database.getConnection(sqliteFile);
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            List<Long> ids = new ArrayList<>();
+            while (rs.next()) {
+                ids.add(rs.getLong(1));
+            }
+            return ids;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateGameName(long steamAppId, String name) {
+        String sql = "UPDATE GAMES SET NAME = ? WHERE STEAM_APP_ID = ?";
+        try (Connection connection = Database.getConnection(sqliteFile);
+                PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setLong(2, steamAppId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void insertGamingSession(Connection connection, long gameId, GameSessionRecord gameSessionRecord)

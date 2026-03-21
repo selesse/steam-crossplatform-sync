@@ -1,18 +1,17 @@
 package com.selesse.steamcrossplatformsync.gamesessions;
 
-import static org.mockito.Mockito.doReturn;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.selesse.steam.games.SteamGame;
+import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class GameSessionRepositoryTest {
-    private SqliteFile testDatabase;
+    private GameSessionRepository repository;
 
     @Before
     public void setup() {
@@ -21,16 +20,69 @@ public class GameSessionRepositoryTest {
             assert (testDatabase.toFile().delete());
             testDatabase.toFile().deleteOnExit();
         }
-        this.testDatabase = new SqliteFile(testDatabase);
+        SqliteFile sqliteFile = new SqliteFile(testDatabase);
+        Database.prepare(sqliteFile);
+        this.repository = GameSessionRepository.getInstance(sqliteFile);
     }
 
     @Test
     public void savePersistsToTheDatabase() {
-        SteamGame mockGame = Mockito.mock(SteamGame.class);
-        doReturn("Hollow Knight").when(mockGame).getName();
-        doReturn(367520L).when(mockGame).getId();
-        GameSessionRecord gameSessionRecord = new GameSessionRecord(
-                OffsetDateTime.now(), OffsetDateTime.now().plus(1, ChronoUnit.HOURS), mockGame, "my-hostname", 3600);
-        GameSessionRepository.getInstance(testDatabase).save(gameSessionRecord);
+        GameSessionRecord record = new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                367520L,
+                "Hollow Knight",
+                "my-hostname",
+                3600);
+        repository.save(record);
+    }
+
+    @Test
+    public void saveWithNullNamePersistsToTheDatabase() {
+        GameSessionRecord record = new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                1236720L,
+                null,
+                "my-hostname",
+                3600);
+        repository.save(record);
+    }
+
+    @Test
+    public void findUnknownGameIdsReturnsIdsWithNullNames() {
+        repository.save(new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                1236720L,
+                null,
+                "my-hostname",
+                3600));
+        repository.save(new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                367520L,
+                "Hollow Knight",
+                "my-hostname",
+                3600));
+
+        assertThat(repository.findUnknownGameIds()).containsExactly(1236720L);
+    }
+
+    @Test
+    public void updateGameNameSetsTheNameForTheGivenAppId() {
+        repository.save(new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                1236720L,
+                null,
+                "my-hostname",
+                3600));
+
+        assertThat(repository.findUnknownGameIds()).containsExactly(1236720L);
+
+        repository.updateGameName(1236720L, "Brotato");
+
+        assertThat(repository.findUnknownGameIds()).isEmpty();
     }
 }

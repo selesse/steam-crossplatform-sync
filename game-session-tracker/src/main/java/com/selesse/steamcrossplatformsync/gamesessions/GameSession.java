@@ -12,14 +12,16 @@ public class GameSession {
     // See: Daemon.java for polling configuration.
     private static final Duration MAX_EXPECTED_POLL_INTERVAL = Duration.ofMinutes(2);
 
-    private final SteamGame game;
+    private final long gameId;
+    private final String gameName;
     private final Clock clock;
     private final OffsetDateTime startedAt;
     private long activePlaytimeSeconds;
     private OffsetDateTime lastActiveAt;
 
-    private GameSession(SteamGame steamGame, Clock clock) {
-        this.game = steamGame;
+    private GameSession(long gameId, String gameName, Clock clock) {
+        this.gameId = gameId;
+        this.gameName = gameName;
         this.clock = clock;
         this.startedAt = OffsetDateTime.now(clock);
         this.lastActiveAt = this.startedAt;
@@ -27,11 +29,15 @@ public class GameSession {
     }
 
     public static GameSession start(SteamGame steamGame) {
-        return new GameSession(steamGame, Clock.systemDefaultZone());
+        return start(steamGame.getId(), steamGame.getName());
     }
 
-    static GameSession start(SteamGame steamGame, Clock clock) {
-        return new GameSession(steamGame, clock);
+    public static GameSession start(long gameId, String gameName) {
+        return new GameSession(gameId, gameName, Clock.systemDefaultZone());
+    }
+
+    static GameSession start(long gameId, String gameName, Clock clock) {
+        return new GameSession(gameId, gameName, clock);
     }
 
     public void recordActive() {
@@ -55,6 +61,6 @@ public class GameSession {
 
         GameSessionRepository.getInstance()
                 .save(new GameSessionRecord(
-                        startedAt, finishedAt, game, Hostnames.getCurrent(), activePlaytimeSeconds));
+                        startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), activePlaytimeSeconds));
     }
 }

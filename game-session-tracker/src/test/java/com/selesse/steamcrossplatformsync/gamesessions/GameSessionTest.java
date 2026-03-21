@@ -1,32 +1,20 @@
 package com.selesse.steamcrossplatformsync.gamesessions;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 
-import com.selesse.steam.games.SteamGame;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class GameSessionTest {
-    private final SteamGame mockGame = createMockGame();
-
-    private static SteamGame createMockGame() {
-        SteamGame mock = Mockito.mock(SteamGame.class);
-        doReturn("Test Game").when(mock).getName();
-        doReturn(12345L).when(mock).getId();
-        return mock;
-    }
-
     @Test
     public void recordActiveAccumulatesTimeWithNormalPolling() {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(mockGame, mutableClock);
+        var session = GameSession.start(12345L, "Test Game", mutableClock);
 
         // Simulate 3 polls at 1-minute intervals
         mutableClock.advance(Duration.ofMinutes(1));
@@ -46,7 +34,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(mockGame, mutableClock);
+        var session = GameSession.start(12345L, "Test Game", mutableClock);
 
         // Normal poll after 1 minute
         mutableClock.advance(Duration.ofMinutes(1));
@@ -69,7 +57,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(mockGame, mutableClock);
+        var session = GameSession.start(12345L, "Test Game", mutableClock);
 
         // 2 minutes is at the threshold, should be counted
         mutableClock.advance(Duration.ofMinutes(2));
@@ -83,7 +71,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(mockGame, mutableClock);
+        var session = GameSession.start(12345L, "Test Game", mutableClock);
 
         // 2 minutes + 1 second is over threshold, should not be counted
         mutableClock.advance(Duration.ofMinutes(2).plusSeconds(1));
