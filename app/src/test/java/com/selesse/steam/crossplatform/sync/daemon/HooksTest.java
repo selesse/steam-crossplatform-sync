@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRecord;
 import java.io.IOException;
@@ -13,17 +14,18 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.Properties;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-public class HookRunnerTest {
+public class HooksTest {
     private SteamCrossplatformSyncConfig config;
     private Path configDir;
     private Path hooksDir;
 
     @Before
     public void setup() throws IOException {
-        configDir = Files.createTempDirectory("hook-runner-test");
+        configDir = Files.createTempDirectory("hooks-test");
         hooksDir = configDir.resolve("hooks");
         Files.createDirectories(hooksDir);
 
@@ -32,7 +34,7 @@ public class HookRunnerTest {
     }
 
     @Test
-    public void hookReceivesSessionDataAsEnvironmentVariables() throws IOException {
+    public void sessionEndHookReceivesSessionDataAsEnvironmentVariables() throws IOException {
         Path envOutput = configDir.resolve("env-output.properties");
         Path hook = writeExecutableScript(
                 hooksDir.resolve("session-end"),
@@ -49,7 +51,7 @@ public class HookRunnerTest {
         var end = OffsetDateTime.parse("2026-01-01T13:00:00+00:00");
         var record = new GameSessionRecord(start, end, 1236720L, "Brotato", "my-host", 3000L);
 
-        HookRunner.runSessionEndHook(config, record);
+        new SessionEndHook(record).run(config);
 
         assertThat(hook).exists();
         Properties props = new Properties();
@@ -65,14 +67,14 @@ public class HookRunnerTest {
     }
 
     @Test
-    public void hookReceivesEmptyGameNameWhenUnresolved() throws IOException {
+    public void sessionEndHookReceivesEmptyGameNameWhenUnresolved() throws IOException {
         Path envOutput = configDir.resolve("env-output.properties");
         writeExecutableScript(
                 hooksDir.resolve("session-end"), "#!/bin/sh", "echo GAME_NAME=$GAME_NAME >> " + envOutput);
 
         var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 99L, null, "my-host", 0L);
 
-        HookRunner.runSessionEndHook(config, record);
+        new SessionEndHook(record).run(config);
 
         Properties props = new Properties();
         props.load(Files.newBufferedReader(envOutput));
@@ -80,24 +82,36 @@ public class HookRunnerTest {
     }
 
     @Test
+    public void gameLoadErrorHookReceivesAppIdAndMessage() throws IOException {
+        Path envOutput = configDir.resolve("env-output.properties");
+        writeExecutableScript(
+                hooksDir.resolve("game-load-error"),
+                "#!/bin/sh",
+                "echo STEAM_APP_ID=$STEAM_APP_ID >> " + envOutput,
+                "echo ERROR_MESSAGE=$ERROR_MESSAGE >> " + envOutput);
+
+        new GameLoadErrorHook(99L, new RuntimeException("steamcmd not found")).run(config);
+
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(envOutput));
+        assertThat(props.getProperty("STEAM_APP_ID")).isEqualTo("99");
+        assertThat(props.getProperty("ERROR_MESSAGE")).isEqualTo("steamcmd not found");
+    }
+
+    @Test
     public void nonExecutableHookIsSkipped() throws IOException {
-        Path hook = hooksDir.resolve("session-end");
-        Files.writeString(hook, "#!/bin/sh\nexit 0\n");
-        // Deliberately not making it executable
+        Files.writeString(hooksDir.resolve("session-end"), "#!/bin/sh\nexit 0\n");
 
         var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
 
-        // Should not throw
-        HookRunner.runSessionEndHook(config, record);
+        new SessionEndHook(record).run(config);
     }
 
     @Test
     public void missingHookIsSkipped() {
-        // No hook file exists at all
         var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
 
-        // Should not throw
-        HookRunner.runSessionEndHook(config, record);
+        new SessionEndHook(record).run(config);
     }
 
     @Test
@@ -106,11 +120,13 @@ public class HookRunnerTest {
 
         var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
 
-        // Should not throw even though hook exits non-zero
-        HookRunner.runSessionEndHook(config, record);
+        new SessionEndHook(record).run(config);
     }
 
-    private Path writeExecutableScript(Path path, String... lines) throws IOException {
+    static Path writeExecutableScript(Path path, String... lines) throws IOException {
+        Assume.assumeTrue(
+                "Skipping script-based hook tests on Windows",
+                OperatingSystems.get() != OperatingSystems.OperatingSystem.WINDOWS);
         Files.writeString(path, String.join("\n", lines) + "\n");
         Files.setPosixFilePermissions(
                 path,

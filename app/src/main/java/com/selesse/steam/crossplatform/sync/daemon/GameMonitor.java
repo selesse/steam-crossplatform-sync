@@ -49,6 +49,7 @@ public class GameMonitor implements Runnable {
             LOGGER.warn("Could not load game {}, tracking session by app ID only", gameId, e);
             tracked = new UnknownGame(gameId, GameSession.start(gameId, null));
             LOGGER.info("Game launched (app ID: {}, name could not be resolved)", gameId);
+            new GameLoadErrorHook(gameId, e).run(context.getConfig());
         }
         GameOverlayProcessLocator.locate()
                 .ifPresentOrElse(

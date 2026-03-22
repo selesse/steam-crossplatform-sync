@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -174,5 +175,34 @@ public class GameMonitorTest {
 
         assertThat(repository.findUnknownGameIds()).containsExactly(99L);
         verify(syncConfig, times(1)).getGamesFile();
+    }
+
+    @Test
+    public void unknownGameLaunch_firesGameLoadErrorHook() throws IOException {
+        Path hookConfigDir = Files.createTempDirectory("game-monitor-hook-test-config");
+        Path hookOutput = hookConfigDir.resolve("hook-output.properties");
+        HooksTest.writeExecutableScript(
+                Files.createDirectories(hookConfigDir.resolve("hooks")).resolve("game-load-error"),
+                "#!/bin/sh",
+                "echo STEAM_APP_ID=$STEAM_APP_ID >> " + hookOutput,
+                "echo ERROR_MESSAGE=$ERROR_MESSAGE >> " + hookOutput);
+        doReturn(hookConfigDir).when(syncConfig).getConfigDirectory();
+
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doThrow(new RuntimeException("steamcmd not found")).when(context).loadGame(99L);
+
+            GameMonitor monitor = new GameMonitor(context);
+
+            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(99L);
+            monitor.run();
+        }
+
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(hookOutput));
+        assertThat(props.getProperty("STEAM_APP_ID")).isEqualTo("99");
+        assertThat(props.getProperty("ERROR_MESSAGE")).isEqualTo("steamcmd not found");
     }
 }
