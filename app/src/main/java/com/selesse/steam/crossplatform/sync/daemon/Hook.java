@@ -15,12 +15,14 @@ abstract class Hook {
     abstract Map<String, String> env();
 
     void run(SteamCrossplatformSyncConfig config) {
-        Path hookPath = config.getConfigDirectory().resolve("hooks").resolve(name());
-        if (!Files.isRegularFile(hookPath) || !Files.isExecutable(hookPath)) {
+        Path hookPath = resolveHookPath(config);
+        if (hookPath == null) {
             return;
         }
         try {
-            ProcessBuilder pb = new ProcessBuilder(hookPath.toAbsolutePath().toString());
+            ProcessBuilder pb = hookPath.toString().endsWith(".bat")
+                    ? new ProcessBuilder("cmd", "/c", hookPath.toAbsolutePath().toString())
+                    : new ProcessBuilder(hookPath.toAbsolutePath().toString());
             pb.environment().putAll(env());
             pb.redirectErrorStream(true);
             Process process = pb.start();
@@ -35,5 +37,17 @@ abstract class Hook {
         } catch (Exception e) {
             LOGGER.warn("Hook {} failed", name(), e);
         }
+    }
+
+    private Path resolveHookPath(SteamCrossplatformSyncConfig config) {
+        Path hookPath = config.getConfigDirectory().resolve("hooks").resolve(name());
+        if (Files.isRegularFile(hookPath) && Files.isExecutable(hookPath)) {
+            return hookPath;
+        }
+        Path batPath = config.getConfigDirectory().resolve("hooks").resolve(name() + ".bat");
+        if (Files.isRegularFile(batPath)) {
+            return batPath;
+        }
+        return null;
     }
 }

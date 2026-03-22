@@ -99,6 +99,25 @@ public class HooksTest {
     }
 
     @Test
+    public void batHookIsInvokedOnWindows() throws IOException {
+        Assume.assumeTrue(
+                "Skipping .bat hook test on non-Windows",
+                OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS);
+        Path envOutput = configDir.resolve("env-output.properties");
+        Path hook = hooksDir.resolve("session-end.bat");
+        Files.writeString(hook, "@echo off\r\necho DB_PATH=%DB_PATH%>> " + envOutput + "\r\n");
+
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
+
+        new SessionEndHook(record).run(config);
+
+        assertThat(hook).exists();
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(envOutput));
+        assertThat(props.getProperty("DB_PATH")).isNotBlank();
+    }
+
+    @Test
     public void nonExecutableHookIsSkipped() throws IOException {
         Files.writeString(hooksDir.resolve("session-end"), "#!/bin/sh\nexit 0\n");
 
