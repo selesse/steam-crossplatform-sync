@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Periodically resolves game names that could not be looked up when a session was first tracked.
  * Sessions with unresolvable names are stored as "Unknown Game (&lt;id&gt;)" and this enricher
- * attempts to backfill the real name when conditions improve (e.g. steamcmd becomes available).
+ * attempts to backfill the real name when the AppCache becomes available.
  */
 public class GameNameEnricher implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameNameEnricher.class);

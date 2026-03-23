@@ -1,5 +1,4 @@
 plugins {
-    id "de.undercouch.download" version "4.1.1"
     id 'java-library'
 }
 
@@ -9,11 +8,4 @@ dependencies {
     implementation("tools.jackson.core:jackson-databind:3.0.3")
 
     testImplementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.3")
-}
-
-task downloadSteamCmd(type: Download) {
-    src(['https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz',
-            'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip'])
-    dest buildDir
-    onlyIfModified true
 }

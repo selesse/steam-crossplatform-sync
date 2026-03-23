@@ -53,11 +53,4 @@ public interface SteamCrossplatformSyncConfig {
                 .map(r -> r.cloudProvider)
                 .orElse(null);
     }
-
-    @Nullable
-    default String getRemoteAppInfoUrl() {
-        return ConfigLoader.loadIfExists(getConfigFileLocation())
-                .map(ConfigRaw::getRemoteAppInfoUrl)
-                .orElse(null);
-    }
 }

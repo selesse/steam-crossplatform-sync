@@ -2,7 +2,6 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.google.common.collect.Lists;
 import com.selesse.steam.crossplatform.sync.daemon.Daemon;
-import com.selesse.steam.crossplatform.sync.server.AppInfoServer;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,8 +32,6 @@ public class App {
             new GamesFilePrinter(context).run(gameIds);
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(context).run();
-        } else if (arguments.contains("--app-info-server")) {
-            new AppInfoServer(context.getConfig()).run();
         } else if (arguments.contains("--find-unhandled-save-files")) {
             new FindUndetectedSaveFiles(context).run();
         } else {

@@ -7,7 +7,6 @@ public class ConfigRaw {
     public String pathToCloudStorage;
     public String gamesFileLocation;
     public String cloudStorageRelativeWritePath;
-    public String remoteAppInfoUrl;
     public String cloudProvider;
 
     public String getGamesFileLocation() {
@@ -26,9 +25,5 @@ public class ConfigRaw {
         return Optional.ofNullable(cloudStorageRelativeWritePath)
                 .map(FilePathSanitizer::sanitize)
                 .orElse(null);
-    }
-
-    public String getRemoteAppInfoUrl() {
-        return remoteAppInfoUrl;
     }
 }

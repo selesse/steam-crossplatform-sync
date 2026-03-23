@@ -2,8 +2,6 @@ package com.selesse.steam.registry;
 
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
-import com.selesse.steam.GameRegistries;
-import com.selesse.steam.SteamApp;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -38,9 +36,5 @@ public abstract class SteamRegistry {
             case STEAM_OS ->
                 Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
         };
-    }
-
-    private SteamApp getSteamApp(long gameId) {
-        return new SteamApp(GameRegistries.build().load(gameId));
     }
 }

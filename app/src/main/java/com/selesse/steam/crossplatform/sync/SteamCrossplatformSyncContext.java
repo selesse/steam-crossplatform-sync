@@ -18,7 +18,7 @@ public class SteamCrossplatformSyncContext {
         this.config = SteamCrossplatformSync.loadConfiguration();
         this.gameLoadingService = new GameLoadingService(config);
         this.steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
-        this.installedGameFinderService = new InstalledGameFinderService(config, steamAccountId);
+        this.installedGameFinderService = new InstalledGameFinderService();
     }
 
     public SteamCrossplatformSyncConfig getConfig() {

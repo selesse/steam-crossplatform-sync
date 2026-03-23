@@ -1,14 +1,12 @@
 plugins {
     id 'application'
     id 'com.gradleup.shadow' version '9.3.0'
-    id 'org.hidetake.ssh' version '2.10.1'
     id 'com.selesse.daemon-app' version '0.4.1'
 }
 
 dependencies {
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.3")
     implementation("org.xerial:sqlite-jdbc:3.51.1.0")
-    implementation('com.sparkjava:spark-core:2.9.4')
     implementation(project(':steam-config-reader'))
     implementation(project(':common'))
     implementation(project(':game-session-tracker'))
@@ -18,36 +16,8 @@ application {
     mainClass = 'com.selesse.steam.crossplatform.sync.App'
 }
 
-ext {
-    propertiesFile = new File("${project.rootDir}/.env")
-    remoteProperties = new Properties()
-    if (propertiesFile.exists()) {
-        propertiesFile.withInputStream { remoteProperties.load(it) }
-    }
-}
-
-remotes {
-    webServer {
-        host = System.getenv().getOrDefault("SCPS_HOST", remoteProperties['HOST'].toString())
-        user = System.getProperty("user.name")
-        identity = new File(System.getProperty("user.home") + "/.ssh/id_rsa")
-    }
-}
-
-task remoteRelease {
-    doLast {
-        ssh.run {
-            session(remotes.webServer) {
-                put from: shadowJar.outputs.files, into: '/opt/steam-crossplatform-sync/'
-                execute "sudo /bin/systemctl restart steam-app-info-print"
-            }
-        }
-    }
-}
-
 daemonApp {
     serviceId = 'com.selesse.steam-crossplatform-sync'
     jarTask = tasks.shadowJar
 }
 
-remoteRelease.dependsOn shadowJar
