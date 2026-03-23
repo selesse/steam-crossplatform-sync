@@ -7,6 +7,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class GoogleDrive {
@@ -35,8 +37,16 @@ public class GoogleDrive {
 
     private static Optional<Path> findGoogleDriveBasedOnDrives() {
         return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
-                .filter(drive ->
-                        RuntimeExceptionFiles.getFileStore(drive).name().equals("Google Drive"))
+                .filter(drive -> {
+                    try {
+                        return CompletableFuture.supplyAsync(() -> RuntimeExceptionFiles.getFileStore(drive)
+                                        .name()
+                                        .equals("Google Drive"))
+                                .get(1, TimeUnit.SECONDS);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
                 .filter(drive ->
                         Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
                 .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
