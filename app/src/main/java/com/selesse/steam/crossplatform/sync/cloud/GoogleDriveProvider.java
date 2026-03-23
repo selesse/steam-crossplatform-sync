@@ -11,8 +11,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-public class GoogleDrive {
-    public static Optional<Path> getDriveRoot() {
+public class GoogleDriveProvider implements CloudStorageProvider {
+    @Override
+    public String getName() {
+        return "google_drive";
+    }
+
+    @Override
+    public Optional<Path> getRoot() {
         Optional<Path> googleDrive = findGoogleDriveBasedOnDrives();
         if (googleDrive.isPresent()) {
             return googleDrive;
@@ -24,18 +30,16 @@ public class GoogleDrive {
                     case WINDOWS -> defaultWindowsDriveConfigPath();
                 };
 
-        return localDbPathMaybe
-                .map(GoogleDrive::loadGoogleDrivePathFromItsDatabase)
-                .orElse(defaultPathIfExists());
+        return localDbPathMaybe.map(this::loadGoogleDrivePathFromItsDatabase).orElse(defaultPathIfExists());
     }
 
-    private static Optional<Path> defaultPathIfExists() {
+    private Optional<Path> defaultPathIfExists() {
         return Stream.of(defaultPath(), defaultLegacyPath(), reasonableRename())
                 .filter(x -> x.toFile().isDirectory())
                 .findFirst();
     }
 
-    private static Optional<Path> findGoogleDriveBasedOnDrives() {
+    private Optional<Path> findGoogleDriveBasedOnDrives() {
         return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
                 .filter(drive -> {
                     try {
@@ -53,7 +57,7 @@ public class GoogleDrive {
                 .findFirst();
     }
 
-    private static Optional<Path> loadGoogleDrivePathFromItsDatabase(Path localDbPath) {
+    private Optional<Path> loadGoogleDrivePathFromItsDatabase(Path localDbPath) {
         try {
             Connection connectionToDb = getConnectionToDb(localDbPath);
             Statement connection = connectionToDb.createStatement();
@@ -70,25 +74,25 @@ public class GoogleDrive {
         }
     }
 
-    private static Optional<Path> defaultWindowsDriveConfigPath() {
+    private Optional<Path> defaultWindowsDriveConfigPath() {
         return dbPathRelativeToDriveRoot(Path.of(System.getenv("LOCALAPPDATA")));
     }
 
-    private static Optional<Path> defaultMacDriveConfigPath() {
+    private Optional<Path> defaultMacDriveConfigPath() {
         return dbPathRelativeToDriveRoot(Path.of(System.getProperty("user.home"), "Library", "Application Support"));
     }
 
-    private static Optional<Path> dbPathRelativeToDriveRoot(Path base) {
+    private Optional<Path> dbPathRelativeToDriveRoot(Path base) {
         return Stream.of(newSyncConfigPath(base), legacySyncConfigPath(base))
                 .filter(path -> path.toFile().isFile())
                 .findFirst();
     }
 
-    private static Path legacySyncConfigPath(Path base) {
+    private Path legacySyncConfigPath(Path base) {
         return Path.of(base.toAbsolutePath().toString(), "Google", "Drive", "user_default", "sync_config.db");
     }
 
-    private static Path newSyncConfigPath(Path base) {
+    private Path newSyncConfigPath(Path base) {
         return Path.of(
                 base.toAbsolutePath().toString(),
                 "Google",
@@ -99,19 +103,19 @@ public class GoogleDrive {
                 "sync_config.db");
     }
 
-    private static Connection getConnectionToDb(Path dbPath) throws SQLException {
+    private Connection getConnectionToDb(Path dbPath) throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath());
     }
 
-    private static Path defaultPath() {
+    private Path defaultPath() {
         return Path.of(System.getProperty("user.home"), "Google Drive", "My Drive");
     }
 
-    private static Path defaultLegacyPath() {
+    private Path defaultLegacyPath() {
         return Path.of(System.getProperty("user.home"), "Google Drive");
     }
 
-    private static Path reasonableRename() {
+    private Path reasonableRename() {
         return Path.of(System.getProperty("user.home"), "drive");
     }
 }

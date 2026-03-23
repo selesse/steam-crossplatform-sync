@@ -8,6 +8,7 @@ public class ConfigRaw {
     public String gamesFileLocation;
     public String cloudStorageRelativeWritePath;
     public String remoteAppInfoUrl;
+    public String cloudProvider;
 
     public String getGamesFileLocation() {
         return Optional.ofNullable(gamesFileLocation)
