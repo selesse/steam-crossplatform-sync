@@ -1,41 +1,17 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.selesse.caches.FileBackedCache;
-import com.selesse.caches.FileBackedCacheBuilder;
-import com.selesse.files.FileModified;
 import com.selesse.steam.SteamAppLoader;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.SteamGame;
-import com.selesse.steam.registry.RegistryPrettyPrint;
-import com.selesse.steam.registry.implementation.RegistryParser;
-import com.selesse.steam.registry.implementation.RegistryStore;
-import java.nio.file.Path;
 import java.util.List;
 
 public class GameLoadingService {
-    private final SteamCrossplatformSyncConfig config;
-
-    public GameLoadingService(SteamCrossplatformSyncConfig config) {
-        this.config = config;
-    }
+    public GameLoadingService() {}
 
     public SteamGame loadGame(long gameId) {
-        FileBackedCache fileBackedCache = new FileBackedCacheBuilder()
-                .setCacheLoadingCriteria(this::accurateEnoughGameCache)
-                .setLoadingMechanism(() -> RegistryPrettyPrint.prettyPrint(
-                        SteamAppLoader.load(gameId).getRegistryStore()))
-                .setSuccessfulLoadCriteria(x -> x.size() > 3)
-                .build();
-        Path cachedRegistryStore = Path.of(config.getCacheDirectory().toString(), gameId + ".vdf");
-        RegistryStore registryStore = RegistryParser.parse(fileBackedCache.getLines(cachedRegistryStore));
-        return new SteamGame(registryStore);
+        return new SteamGame(SteamAppLoader.load(gameId).getRegistryStore());
     }
 
     public List<SteamGame> loadGames(List<Long> gameIds) {
         return gameIds.stream().map(this::loadGame).toList();
-    }
-
-    private boolean accurateEnoughGameCache(Path path) {
-        return path.toFile().exists() && FileModified.getDaysSinceModification(path.toFile()) < 30;
     }
 }
