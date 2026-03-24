@@ -24,8 +24,6 @@ public abstract class FileBasedRegistry extends SteamRegistry {
         }
     }
 
-    public abstract long getCurrentlyRunningAppId();
-
     public List<Long> getInstalledAppIds() {
         RegistryObject object = getAppsRegistryObject();
         if (object == null) {

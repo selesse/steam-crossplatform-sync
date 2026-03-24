@@ -3,8 +3,6 @@ package com.selesse.steam.registry;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.selesse.steam.processes.GameOverlayProcessLocator;
-import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
 import com.selesse.steam.registry.windows.GetInstalledAppIdsFromRegistry;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -23,14 +21,6 @@ class WindowsSteamRegistry extends SteamRegistry {
                         return GetInstalledAppIdsFromRegistry.get();
                     }
                 });
-    }
-
-    @Override
-    public long getCurrentlyRunningAppId() {
-        if (GameOverlayProcessLocator.locate().isPresent()) {
-            return GetGameIdFromGameOverlay.get();
-        }
-        return 0L;
     }
 
     @Override

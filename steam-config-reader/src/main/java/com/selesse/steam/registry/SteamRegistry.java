@@ -14,8 +14,6 @@ public abstract class SteamRegistry {
         };
     }
 
-    public abstract long getCurrentlyRunningAppId();
-
     public abstract List<Long> getInstalledAppIds();
 
     public Path getAppCachePath() {

@@ -3,7 +3,9 @@ package com.selesse.steam.processes;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,33 @@ public class GameOverlayProcessLocator {
                             && processArguments.getLast().equalsIgnoreCase(gameOverlayProcess);
                 })
                 .findFirst();
+    }
+
+    public static long getRunningAppId() {
+        return switch (OperatingSystems.get()) {
+            case WINDOWS -> locate().isPresent() ? GetGameIdFromGameOverlay.get() : 0L;
+            case MAC ->
+                locate().map(process -> {
+                            var args = process.info().arguments().orElse(new String[] {});
+                            int gameIdIndex = Arrays.asList(args).indexOf("-gameid");
+                            if (gameIdIndex != -1 && args.length >= gameIdIndex + 1) {
+                                return Long.parseLong(args[gameIdIndex + 1]);
+                            }
+                            return 0L;
+                        })
+                        .orElse(0L);
+            case LINUX, STEAM_OS ->
+                locate().map(process -> {
+                            var args = process.info().arguments().orElse(new String[] {});
+                            for (String arg : args) {
+                                if (arg.contains("AppId=")) {
+                                    return Long.parseLong(arg.split("=")[1]);
+                                }
+                            }
+                            return 0L;
+                        })
+                        .orElse(0L);
+        };
     }
 
     private static String getGameOverlayProcessName() {
