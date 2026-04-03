@@ -178,7 +178,7 @@ public class GameMonitorTest {
     }
 
     @Test
-    public void unknownGameLaunch_firesGameLoadErrorHook() throws IOException {
+    public void unknownGameLaunch_firesGameLoadErrorHook() throws IOException, InterruptedException {
         Path hookConfigDir = Files.createTempDirectory("game-monitor-hook-test-config");
         Path hookOutput = hookConfigDir.resolve("hook-output.properties");
         HooksTest.writeExecutableScript(
@@ -198,6 +198,11 @@ public class GameMonitorTest {
             detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
             detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(99L);
             monitor.run();
+        }
+
+        long deadline = System.currentTimeMillis() + 5_000;
+        while (!Files.exists(hookOutput) && System.currentTimeMillis() < deadline) {
+            Thread.sleep(50);
         }
 
         Properties props = new Properties();

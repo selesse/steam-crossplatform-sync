@@ -22,6 +22,6 @@ record KnownGame(SteamGame steamGame, GameSession session) implements TrackedGam
         LOGGER.info("Game closed: {}", steamGame.getName());
         LOGGER.info("Running sync service for {}", steamGame.getName());
         new SyncGameFilesService(context).run(steamGame);
-        new SessionEndHook(record).run(context.getConfig());
+        new SessionEndHook(record).runAsync(context.getConfig());
     }
 }

@@ -4,6 +4,7 @@ import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,13 @@ abstract class Hook {
     abstract String name();
 
     abstract Map<String, String> env();
+
+    void runAsync(SteamCrossplatformSyncConfig config) {
+        CompletableFuture.runAsync(() -> run(config)).exceptionally(e -> {
+            LOGGER.warn("Hook {} failed asynchronously", name(), e);
+            return null;
+        });
+    }
 
     void run(SteamCrossplatformSyncConfig config) {
         Path hookPath = resolveHookPath(config);

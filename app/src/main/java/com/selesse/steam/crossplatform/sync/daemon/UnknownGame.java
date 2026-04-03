@@ -18,6 +18,6 @@ record UnknownGame(long gameId, GameSession session) implements TrackedGame {
     public void onClosed(SteamCrossplatformSyncContext context) {
         GameSessionRecord record = session.finish();
         LOGGER.info("Game closed (app ID: {}, name could not be resolved)", gameId);
-        new SessionEndHook(record).run(context.getConfig());
+        new SessionEndHook(record).runAsync(context.getConfig());
     }
 }
