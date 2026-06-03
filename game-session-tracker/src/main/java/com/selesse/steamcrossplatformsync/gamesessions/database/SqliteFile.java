@@ -4,6 +4,6 @@ import java.nio.file.Path;
 
 public record SqliteFile(Path path) {
     String jdbcPath() {
-        return "jdbc:sqlite:/" + path();
+        return "jdbc:sqlite:/" + path() + "?journal_mode=wal";
     }
 }

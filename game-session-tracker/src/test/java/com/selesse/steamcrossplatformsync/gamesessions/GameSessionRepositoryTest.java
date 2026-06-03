@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.junit.Test;
 
 public class GameSessionRepositoryTest {
     private GameSessionRepository repository;
+    private SqliteFile sqliteFile;
 
     @Before
     public void setup() {
@@ -20,9 +22,18 @@ public class GameSessionRepositoryTest {
             assert (testDatabase.toFile().delete());
             testDatabase.toFile().deleteOnExit();
         }
-        SqliteFile sqliteFile = new SqliteFile(testDatabase);
+        this.sqliteFile = new SqliteFile(testDatabase);
         Database.prepare(sqliteFile);
         this.repository = GameSessionRepository.getInstance(sqliteFile);
+    }
+
+    @Test
+    public void databaseUsesWalJournalMode() throws SQLException {
+        try (var conn = Database.getConnection(sqliteFile);
+                var stmt = conn.createStatement();
+                var rs = stmt.executeQuery("PRAGMA journal_mode")) {
+            assertThat(rs.getString(1)).isEqualTo("wal");
+        }
     }
 
     @Test
