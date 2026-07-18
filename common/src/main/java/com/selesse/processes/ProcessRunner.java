@@ -1,5 +1,6 @@
 package com.selesse.processes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import java.io.BufferedReader;
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -63,9 +65,18 @@ public class ProcessRunner {
         processBuilder.command(copyOfArguments);
     }
 
-    private Path findAbsolutePathOfProgramInPath(String programName, String pathEnvironmentVariable) {
+    @VisibleForTesting
+    Path findAbsolutePathOfProgramInPath(String programName, String pathEnvironmentVariable) {
         return Stream.of(pathEnvironmentVariable.split(Pattern.quote(File.pathSeparator)))
-                .map(Paths::get)
+                .flatMap(entry -> {
+                    try {
+                        return Stream.of(Paths.get(entry));
+                    } catch (InvalidPathException e) {
+                        // Some PATH entries can be malformed (stray quotes, trailing
+                        // backslash-quote, etc.) - skip them instead of failing the whole lookup.
+                        return Stream.empty();
+                    }
+                })
                 .map(path -> {
                     if (OperatingSystems.get() == OperatingSystems.OperatingSystem.WINDOWS) {
                         return prioritizeExeProgramNameIfExists(programName, path);
