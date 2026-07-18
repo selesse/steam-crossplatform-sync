@@ -14,6 +14,8 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.Properties;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,6 +142,14 @@ public class HooksTest {
         var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
 
         new SessionEndHook(record).run(config);
+    }
+
+    @Test
+    public void hookExecutionRunsOnDedicatedDaemonThreadsNotTheCommonPool() throws Exception {
+        Future<String> future =
+                Hook.HOOK_EXECUTOR.submit(() -> Thread.currentThread().getName());
+
+        assertThat(future.get(5, TimeUnit.SECONDS)).startsWith("hook-runner");
     }
 
     static Path writeExecutableScript(Path path, String... lines) throws IOException {

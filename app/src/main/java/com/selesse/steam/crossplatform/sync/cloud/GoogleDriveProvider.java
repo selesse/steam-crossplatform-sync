@@ -1,5 +1,6 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.OperatingSystems;
@@ -8,10 +9,26 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class GoogleDriveProvider implements CloudStorageProvider {
+    // Files.getFileStore() can block indefinitely (not just slowly) on a drive that's
+    // inaccessible in the current session, e.g. a virtual cloud-storage drive when running as
+    // a Windows service in Session 0. The 1-second timeout below only stops the calling thread
+    // from waiting on it; it can't interrupt the underlying blocked native call. Running these
+    // probes on their own daemon-thread pool means a permanently stuck probe leaks a thread here
+    // instead of on ForkJoinPool.commonPool(), where it would eventually starve unrelated work
+    // (like hook execution) that also defaults to the common pool.
+    @VisibleForTesting
+    static final ExecutorService DRIVE_PROBE_EXECUTOR = Executors.newCachedThreadPool(runnable -> {
+        Thread thread = new Thread(runnable, "google-drive-probe");
+        thread.setDaemon(true);
+        return thread;
+    });
+
     @Override
     public String getName() {
         return "google_drive";
@@ -43,9 +60,11 @@ public class GoogleDriveProvider implements CloudStorageProvider {
         return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
                 .filter(drive -> {
                     try {
-                        return CompletableFuture.supplyAsync(() -> RuntimeExceptionFiles.getFileStore(drive)
-                                        .name()
-                                        .equals("Google Drive"))
+                        return CompletableFuture.supplyAsync(
+                                        () -> RuntimeExceptionFiles.getFileStore(drive)
+                                                .name()
+                                                .equals("Google Drive"),
+                                        DRIVE_PROBE_EXECUTOR)
                                 .get(1, TimeUnit.SECONDS);
                     } catch (Exception e) {
                         return false;
