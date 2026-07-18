@@ -1,6 +1,7 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,9 +63,13 @@ abstract class Hook {
     private Path resolveHookPath(SteamCrossplatformSyncConfig config) {
         Path hooksDir = config.getConfigDirectory().resolve("hooks");
 
-        Path hookPath = hooksDir.resolve(name());
-        if (Files.isRegularFile(hookPath) && Files.isExecutable(hookPath)) {
-            return hookPath;
+        // NTFS has no POSIX exec bit, so Files.isExecutable() is always true for readable files
+        // on Windows - only trust it off Windows.
+        if (OperatingSystems.get() != OperatingSystems.OperatingSystem.WINDOWS) {
+            Path hookPath = hooksDir.resolve(name());
+            if (Files.isRegularFile(hookPath) && Files.isExecutable(hookPath)) {
+                return hookPath;
+            }
         }
 
         Path batPath = hooksDir.resolve(name() + ".bat");
