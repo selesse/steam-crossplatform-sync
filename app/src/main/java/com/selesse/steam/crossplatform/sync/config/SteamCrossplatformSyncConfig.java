@@ -21,8 +21,7 @@ public interface SteamCrossplatformSyncConfig {
                 .map(ConfigRaw::getPathToCloudStorage)
                 .filter(x -> !x.isEmpty())
                 .map(Path::of)
-                .orElse(CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath)
-                        .orElseThrow());
+                .orElseGet(() -> CloudSyncLocationSupplier.get(this).orElseThrow());
     }
 
     // Which folder to write into the cloud storage, relative to the root
