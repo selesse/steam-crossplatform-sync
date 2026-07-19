@@ -20,22 +20,29 @@ public class GameMonitor implements Runnable {
 
     @Override
     public synchronized void run() {
-        if (GameRunningDetector.isGameCurrentlyRunning()) {
-            long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
+        // run() is invoked both from a scheduled poll and from a game overlay process's onExit()
+        // callback (see startTracking() below) - the latter has no caller able to observe or log
+        // a thrown exception, so it must never escape this method.
+        try {
+            if (GameRunningDetector.isGameCurrentlyRunning()) {
+                long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
 
-            if (currentGame == null) {
-                currentGame = startTracking(currentGameId);
-            } else if (currentGameId != currentGame.getId()) {
+                if (currentGame == null) {
+                    currentGame = startTracking(currentGameId);
+                } else if (currentGameId != currentGame.getId()) {
+                    TrackedGame closing = currentGame;
+                    currentGame = startTracking(currentGameId);
+                    closing.onClosed(context);
+                } else {
+                    currentGame.session().recordActive();
+                }
+            } else if (currentGame != null) {
                 TrackedGame closing = currentGame;
-                currentGame = startTracking(currentGameId);
+                currentGame = null;
                 closing.onClosed(context);
-            } else {
-                currentGame.session().recordActive();
             }
-        } else if (currentGame != null) {
-            TrackedGame closing = currentGame;
-            currentGame = null;
-            closing.onClosed(context);
+        } catch (RuntimeException e) {
+            LOGGER.warn("Game monitor run failed", e);
         }
     }
 

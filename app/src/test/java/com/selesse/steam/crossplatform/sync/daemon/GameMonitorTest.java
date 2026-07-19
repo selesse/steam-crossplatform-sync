@@ -1,8 +1,11 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.selesse.steam.GameRunningDetector;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
@@ -19,6 +22,7 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
+import org.slf4j.LoggerFactory;
 
 public class GameMonitorTest {
     private GameSessionRepository repository;
@@ -209,5 +213,39 @@ public class GameMonitorTest {
         props.load(Files.newBufferedReader(hookOutput));
         assertThat(props.getProperty("STEAM_APP_ID")).isEqualTo("99");
         assertThat(props.getProperty("ERROR_MESSAGE")).isEqualTo("steamcmd not found");
+    }
+
+    // Regression test: run() is invoked both from a scheduled poll and, via
+    // startTracking()'s processHandle.onExit().thenRunAsync(this), from a callback with no caller
+    // able to observe a thrown exception. A RuntimeException from onClosed() (e.g. sync failing)
+    // used to propagate straight out of run() and vanish silently on that path - nothing
+    // indicated a failure had occurred at all. run() now catches and logs internally, so this is
+    // fully synchronous: no threading or async waiting needed to prove the fix.
+    @Test
+    public void runNeverThrowsAndLogsWhenOnClosedFails() {
+        var gameMonitorLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(GameMonitor.class);
+        ListAppender<ILoggingEvent> logCapture = new ListAppender<>();
+        logCapture.start();
+        gameMonitorLogger.addAppender(logCapture);
+
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+            doThrow(new RuntimeException("boom")).when(syncConfig).getGamesFile();
+
+            GameMonitor monitor = new GameMonitor(context);
+            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            monitor.run();
+
+            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            assertThatCode(monitor::run).doesNotThrowAnyException();
+        } finally {
+            gameMonitorLogger.detachAppender(logCapture);
+        }
+
+        assertThat(logCapture.list)
+                .anySatisfy(event -> assertThat(event.getFormattedMessage()).isEqualTo("Game monitor run failed"));
     }
 }
