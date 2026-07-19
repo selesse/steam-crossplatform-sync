@@ -1,6 +1,7 @@
 package com.selesse.steam.crossplatform.sync.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 
@@ -65,6 +66,27 @@ public class SteamCrossplatformSyncConfigTest {
 
             assertThat(result).isEqualTo(Path.of("/detected/cloud/root"));
             cloudSupplier.verify(() -> CloudSyncLocationSupplier.get(config));
+        }
+    }
+
+    // When nothing is configured and auto-detection also finds nothing, the failure used to
+    // surface as a bare NoSuchElementException with no indication of what to actually do about
+    // it. This asserts it now names the config file to edit.
+    @Test
+    public void noCloudStorageFoundGivesAnActionableErrorMessage() {
+        ConfigRaw raw = new ConfigRaw();
+        TestConfig config = new TestConfig();
+
+        try (MockedStatic<ConfigLoader> configLoader = mockStatic(ConfigLoader.class);
+                MockedStatic<CloudSyncLocationSupplier> cloudSupplier = mockStatic(CloudSyncLocationSupplier.class)) {
+            configLoader.when(() -> ConfigLoader.loadIfExists(any())).thenReturn(Optional.of(raw));
+            cloudSupplier.when(() -> CloudSyncLocationSupplier.get(any())).thenReturn(Optional.empty());
+
+            assertThatThrownBy(config::getLocalCloudSyncBaseDirectory)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("pathToCloudStorage")
+                    .hasMessageContaining(
+                            config.getConfigFileLocation().toAbsolutePath().toString());
         }
     }
 }

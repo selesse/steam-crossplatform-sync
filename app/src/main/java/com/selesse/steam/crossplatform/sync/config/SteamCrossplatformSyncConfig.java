@@ -21,7 +21,11 @@ public interface SteamCrossplatformSyncConfig {
                 .map(ConfigRaw::getPathToCloudStorage)
                 .filter(x -> !x.isEmpty())
                 .map(Path::of)
-                .orElseGet(() -> CloudSyncLocationSupplier.get(this).orElseThrow());
+                .orElseGet(() -> CloudSyncLocationSupplier.get(this)
+                        .orElseThrow(() -> new IllegalStateException(
+                                "Could not find a cloud storage location. Set pathToCloudStorage in "
+                                        + getConfigFileLocation().toAbsolutePath()
+                                        + ", or install a supported cloud storage provider.")));
     }
 
     // Which folder to write into the cloud storage, relative to the root
