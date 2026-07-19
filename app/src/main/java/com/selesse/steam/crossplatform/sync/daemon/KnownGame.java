@@ -21,7 +21,14 @@ record KnownGame(SteamGame steamGame, GameSession session) implements TrackedGam
         GameSessionRecord record = session.finish();
         LOGGER.info("Game closed: {}", steamGame.getName());
         LOGGER.info("Running sync service for {}", steamGame.getName());
-        new SyncGameFilesService(context).run(steamGame);
+        // A sync failure shouldn't also silently skip the session-end hook - they're independent
+        // concerns, and the hook may do things (e.g. notifications) that matter even when sync
+        // itself couldn't run.
+        try {
+            new SyncGameFilesService(context).run(steamGame);
+        } catch (RuntimeException e) {
+            LOGGER.warn("Sync failed for {}", steamGame.getName(), e);
+        }
         new SessionEndHook(record).runAsync(context.getConfig());
     }
 }

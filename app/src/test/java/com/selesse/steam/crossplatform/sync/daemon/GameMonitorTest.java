@@ -215,24 +215,25 @@ public class GameMonitorTest {
         assertThat(props.getProperty("ERROR_MESSAGE")).isEqualTo("steamcmd not found");
     }
 
-    // Regression test: run() is invoked both from a scheduled poll and, via
-    // startTracking()'s processHandle.onExit().thenRunAsync(this), from a callback with no caller
-    // able to observe a thrown exception. A RuntimeException from onClosed() (e.g. sync failing)
-    // used to propagate straight out of run() and vanish silently on that path - nothing
-    // indicated a failure had occurred at all. run() now catches and logs internally, so this is
-    // fully synchronous: no threading or async waiting needed to prove the fix.
+    // Regression test: KnownGame.onClosed() used to run sync and the session-end hook
+    // sequentially in a way where a sync failure meant the hook line was never reached at all -
+    // no notification, nothing. They're independent concerns; a sync failure shouldn't prevent
+    // the hook from running.
     @Test
-    public void runNeverThrowsAndLogsWhenOnClosedFails() {
-        var gameMonitorLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(GameMonitor.class);
-        ListAppender<ILoggingEvent> logCapture = new ListAppender<>();
-        logCapture.start();
-        gameMonitorLogger.addAppender(logCapture);
+    public void sessionEndHookStillRunsWhenSyncFails() throws IOException, InterruptedException {
+        Path hookConfigDir = Files.createTempDirectory("game-monitor-hook-test-config");
+        Path hookOutput = hookConfigDir.resolve("hook-output.properties");
+        HooksTest.writeExecutableScript(
+                Files.createDirectories(hookConfigDir.resolve("hooks")).resolve("session-end"),
+                "#!/bin/sh",
+                "echo STEAM_APP_ID=$STEAM_APP_ID >> " + hookOutput);
+        doReturn(hookConfigDir).when(syncConfig).getConfigDirectory();
+        doThrow(new RuntimeException("boom")).when(syncConfig).getGamesFile();
 
         try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
                 MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
             locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
             doReturn(brotato).when(context).loadGame(1236720L);
-            doThrow(new RuntimeException("boom")).when(syncConfig).getGamesFile();
 
             GameMonitor monitor = new GameMonitor(context);
             detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
@@ -240,6 +241,38 @@ public class GameMonitorTest {
             monitor.run();
 
             detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            monitor.run();
+        }
+
+        long deadline = System.currentTimeMillis() + 5_000;
+        while (!Files.exists(hookOutput) && System.currentTimeMillis() < deadline) {
+            Thread.sleep(50);
+        }
+
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(hookOutput));
+        assertThat(props.getProperty("STEAM_APP_ID")).isEqualTo("1236720");
+    }
+
+    // Regression test: run() is invoked both from a scheduled poll and, via
+    // startTracking()'s processHandle.onExit().thenRunAsync(this), from a callback with no caller
+    // able to observe a thrown exception. Anything that escapes run() on that path used to vanish
+    // silently - nothing indicated a failure had occurred at all. run() now catches and logs
+    // internally, so this is fully synchronous: no threading or async waiting needed to prove the
+    // fix. (KnownGame.onClosed() now catches sync failures itself with a more specific message -
+    // see sessionEndHookStillRunsWhenSyncFails - so this uses a failure from GameRunningDetector
+    // to exercise run()'s own catch instead.)
+    @Test
+    public void runNeverThrowsAndLogsOnUnexpectedFailure() {
+        var gameMonitorLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(GameMonitor.class);
+        ListAppender<ILoggingEvent> logCapture = new ListAppender<>();
+        logCapture.start();
+        gameMonitorLogger.addAppender(logCapture);
+
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class)) {
+            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenThrow(new RuntimeException("boom"));
+
+            GameMonitor monitor = new GameMonitor(context);
             assertThatCode(monitor::run).doesNotThrowAnyException();
         } finally {
             gameMonitorLogger.detachAppender(logCapture);
