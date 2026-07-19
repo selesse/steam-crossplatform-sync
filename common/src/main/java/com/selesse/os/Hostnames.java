@@ -13,8 +13,8 @@ public class Hostnames {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             return Optional.ofNullable(System.getenv("COMPUTERNAME"))
-                    .orElseGet(
-                            () -> Optional.ofNullable(System.getenv("HOSTNAME")).orElse(fallbackHostname()));
+                    .orElseGet(() ->
+                            Optional.ofNullable(System.getenv("HOSTNAME")).orElseGet(Hostnames::fallbackHostname));
         }
     }
 

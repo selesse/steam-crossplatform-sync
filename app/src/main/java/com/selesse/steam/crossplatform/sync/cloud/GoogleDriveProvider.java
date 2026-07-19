@@ -47,7 +47,7 @@ public class GoogleDriveProvider implements CloudStorageProvider {
                     case WINDOWS -> defaultWindowsDriveConfigPath();
                 };
 
-        return localDbPathMaybe.map(this::loadGoogleDrivePathFromItsDatabase).orElse(defaultPathIfExists());
+        return localDbPathMaybe.map(this::loadGoogleDrivePathFromItsDatabase).orElseGet(this::defaultPathIfExists);
     }
 
     private Optional<Path> defaultPathIfExists() {
