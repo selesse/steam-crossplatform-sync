@@ -1,6 +1,7 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.selesse.concurrent.IsolatedExecutors;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import java.nio.file.Files;
@@ -8,7 +9,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +18,7 @@ abstract class Hook {
     // queued on ForkJoinPool.commonPool() — such as a cloud-storage lookup stuck past its
     // intended timeout.
     @VisibleForTesting
-    static final ExecutorService HOOK_EXECUTOR = Executors.newCachedThreadPool(runnable -> {
-        Thread thread = new Thread(runnable, "hook-runner");
-        thread.setDaemon(true);
-        return thread;
-    });
+    static final ExecutorService HOOK_EXECUTOR = IsolatedExecutors.newDaemonCachedPool("hook-runner");
 
     abstract String name();
 

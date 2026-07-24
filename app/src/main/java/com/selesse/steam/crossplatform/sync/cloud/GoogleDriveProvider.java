@@ -2,32 +2,30 @@ package com.selesse.steam.crossplatform.sync.cloud;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.selesse.concurrent.IsolatedExecutors;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.OperatingSystems;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.sql.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class GoogleDriveProvider implements CloudStorageProvider {
     // Files.getFileStore() can block indefinitely (not just slowly) on a drive that's
     // inaccessible in the current session, e.g. a virtual cloud-storage drive when running as
-    // a Windows service in Session 0. The 1-second timeout below only stops the calling thread
-    // from waiting on it; it can't interrupt the underlying blocked native call. Running these
-    // probes on their own daemon-thread pool means a permanently stuck probe leaks a thread here
-    // instead of on ForkJoinPool.commonPool(), where it would eventually starve unrelated work
-    // (like hook execution) that also defaults to the common pool.
+    // a Windows service in Session 0. Timeouts below only stop the calling thread from waiting
+    // on it; they can't interrupt the underlying blocked native call. Running these probes on
+    // their own daemon-thread pool means a permanently stuck probe leaks a thread here instead
+    // of on ForkJoinPool.commonPool(), where it would eventually starve unrelated work (like
+    // hook execution) that also defaults to the common pool.
     @VisibleForTesting
-    static final ExecutorService DRIVE_PROBE_EXECUTOR = Executors.newCachedThreadPool(runnable -> {
-        Thread thread = new Thread(runnable, "google-drive-probe");
-        thread.setDaemon(true);
-        return thread;
-    });
+    static final ExecutorService DRIVE_PROBE_EXECUTOR = IsolatedExecutors.newDaemonCachedPool("google-drive-probe");
 
     @Override
     public String getName() {
@@ -57,23 +55,33 @@ public class GoogleDriveProvider implements CloudStorageProvider {
     }
 
     private Optional<Path> findGoogleDriveBasedOnDrives() {
+        // One shared deadline across all drives, not a fresh timeout per drive - otherwise this
+        // could run for (number of drives) * LOOKUP_TIMEOUT, well past what the caller is
+        // waiting for.
+        Instant deadline = Instant.now().plus(LOOKUP_TIMEOUT);
         return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
-                .filter(drive -> {
-                    try {
-                        return CompletableFuture.supplyAsync(
-                                        () -> RuntimeExceptionFiles.getFileStore(drive)
-                                                .name()
-                                                .equals("Google Drive"),
-                                        DRIVE_PROBE_EXECUTOR)
-                                .get(1, TimeUnit.SECONDS);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
+                .filter(drive -> isGoogleDrive(drive, deadline))
                 .filter(drive ->
                         Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())
                 .map(x -> RuntimeExceptionFiles.resolveLnk(Path.of(x.toString(), "My Drive.lnk")))
                 .findFirst();
+    }
+
+    private boolean isGoogleDrive(Path drive, Instant deadline) {
+        Duration remaining = Duration.between(Instant.now(), deadline);
+        if (remaining.isNegative() || remaining.isZero()) {
+            return false;
+        }
+        try {
+            return CompletableFuture.supplyAsync(
+                            () -> RuntimeExceptionFiles.getFileStore(drive)
+                                    .name()
+                                    .equals("Google Drive"),
+                            DRIVE_PROBE_EXECUTOR)
+                    .get(remaining.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private Optional<Path> loadGoogleDrivePathFromItsDatabase(Path localDbPath) {
