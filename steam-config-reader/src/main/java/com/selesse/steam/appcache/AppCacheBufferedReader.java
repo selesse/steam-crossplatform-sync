@@ -12,6 +12,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,57 +79,93 @@ public class AppCacheBufferedReader {
 
     public AppCache read() throws IOException {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
-            String firstFourBytes = readFourBytes(bufferedInputStream);
-            AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
-            boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
-            String versionMarker = readFourBytes(bufferedInputStream);
-            if (!versionMarker.equals(VERSION_MARKER)) {
-                throw new IllegalStateException(
-                        "Expected version marker '" + VERSION_MARKER + "' but got '" + versionMarker + "'");
-            }
+            Header header = readHeader(bufferedInputStream);
             AppCache appCache = new AppCache();
-            StringCache stringCache = null;
-            if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
-                long offsetToStringTable = parse64Long(bufferedInputStream);
-                stringCache = new StringCacheReader(path, offsetToStringTable).read();
-            }
-
-            readAppEntries(bufferedInputStream, parseSha1Binary, stringCache, appCache);
-
+            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), new AllApps(appCache));
             return appCache;
         }
     }
 
-    private void readAppEntries(
+    /** Reads a single app by ID, skipping every other entry's bytes without parsing them. */
+    public Optional<App> readOne(long targetAppId) throws IOException {
+        return Optional.ofNullable(readSome(Set.of(targetAppId)).get(targetAppId));
+    }
+
+    /**
+     * Reads a specific set of apps by ID in a single pass, skipping every non-matching entry's
+     * bytes without parsing them, and stopping as soon as every requested ID has been found.
+     */
+    public Map<Long, App> readSome(Set<Long> targetAppIds) throws IOException {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+            Header header = readHeader(bufferedInputStream);
+            SomeApps selector = new SomeApps(targetAppIds);
+            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), selector);
+            return selector.results();
+        }
+    }
+
+    /**
+     * Reads the first app satisfying the given predicate, parsing entries in file order until a
+     * match is found. Unlike readOne()/readSome(), a match here isn't decidable from the entry
+     * header alone, so every entry is parsed until one is found (or the file is exhausted).
+     */
+    public Optional<App> readFirst(Predicate<App> predicate) throws IOException {
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+            Header header = readHeader(bufferedInputStream);
+            FirstMatch selector = new FirstMatch(predicate);
+            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), selector);
+            return Optional.ofNullable(selector.result());
+        }
+    }
+
+    private record Header(boolean parseSha1Binary, StringCache stringCache) {}
+
+    private Header readHeader(BufferedInputStream bufferedInputStream) throws IOException {
+        String firstFourBytes = readFourBytes(bufferedInputStream);
+        AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
+        boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
+        String versionMarker = readFourBytes(bufferedInputStream);
+        if (!versionMarker.equals(VERSION_MARKER)) {
+            throw new IllegalStateException(
+                    "Expected version marker '" + VERSION_MARKER + "' but got '" + versionMarker + "'");
+        }
+        StringCache stringCache = null;
+        if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
+            long offsetToStringTable = parse64Long(bufferedInputStream);
+            stringCache = new StringCacheReader(path, offsetToStringTable).read();
+        }
+        return new Header(parseSha1Binary, stringCache);
+    }
+
+    private void scanAppEntries(
             BufferedInputStream bufferedInputStream,
             boolean parseSha1Binary,
             StringCache stringCache,
-            AppCache appCache)
+            AppQuery selector)
             throws IOException {
-        while (true) {
+        while (!selector.isDone()) {
             int appId;
             int size;
-            byte[] entryBytes;
             try {
                 appId = parse32Int(bufferedInputStream);
                 if (appId == 0) {
                     return;
                 }
                 size = parse32Int(bufferedInputStream);
-                entryBytes = bufferedInputStream.readNBytes(size);
             } catch (Exception e) {
-                LOGGER.warn(
-                        "Stopping app cache read after failing to locate the next entry boundary,"
-                                + " keeping the {} app(s) parsed so far",
-                        appCache.size(),
-                        e);
+                LOGGER.warn("Stopping app cache scan after failing to locate the next entry boundary", e);
                 return;
             }
 
-            try {
-                appCache.add(parseAppEntry(appId, size, entryBytes, parseSha1Binary, stringCache));
-            } catch (Exception e) {
-                LOGGER.warn("Skipping app cache entry for appId={} because it failed to parse", appId, e);
+            if (selector.shouldParse(appId)) {
+                byte[] entryBytes = bufferedInputStream.readNBytes(size);
+                try {
+                    selector.onParsed(appId, parseAppEntry(appId, size, entryBytes, parseSha1Binary, stringCache));
+                } catch (Exception e) {
+                    LOGGER.warn("Skipping app cache entry for appId={} because it failed to parse", appId, e);
+                }
+            } else {
+                bufferedInputStream.skipNBytes(size);
             }
         }
     }
