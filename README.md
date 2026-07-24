@@ -2,9 +2,10 @@
 
 This project helps synchronize Steam saves across different computers and
 platforms. Think of it as Steam Cloud for games that don't support it. Playing
-on the go on your MacBook but just got home to your desktop? This program will
-automatically use your cloud storage provider (e.g. Google Drive, Dropbox) to
-synchronize the files so you can pick up where you left off.
+on the go on your MacBook but just got home to your desktop? Point this
+program at a folder synced by your cloud storage provider (Google Drive,
+Dropbox, or anything else) and it'll use that to synchronize your save files
+so you can pick up where you left off.
 
 ## How does it work?
 
@@ -21,8 +22,9 @@ games and formats as possible.
 
 ## Setup
 
-By default, the program assumes you're using Google Drive. It will sync to the
-root of your Google Drive folder, into `steam-crossplatform-sync`.
+Set `pathToCloudStorage` to a folder synced by your cloud storage provider
+(Google Drive, Dropbox, etc.) - see the configuration options below. Games
+sync into `steam-crossplatform-sync` within that folder by default.
 
 Every machine will need its own copy of the configuration.
 
@@ -32,8 +34,7 @@ config location is in `${XDG_CONFIG_HOME:-$HOME}/.config/steam-crossplatform-syn
 The following options are configurable:
 
 ```yml
- # e.g. if you're not using Google Drive
-pathToCloudStorage: '~/Dropbox' # default: reads Google Drive's config to find your Drive location
+pathToCloudStorage: '~/Dropbox' # required: a folder synced by your cloud storage provider
 
 # relative path to sync within cloud storage - in this case, games will be synced into ~/Dropbox/steam-sync
 cloudStorageRelativeWritePath: 'steam-sync' # default: 'steam-crossplatform-sync'
