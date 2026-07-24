@@ -1,8 +1,12 @@
 package com.selesse.steam.registry;
 
+import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.registry.implementation.RegistryObject;
+import com.selesse.steam.registry.implementation.RegistryParser;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class SteamRegistry {
     public static SteamRegistry getInstance() {
@@ -15,6 +19,22 @@ public class SteamRegistry {
 
     public Path getSteamAppsPath() {
         return Path.of(getBasePath(), "steamapps");
+    }
+
+    public Optional<RegistryObject> readLibraryFolders() {
+        return readVdfIfPresent(getSteamAppsPath().resolve("libraryfolders.vdf"));
+    }
+
+    public Optional<RegistryObject> readLoginUsers() {
+        return readVdfIfPresent(Path.of(getBasePath(), "config/loginusers.vdf"));
+    }
+
+    public Optional<RegistryObject> readVdfIfPresent(Path path) {
+        return path.toFile().isFile() ? Optional.of(readVdf(path)) : Optional.empty();
+    }
+
+    public RegistryObject readVdf(Path path) {
+        return RegistryParser.parse(RuntimeExceptionFiles.readAllLines(path));
     }
 
     private String getBasePath() {

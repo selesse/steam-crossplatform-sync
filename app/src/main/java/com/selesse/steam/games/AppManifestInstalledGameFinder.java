@@ -1,9 +1,7 @@
 package com.selesse.steam.games;
 
-import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryParser;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -26,13 +24,10 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     }
 
     private List<Path> getLibrarySteamAppsPaths() {
-        Path libraryFoldersPath = SteamRegistry.getInstance().getSteamAppsPath().resolve("libraryfolders.vdf");
-        if (!libraryFoldersPath.toFile().isFile()) {
-            return List.of();
-        }
-
-        RegistryObject registryObject = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(libraryFoldersPath));
-        RegistryObject libraries = registryObject.getObjectValueAsObject("libraryfolders");
+        RegistryObject libraries = SteamRegistry.getInstance()
+                .readLibraryFolders()
+                .map(registryObject -> registryObject.getObjectValueAsObject("libraryfolders"))
+                .orElse(null);
         if (libraries == null) {
             return List.of();
         }
@@ -52,8 +47,7 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     }
 
     private Long loadInstalledAppIdOrNull(File appManifestFile) {
-        RegistryObject registryObject =
-                RegistryParser.parse(RuntimeExceptionFiles.readAllLines(appManifestFile.toPath()));
+        RegistryObject registryObject = SteamRegistry.getInstance().readVdf(appManifestFile.toPath());
         RegistryObject appState = registryObject.getObjectValueAsObject("AppState");
         boolean fullyInstalled = appState != null
                 && appState.pathExists("StateFlags")
