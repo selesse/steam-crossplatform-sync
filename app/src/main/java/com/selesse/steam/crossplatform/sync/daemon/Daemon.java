@@ -37,8 +37,8 @@ public class Daemon implements Runnable {
     private void initializeDaemon() {
         LOGGER.info("Initializing game monitor daemon");
         try (ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2)) {
-            int period = 1;
-            TimeUnit timeUnitFrequency = TimeUnit.MINUTES;
+            int period = 30;
+            TimeUnit timeUnitFrequency = TimeUnit.SECONDS;
             if (fast) {
                 period = 5;
                 timeUnitFrequency = TimeUnit.SECONDS;
