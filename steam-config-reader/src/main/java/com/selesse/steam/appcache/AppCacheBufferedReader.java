@@ -1,8 +1,6 @@
 package com.selesse.steam.appcache;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,6 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,23 +93,23 @@ public class AppCacheBufferedReader {
 
     private App parseAppEntry(int appId, int size, byte[] entryBytes, boolean parseSha1Binary, StringCache stringCache)
             throws IOException {
-        InputStream entryStream = new ByteArrayInputStream(entryBytes);
-        int infoState = parse32Int(entryStream);
-        int lastUpdated = parse32Int(entryStream);
-        long picsToken = parse64Long(entryStream);
-        byte[] sha1 = getSha1(entryStream);
-        int changeNumber = parse32Int(entryStream);
+        EntryCursor cursor = new EntryCursor(entryBytes);
+        int infoState = cursor.readInt32();
+        int lastUpdated = cursor.readInt32();
+        long picsToken = cursor.readInt64();
+        byte[] sha1 = cursor.readSha1();
+        int changeNumber = cursor.readInt32();
         byte[] sha1Binary = null;
         if (parseSha1Binary) {
-            sha1Binary = getSha1(entryStream);
+            sha1Binary = cursor.readSha1();
         }
 
-        byte b = parseOneByte(entryStream);
+        byte b = cursor.readByte();
         if (b != BEGIN_OBJECT) {
             throw new IllegalStateException("Expected BEGIN_OBJECT for appId=" + appId + " but got " + b);
         }
-        VdfObject object = parseVdfObject(entryStream, stringCache);
-        b = parseOneByte(entryStream);
+        VdfObject object = parseVdfObject(cursor, stringCache);
+        b = cursor.readByte();
         if (b != END_OBJECT) {
             throw new IllegalStateException("Expected END_OBJECT for appId=" + appId + " but got " + b);
         }
@@ -118,27 +117,27 @@ public class AppCacheBufferedReader {
         return new App(appId, size, infoState, lastUpdated, picsToken, sha1, changeNumber, sha1Binary, object);
     }
 
-    private VdfObject parseVdfObject(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
+    private VdfObject parseVdfObject(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
         VdfObject vdfObject = new VdfObject(keyName);
 
         byte nextByte;
-        while ((nextByte = parseOneByte(inputStream)) != END_OBJECT) {
+        while ((nextByte = cursor.readByte()) != END_OBJECT) {
             if (nextByte == BEGIN_OBJECT) {
-                VdfObject nestedObject = parseVdfObject(inputStream, stringCache);
+                VdfObject nestedObject = parseVdfObject(cursor, stringCache);
                 vdfObject.add(nestedObject);
             } else if (nextByte == STRING) {
-                vdfObject.add(parseStringValue(inputStream, stringCache));
+                vdfObject.add(parseStringValue(cursor, stringCache));
             } else if (nextByte == INT_32) {
-                vdfObject.add(parseIntValue(inputStream, stringCache));
+                vdfObject.add(parseIntValue(cursor, stringCache));
             } else if (nextByte == FLOAT_32) {
-                vdfObject.add(parseFloatValue(inputStream, stringCache));
+                vdfObject.add(parseFloatValue(cursor, stringCache));
             } else if (nextByte == INT_64) {
-                vdfObject.add(parseLongValue(inputStream, stringCache));
+                vdfObject.add(parseLongValue(cursor, stringCache));
             } else if (nextByte == POINTER || nextByte == COLOR) {
-                vdfObject.add(parseIntValue(inputStream, stringCache));
+                vdfObject.add(parseIntValue(cursor, stringCache));
             } else if (nextByte == WIDESTRING) {
-                vdfObject.add(parseWideStringValue(inputStream, stringCache));
+                vdfObject.add(parseWideStringValue(cursor, stringCache));
             } else {
                 throw new IllegalStateException(
                         "Unhandled parsing for byte while parsing key=" + keyName + " => " + nextByte);
@@ -148,69 +147,43 @@ public class AppCacheBufferedReader {
         return vdfObject;
     }
 
-    private String readKeyName(InputStream inputStream, StringCache stringCache) throws IOException {
+    private String readKeyName(EntryCursor cursor, StringCache stringCache) throws IOException {
         if (stringCache == null) {
-            return new String(getBytes(inputStream), StandardCharsets.UTF_8);
+            return cursor.readCString();
         } else {
-            int index = parse32Int(inputStream);
+            int index = cursor.readInt32();
             return stringCache.get(index);
         }
     }
 
-    private byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream currentData = new ByteArrayOutputStream();
-        byte nextByte = parseOneByte(inputStream);
-        while (nextByte < BEGIN_OBJECT || nextByte > END_OBJECT) {
-            currentData.write(nextByte);
-            nextByte = parseOneByte(inputStream);
-        }
-        return currentData.toByteArray();
-    }
-
-    private VdfInteger parseIntValue(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
-        int value = parse32Int(inputStream);
+    private VdfInteger parseIntValue(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
+        int value = cursor.readInt32();
         return new VdfInteger(keyName, value);
     }
 
-    private VdfFloat parseFloatValue(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
-        byte[] bytes = inputStream.readNBytes(4);
-        float value = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+    private VdfFloat parseFloatValue(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
+        float value = cursor.readFloat32();
         return new VdfFloat(keyName, value);
     }
 
-    private VdfLong parseLongValue(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
-        long value = parse64Long(inputStream);
+    private VdfLong parseLongValue(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
+        long value = cursor.readInt64();
         return new VdfLong(keyName, value);
     }
 
-    private VdfString parseStringValue(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
-        String value = new String(getBytes(inputStream), StandardCharsets.UTF_8);
+    private VdfString parseStringValue(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
+        String value = cursor.readCString();
         return new VdfString(keyName, value);
     }
 
-    private VdfString parseWideStringValue(InputStream inputStream, StringCache stringCache) throws IOException {
-        String keyName = readKeyName(inputStream, stringCache);
-        byte[] bytes = getWideBytes(inputStream);
-        String value = new String(bytes, StandardCharsets.UTF_16LE);
+    private VdfString parseWideStringValue(EntryCursor cursor, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(cursor, stringCache);
+        String value = cursor.readWideString();
         return new VdfString(keyName, value);
-    }
-
-    private byte[] getWideBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        while (true) {
-            byte[] codeUnit = inputStream.readNBytes(2);
-            if (codeUnit.length < 2) {
-                throw new IOException("Unexpected end of stream while reading a wide string");
-            }
-            if (codeUnit[0] == 0 && codeUnit[1] == 0) {
-                return buffer.toByteArray();
-            }
-            buffer.write(codeUnit);
-        }
     }
 
     private String readFourBytes(InputStream inputStream) throws IOException {
@@ -220,10 +193,6 @@ public class AppCacheBufferedReader {
             magicByteValues.add(Integer.toHexString(magicByte));
         }
         return String.join(" ", magicByteValues);
-    }
-
-    private byte[] getSha1(InputStream inputStream) throws IOException {
-        return inputStream.readNBytes(20);
     }
 
     private int parse32Int(InputStream inputStream) throws IOException {
@@ -236,11 +205,82 @@ public class AppCacheBufferedReader {
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getLong();
     }
 
-    private byte parseOneByte(InputStream inputStream) throws IOException {
-        int value = inputStream.read();
-        if (value == -1) {
-            throw new EOFException("Unexpected end of stream");
+    // Indexes directly into the already-buffered entry bytes instead of wrapping them in an
+    // InputStream: this is called once per field (and once per byte of every string) across every
+    // app in the cache, so allocation-free access here is what keeps a full parse fast.
+    private static final class EntryCursor {
+        private final byte[] data;
+        private int pos;
+
+        EntryCursor(byte[] data) {
+            this.data = data;
         }
-        return (byte) value;
+
+        byte readByte() throws EOFException {
+            if (pos >= data.length) {
+                throw new EOFException("Unexpected end of stream");
+            }
+            return data[pos++];
+        }
+
+        int readInt32() throws EOFException {
+            requireRemaining(4);
+            int value = (data[pos] & 0xFF)
+                    | ((data[pos + 1] & 0xFF) << 8)
+                    | ((data[pos + 2] & 0xFF) << 16)
+                    | ((data[pos + 3] & 0xFF) << 24);
+            pos += 4;
+            return value;
+        }
+
+        long readInt64() throws EOFException {
+            requireRemaining(8);
+            long value = 0;
+            for (int i = 0; i < 8; i++) {
+                value |= (data[pos + i] & 0xFFL) << (8 * i);
+            }
+            pos += 8;
+            return value;
+        }
+
+        float readFloat32() throws EOFException {
+            return Float.intBitsToFloat(readInt32());
+        }
+
+        byte[] readSha1() throws EOFException {
+            requireRemaining(20);
+            byte[] result = Arrays.copyOfRange(data, pos, pos + 20);
+            pos += 20;
+            return result;
+        }
+
+        String readCString() throws EOFException {
+            int start = pos;
+            byte b = readByte();
+            while (b < BEGIN_OBJECT || b > END_OBJECT) {
+                b = readByte();
+            }
+            return new String(data, start, pos - start - 1, StandardCharsets.UTF_8);
+        }
+
+        String readWideString() throws EOFException {
+            int start = pos;
+            while (true) {
+                requireRemaining(2);
+                byte lo = data[pos];
+                byte hi = data[pos + 1];
+                pos += 2;
+                if (lo == 0 && hi == 0) {
+                    break;
+                }
+            }
+            return new String(data, start, pos - start - 2, StandardCharsets.UTF_16LE);
+        }
+
+        private void requireRemaining(int length) throws EOFException {
+            if (pos + length > data.length) {
+                throw new EOFException("Unexpected end of stream");
+            }
+        }
     }
 }
