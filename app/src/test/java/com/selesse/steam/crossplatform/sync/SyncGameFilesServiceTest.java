@@ -3,6 +3,7 @@ package com.selesse.steam.crossplatform.sync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import com.selesse.files.FileVisitors;
@@ -15,7 +16,9 @@ import org.junit.Test;
 public class SyncGameFilesServiceTest {
     @Test
     public void canHandleGameWithGlob() throws IOException {
-        SteamCrossplatformSyncContext context = new SteamCrossplatformSyncContext();
+        SteamCrossplatformSyncContext context = mock(SteamCrossplatformSyncContext.class);
+        doReturn(null).when(context).getConfig();
+        doReturn(null).when(context).getSteamAccountIdIfPresent();
         SyncGameFilesService syncGameFilesService = new SyncGameFilesService(context);
 
         Path tempLocalPath = Files.createTempDirectory("sync-test-local");
