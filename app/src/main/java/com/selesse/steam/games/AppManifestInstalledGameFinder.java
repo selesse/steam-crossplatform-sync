@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
-    private static final String FULLY_INSTALLED_STATE_FLAGS = "4";
+    // StateFlags is a bitmask, not an enum - bit 4 (Fully Installed) can be combined with
+    // other bits (e.g. 6 = Fully Installed | Update Required), so this can't be an equality check.
+    private static final int FULLY_INSTALLED_BIT = 4;
 
     @Override
     public List<Long> fetch() {
@@ -56,10 +58,15 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
         RegistryObject appState = registryStore.getObjectValueAsObject("AppState");
         boolean fullyInstalled = appState != null
                 && appState.pathExists("StateFlags")
-                && appState.getObjectValueAsString("StateFlags").getValue().equals(FULLY_INSTALLED_STATE_FLAGS);
+                && isFullyInstalled(
+                        appState.getObjectValueAsString("StateFlags").getValue());
         if (!fullyInstalled) {
             return null;
         }
         return Long.valueOf(appState.getObjectValueAsString("appid").getValue());
+    }
+
+    static boolean isFullyInstalled(String stateFlags) {
+        return (Integer.parseInt(stateFlags) & FULLY_INSTALLED_BIT) != 0;
     }
 }
