@@ -1,8 +1,12 @@
 package com.selesse.steam.games;
 
+import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamAppLoader;
+import com.selesse.steam.appcache.App;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class InstalledGameFinderService {
     private final List<InstalledGameFetcher> finders;
@@ -13,7 +17,9 @@ public class InstalledGameFinderService {
 
     public List<Long> find() {
         for (InstalledGameFetcher finder : finders) {
-            var ids = finder.fetch().stream().filter(this::isAGame).toList();
+            List<Long> candidateIds = finder.fetch();
+            Map<Long, App> apps = new AppCacheReader().loadSome(Set.copyOf(candidateIds));
+            var ids = candidateIds.stream().filter(id -> isAGame(apps.get(id))).toList();
             if (!ids.isEmpty()) {
                 return ids;
             }
@@ -21,7 +27,13 @@ public class InstalledGameFinderService {
         throw new IllegalStateException("Error - could not find any installed games");
     }
 
-    private boolean isAGame(Long gameId) {
-        return SteamAppLoader.load(gameId).getType() == AppType.GAME;
+    // app is null when its manifest exists but it isn't in the app cache (e.g. not yet synced) -
+    // treat that as "not a game" rather than failing the whole scan over one entry.
+    private boolean isAGame(App app) {
+        if (app == null) {
+            return false;
+        }
+        var registryObject = SteamAppLoader.convert(app.vdfObject());
+        return AppType.fromString(registryObject.getObjectValueAsString("common/type")) == AppType.GAME;
     }
 }

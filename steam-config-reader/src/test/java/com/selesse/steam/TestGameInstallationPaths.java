@@ -40,7 +40,7 @@ public class TestGameInstallationPaths {
 
     @Test
     public void testGame() {
-        steamApp = SteamAppLoader.findByName(gameTestCase.name());
+        steamApp = SteamAppLoader.findByName(TestAppCache.PATH, gameTestCase.name());
         SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
@@ -85,7 +85,6 @@ public class TestGameInstallationPaths {
 
     @Parameterized.Parameters(name = "#{0}")
     public static Collection<GameTestCase> data() throws IOException {
-        TestAppCache.setup();
         return GameTestCase.load();
     }
 }

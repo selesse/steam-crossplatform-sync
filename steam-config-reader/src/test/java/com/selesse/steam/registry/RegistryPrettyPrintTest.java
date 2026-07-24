@@ -21,9 +21,8 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void canPrettyPrintInscryptionBasedOnAppCache() {
-        TestAppCache.setup();
-        RegistryStore registryStore =
-                SteamAppLoader.load(TestGames.INSCRYPTION.getGameId()).getRegistryStore();
+        RegistryStore registryStore = SteamAppLoader.load(TestAppCache.PATH, TestGames.INSCRYPTION.getGameId())
+                .getRegistryStore();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryStore);
 
         String expected = String.join("\n", TestGames.INSCRYPTION.registryFileContents()) + "\n";
@@ -44,9 +43,8 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void prettyPrinting_pathOfExile_handlesKeysWithSlashesInThem() {
-        TestAppCache.setup();
-        RegistryStore registryStore =
-                SteamAppLoader.load(TestGames.PATH_OF_EXILE.getGameId()).getRegistryStore();
+        RegistryStore registryStore = SteamAppLoader.load(TestAppCache.PATH, TestGames.PATH_OF_EXILE.getGameId())
+                .getRegistryStore();
         String prettyPrintFromAppInfo = RegistryPrettyPrint.prettyPrint(registryStore);
 
         String expected = String.join("\n", TestGames.PATH_OF_EXILE.registryFileContentsFromFile()) + "\n";

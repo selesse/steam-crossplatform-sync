@@ -33,7 +33,6 @@ public record GameTestCase(String name, List<String> windows, List<String> mac, 
     }
 
     public static List<GameTestCase> load() throws IOException {
-        TestAppCache.setup();
         File source = Resources.getResource("game-installation-paths.yml").toFile();
         ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
         var testCases = objectMapper.readValue(source, GameTestCases.class);

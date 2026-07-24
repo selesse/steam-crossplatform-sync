@@ -2,43 +2,31 @@ package com.selesse.steam;
 
 import com.selesse.steam.appcache.*;
 import com.selesse.steam.registry.RegistryNotFoundException;
+import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
-import java.util.Collection;
+import java.nio.file.Path;
 
 public class SteamAppLoader {
-    private static AppCache appCache;
-
-    public static void primeAppCache(AppCache appCache) {
-        SteamAppLoader.appCache = appCache;
+    public static SteamApp load(long gameId) {
+        return load(SteamRegistry.getInstance().getAppCachePath(), gameId);
     }
 
-    public static SteamApp load(Long gameId) {
-        App rawApp = loadAppCache().getById(gameId);
-        if (rawApp == null) {
-            throw new RegistryNotFoundException();
-        }
-
-        RegistryObject rootRegistry = convert(rawApp.vdfObject());
-        RegistryStore registryStore = new RegistryStore(rootRegistry);
-
-        return new SteamApp(registryStore);
+    public static SteamApp load(Path appCachePath, long gameId) {
+        App rawApp = new AppCacheReader().loadOne(appCachePath, gameId).orElseThrow(RegistryNotFoundException::new);
+        return toSteamApp(rawApp);
     }
 
     public static SteamApp findByName(String name) {
-        Collection<App> apps = loadAppCache().getApps();
+        return findByName(SteamRegistry.getInstance().getAppCachePath(), name);
+    }
 
-        RegistryObject registryObject = apps.stream()
-                .map(steamApp -> convert(steamApp.vdfObject()))
-                .filter(registry -> registry.pathExists("common/name")
-                        && registry.getObjectValueAsString("common/name")
-                                .getValue()
-                                .equals(name))
-                .findFirst()
+    public static SteamApp findByName(Path appCachePath, String name) {
+        App rawApp = new AppCacheReader()
+                .findFirst(appCachePath, app -> nameMatches(app, name))
                 .orElseThrow(() -> new RuntimeException("Could not find app named " + name));
-
-        return new SteamApp(new RegistryStore(registryObject));
+        return toSteamApp(rawApp);
     }
 
     public static RegistryObject convert(VdfObject object) {
@@ -60,10 +48,16 @@ public class SteamAppLoader {
         return registryObject;
     }
 
-    private static AppCache loadAppCache() {
-        if (appCache == null) {
-            appCache = new AppCacheReader().load();
-        }
-        return appCache;
+    private static boolean nameMatches(App app, String name) {
+        RegistryObject registryObject = convert(app.vdfObject());
+        return registryObject.pathExists("common/name")
+                && registryObject
+                        .getObjectValueAsString("common/name")
+                        .getValue()
+                        .equals(name);
+    }
+
+    private static SteamApp toSteamApp(App rawApp) {
+        return new SteamApp(new RegistryStore(convert(rawApp.vdfObject())));
     }
 }
