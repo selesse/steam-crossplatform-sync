@@ -3,25 +3,18 @@ package com.selesse.steam.registry;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import java.nio.file.Path;
-import java.util.List;
 
-public abstract class SteamRegistry {
+public class SteamRegistry {
     public static SteamRegistry getInstance() {
-        return switch (OperatingSystems.get()) {
-            case MAC -> new MacSteamRegistry();
-            case WINDOWS -> new WindowsSteamRegistry();
-            case LINUX, STEAM_OS -> new LinuxSteamRegistry();
-        };
+        return new SteamRegistry();
     }
-
-    public abstract List<Long> getInstalledAppIds();
 
     public Path getAppCachePath() {
         return Path.of(getBasePath(), "appcache/appinfo.vdf");
     }
 
-    public Path getLibraryCachePath() {
-        return Path.of(getBasePath(), "appcache/librarycache");
+    public Path getSteamAppsPath() {
+        return Path.of(getBasePath(), "steamapps");
     }
 
     private String getBasePath() {

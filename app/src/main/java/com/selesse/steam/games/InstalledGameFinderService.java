@@ -2,15 +2,13 @@ package com.selesse.steam.games;
 
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamAppLoader;
-import com.selesse.steam.registry.SteamRegistry;
 import java.util.List;
 
 public class InstalledGameFinderService {
     private final List<InstalledGameFetcher> finders;
 
     public InstalledGameFinderService() {
-        this.finders = List.of(new LibraryCacheInstalledGameFinder(), () -> SteamRegistry.getInstance()
-                .getInstalledAppIds());
+        this.finders = List.of(new AppManifestInstalledGameFinder());
     }
 
     public List<Long> find() {
