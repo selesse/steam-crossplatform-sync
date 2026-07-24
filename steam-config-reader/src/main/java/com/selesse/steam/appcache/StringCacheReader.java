@@ -1,15 +1,9 @@
 package com.selesse.steam.appcache;
 
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StringCacheReader {
     private final Path path;
@@ -23,49 +17,36 @@ public class StringCacheReader {
     public StringCache read() throws IOException {
         StringCache stringCache = new StringCache();
 
+        // The string table is read in one go rather than byte-by-byte through RandomAccessFile:
+        // it's scanned in full regardless (every string in it gets parsed), so buffering it
+        // ourselves and scanning the array directly avoids one native read call per byte.
+        byte[] data;
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(path.toFile(), "r")) {
             randomAccessFile.seek(offset);
-            int numberOfStrings = parse32Int(randomAccessFile);
-
-            List<byte[]> byteArrays = new ArrayList<>();
-            boolean eofReached = false;
-
-            while (!eofReached) {
-                try {
-                    byte[] bytes = readBytesUntilZero(randomAccessFile);
-                    byteArrays.add(bytes);
-                } catch (EOFException e) {
-                    eofReached = true;
-                }
-            }
-
-            byteArrays.stream().map(x -> new String(x, StandardCharsets.UTF_8)).forEach(stringCache::append);
-            if (stringCache.size() != numberOfStrings) {
-                throw new RuntimeException("Got " + stringCache.size() + " strings, but expected " + numberOfStrings);
-            }
-            return stringCache;
-        }
-    }
-
-    private int parse32Int(RandomAccessFile randomAccessFile) throws IOException {
-        byte[] bytes = new byte[4];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = randomAccessFile.readByte();
-        }
-        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-    }
-
-    private static byte[] readBytesUntilZero(RandomAccessFile randomAccessFile) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int currentByte;
-
-        while ((currentByte = randomAccessFile.read()) != -1) {
-            if (currentByte == (byte) 0) {
-                return buffer.toByteArray();
-            }
-            buffer.write(currentByte);
+            data = new byte[(int) (randomAccessFile.length() - offset)];
+            randomAccessFile.readFully(data);
         }
 
-        throw new EOFException();
+        int numberOfStrings =
+                (data[0] & 0xFF) | ((data[1] & 0xFF) << 8) | ((data[2] & 0xFF) << 16) | ((data[3] & 0xFF) << 24);
+
+        int pos = 4;
+        while (pos < data.length) {
+            int start = pos;
+            while (pos < data.length && data[pos] != 0) {
+                pos++;
+            }
+            if (pos >= data.length) {
+                // Trailing bytes with no terminator - an incomplete final entry, discard it.
+                break;
+            }
+            stringCache.append(new String(data, start, pos - start, StandardCharsets.UTF_8));
+            pos++;
+        }
+
+        if (stringCache.size() != numberOfStrings) {
+            throw new RuntimeException("Got " + stringCache.size() + " strings, but expected " + numberOfStrings);
+        }
+        return stringCache;
     }
 }
