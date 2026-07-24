@@ -13,11 +13,15 @@ steam-crossplatform-sync performs the following tasks:
 
 ### Game monitoring
 
-In order to detect game launches/closes, the app periodically checks what Steam
-reports is currently running via the Steam registry (`RunningAppID`). On
-Windows, this is through querying the registry. On OS X/Linux, this is read
-through the registry file (`registry.vdf`) located in Steam's installation
-directory.
+In order to detect game launches/closes, the app periodically checks whether
+Steam's game overlay process is running. When a game launches, Steam spawns an
+overlay process (`GameOverlayUI64.exe` on Windows, `gameoverlayui` on OS
+X/Linux) with the running game's app ID baked into its arguments. On Windows
+we get that ID by querying the process list with `wmic`; on OS X/Linux we read
+it straight off the overlay process's arguments. See
+[GameOverlayProcessLocator][GameOverlayProcessLocator] for the gory details.
+
+[GameOverlayProcessLocator]: https://github.com/selesse/steam-crossplatform-sync/blob/main/steam-config-reader/src/main/java/com/selesse/steam/processes/GameOverlayProcessLocator.java
 
 ### Syncing games
 
@@ -42,22 +46,16 @@ application. It can be broken down into the following pieces:
 
 #### Figuring out what games are part of your library
 
-It's surprisingly hard to figure out what games you have installed. The
-[following strategies][InstalledGameFinderService] are used (in descending
-order of preference and accuracy):
+It's surprisingly hard to figure out what games you have installed.
+[AppManifestInstalledGameFinder][AppManifestInstalledGameFinder] reads the
+same files Steam itself uses to track what's installed:
+`steamapps/libraryfolders.vdf` lists every library folder you've set up
+(including external drives), and each one has an `appmanifest_<id>.acf` file
+per installed game, with a `StateFlags` of `4` meaning "fully installed."
+This file format is identical across Windows/Mac/Linux, so the same code
+path works everywhere.
 
-1. Query the public profile of the currently logged in Steam user's ID for the
-   list of games. This is the most accurate method, but relies on having a
-   public profile.
-2. Look through the local library cache and see which games are cached. This
-   includes all games that the user has, but also includes some games that the
-   user doesn't.
-3. Read Steam's configuration. In my experience, this is wildly inaccurate and
-   OS-specific. Figuring out which games are part of your library should be
-   OS-agnostic (so that you can generate your game list - once - on any
-   computer).
-
-[InstalledGameFinderService]: https://github.com/selesse/steam-crossplatform-sync/blob/master/app/src/main/java/com/selesse/steam/games/InstalledGameFinderService.java
+[AppManifestInstalledGameFinder]: https://github.com/selesse/steam-crossplatform-sync/blob/main/app/src/main/java/com/selesse/steam/games/AppManifestInstalledGameFinder.java
 
 #### Figuring out what a game's configuration file is
 
@@ -78,32 +76,13 @@ configuration file:
 ...
 ```
 
-There are [three ways][GameRegistries] of loading this information, in
-descending order of preference (all strategies are tried until a config is
-found):
+In Steam's installation directory, there exists a file, `appcache/appinfo.vdf`,
+that stores a cache of apps in a binary format, which includes the VDF config
+for every game. [AppCacheBufferedReader][AppCacheBufferedReader] is
+responsible for loading the cache, and it's assumed that all games in your
+library are included in this cache.
 
-1. In Steam's installation directory, there exists a file, `appcache/appinfo.vdf`
-   that stores a cache of apps in a binary format, which includes the VDF
-   config for every game. [AppCacheBufferedReader][AppCacheBufferedReader] is
-   responsible for loading the cache, and it's assumed that all games in your
-   library are included in this cache.
-2. Valve provides a program, `steamcmd`, that can theoretically print a
-   game/app's VDF config. Unfortunately, it's buggy. When you try to call it
-   programmatically, you need to call `app_info_print` twice in a row in order
-   for it to actually print the app info. Additionally, on Windows, due to
-   a strange buffering implementation in steamcmd, it's difficult to
-   programatically read the output the second time `app_info_print` is called.
-   It's specifically for Windows that the next option was created.
-3. The remote game registry loader is designed for Windows and cases where the
-   app info cache can't be read. It relies on `remoteAppInfoUrl` being set in
-   the configuration. When this is set, it sends a HTTP request to a server
-   that's running steam-cross-platform sync in server mode. The server (Linux
-   or OS X) should be able to successfully run steamcmd and return the output.
-   For these servers, `app_info_print` is called twice in a row. Note: if this
-   option isn't set through the configuration, it won't be attempted.
-
-[GameRegistries]: https://github.com/selesse/steam-crossplatform-sync/blob/master/steam-config-reader/src/main/java/com/selesse/steam/GameRegistries.java
-[AppCacheBufferedReader]: https://github.com/selesse/steam-crossplatform-sync/blob/master/steam-config-reader/src/main/java/com/selesse/steam/appcache/AppCacheBufferedReader.java
+[AppCacheBufferedReader]: https://github.com/selesse/steam-crossplatform-sync/blob/main/steam-config-reader/src/main/java/com/selesse/steam/appcache/AppCacheBufferedReader.java
 
 #### Parsing the configuration file to figure out where the files are saved
 
