@@ -5,7 +5,7 @@ public record App(
         int size,
         int infoState,
         int lastUpdated,
-        int picsToken,
+        long picsToken,
         byte[] sha1,
         int changeNumber,
         byte[] sha1Binary,

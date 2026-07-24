@@ -5,7 +5,6 @@ import com.selesse.steam.appcache.AppCacheBufferedReader;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.SteamRegistry;
 import java.nio.file.Path;
-import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,16 +16,10 @@ public class AppCacheReader {
     }
 
     public AppCache load(Path path) {
-        AppCacheBufferedReader appCacheBufferedReader = new AppCacheBufferedReader(path);
-
-        try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-            Future<AppCache> submit = executorService.submit(appCacheBufferedReader);
-            return submit.get(4, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.info("Interrupted while trying to read app cache", e);
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
+        try {
+            return new AppCacheBufferedReader(path).read();
+        } catch (Exception e) {
+            LOGGER.info("Unable to read app cache", e);
             throw new RegistryNotFoundException();
         }
     }

@@ -1,17 +1,23 @@
 package com.selesse.steam.appcache;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class AppCacheBufferedReader implements Callable<AppCache> {
+public class AppCacheBufferedReader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheBufferedReader.class);
+
     private static final Byte BEGIN_OBJECT = 0;
     private static final Byte STRING = 1;
     private static final Byte INT_32 = 2;
@@ -23,78 +29,119 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
     private static final Byte END_OBJECT = 8;
     private static final List<Byte> SPECIAL_BYTES =
             List.of(BEGIN_OBJECT, STRING, INT_32, FLOAT_32, POINTER, WIDESTRING, COLOR, INT_64, END_OBJECT);
+    private static final String VERSION_MARKER = "1 0 0 0";
     private final Path path;
 
     public AppCacheBufferedReader(Path path) {
         this.path = path;
     }
 
-    @Override
-    public AppCache call() throws Exception {
+    public AppCache read() throws IOException {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             String firstFourBytes = readFourBytes(bufferedInputStream);
             AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
             boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
-            String nextByte = readFourBytes(bufferedInputStream);
-            assert nextByte.equals("1 0 0 0");
+            String versionMarker = readFourBytes(bufferedInputStream);
+            if (!versionMarker.equals(VERSION_MARKER)) {
+                throw new IllegalStateException(
+                        "Expected version marker '" + VERSION_MARKER + "' but got '" + versionMarker + "'");
+            }
             AppCache appCache = new AppCache();
             StringCache stringCache = null;
             if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
-                long offsetToStringTable = parse64Int(bufferedInputStream);
+                long offsetToStringTable = parse64Long(bufferedInputStream);
                 stringCache = new StringCacheReader(path, offsetToStringTable).read();
             }
-            int appId;
-            while ((appId = parse32Int(bufferedInputStream)) != 0) {
-                int size = parse32Int(bufferedInputStream);
-                int infoState = parse32Int(bufferedInputStream);
-                int lastUpdated = parse32Int(bufferedInputStream);
-                int picsToken = parse64Int(bufferedInputStream);
-                byte[] sha1 = getSha1(bufferedInputStream);
-                int changeNumber = parse32Int(bufferedInputStream);
-                byte[] sha1Binary = null;
-                if (parseSha1Binary) {
-                    sha1Binary = getSha1(bufferedInputStream);
-                }
 
-                byte b = parseOneByte(bufferedInputStream);
-                assert b == BEGIN_OBJECT;
-                VdfObject object = parseVdfObject(bufferedInputStream, stringCache);
-                b = parseOneByte(bufferedInputStream);
-                assert b == END_OBJECT;
-
-                appCache.add(new App(
-                        appId, size, infoState, lastUpdated, picsToken, sha1, changeNumber, sha1Binary, object));
-            }
+            readAppEntries(bufferedInputStream, parseSha1Binary, stringCache, appCache);
 
             return appCache;
         }
     }
 
-    private VdfObject parseVdfObject(BufferedInputStream bufferedInputStream, StringCache stringCache)
+    private void readAppEntries(
+            BufferedInputStream bufferedInputStream,
+            boolean parseSha1Binary,
+            StringCache stringCache,
+            AppCache appCache)
             throws IOException {
-        String keyName;
-        if (stringCache == null) {
-            List<Byte> currentData = getBytes(bufferedInputStream);
-            keyName = new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
-        } else {
-            int index = parse32Int(bufferedInputStream);
-            keyName = stringCache.get(index);
+        while (true) {
+            int appId;
+            int size;
+            byte[] entryBytes;
+            try {
+                appId = parse32Int(bufferedInputStream);
+                if (appId == 0) {
+                    return;
+                }
+                size = parse32Int(bufferedInputStream);
+                entryBytes = bufferedInputStream.readNBytes(size);
+            } catch (Exception e) {
+                LOGGER.warn(
+                        "Stopping app cache read after failing to locate the next entry boundary,"
+                                + " keeping the {} app(s) parsed so far",
+                        appCache.size(),
+                        e);
+                return;
+            }
+
+            try {
+                appCache.add(parseAppEntry(appId, size, entryBytes, parseSha1Binary, stringCache));
+            } catch (Exception e) {
+                LOGGER.warn("Skipping app cache entry for appId={} because it failed to parse", appId, e);
+            }
         }
+    }
+
+    private App parseAppEntry(int appId, int size, byte[] entryBytes, boolean parseSha1Binary, StringCache stringCache)
+            throws IOException {
+        InputStream entryStream = new ByteArrayInputStream(entryBytes);
+        int infoState = parse32Int(entryStream);
+        int lastUpdated = parse32Int(entryStream);
+        long picsToken = parse64Long(entryStream);
+        byte[] sha1 = getSha1(entryStream);
+        int changeNumber = parse32Int(entryStream);
+        byte[] sha1Binary = null;
+        if (parseSha1Binary) {
+            sha1Binary = getSha1(entryStream);
+        }
+
+        byte b = parseOneByte(entryStream);
+        if (b != BEGIN_OBJECT) {
+            throw new IllegalStateException("Expected BEGIN_OBJECT for appId=" + appId + " but got " + b);
+        }
+        VdfObject object = parseVdfObject(entryStream, stringCache);
+        b = parseOneByte(entryStream);
+        if (b != END_OBJECT) {
+            throw new IllegalStateException("Expected END_OBJECT for appId=" + appId + " but got " + b);
+        }
+
+        return new App(appId, size, infoState, lastUpdated, picsToken, sha1, changeNumber, sha1Binary, object);
+    }
+
+    private VdfObject parseVdfObject(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
         VdfObject vdfObject = new VdfObject(keyName);
 
         byte nextByte;
-        while ((nextByte = parseOneByte(bufferedInputStream)) != END_OBJECT) {
+        while ((nextByte = parseOneByte(inputStream)) != END_OBJECT) {
             if (nextByte == BEGIN_OBJECT) {
-                VdfObject nestedObject = parseVdfObject(bufferedInputStream, stringCache);
+                VdfObject nestedObject = parseVdfObject(inputStream, stringCache);
                 vdfObject.add(nestedObject);
             } else if (nextByte == STRING) {
-                VdfString vdfString = parseStringValue(bufferedInputStream, stringCache);
-                vdfObject.add(vdfString);
+                vdfObject.add(parseStringValue(inputStream, stringCache));
             } else if (nextByte == INT_32) {
-                VdfInteger vdfIntValue = parseIntValue(bufferedInputStream, stringCache);
-                vdfObject.add(vdfIntValue);
+                vdfObject.add(parseIntValue(inputStream, stringCache));
+            } else if (nextByte == FLOAT_32) {
+                vdfObject.add(parseFloatValue(inputStream, stringCache));
+            } else if (nextByte == INT_64) {
+                vdfObject.add(parseLongValue(inputStream, stringCache));
+            } else if (nextByte == POINTER || nextByte == COLOR) {
+                vdfObject.add(parseIntValue(inputStream, stringCache));
+            } else if (nextByte == WIDESTRING) {
+                vdfObject.add(parseWideStringValue(inputStream, stringCache));
             } else {
-                throw new RuntimeException(
+                throw new IllegalStateException(
                         "Unhandled parsing for byte while parsing key=" + keyName + " => " + nextByte);
             }
         }
@@ -102,50 +149,75 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
         return vdfObject;
     }
 
-    private List<Byte> getBytes(BufferedInputStream bufferedInputStream) throws IOException {
+    private String readKeyName(InputStream inputStream, StringCache stringCache) throws IOException {
+        if (stringCache == null) {
+            List<Byte> currentData = getBytes(inputStream);
+            return new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
+        } else {
+            int index = parse32Int(inputStream);
+            return stringCache.get(index);
+        }
+    }
+
+    private List<Byte> getBytes(InputStream inputStream) throws IOException {
         List<Byte> currentData = new ArrayList<>();
-        byte nextByte = parseOneByte(bufferedInputStream);
+        byte nextByte = parseOneByte(inputStream);
         while (!SPECIAL_BYTES.contains(nextByte)) {
             currentData.add(nextByte);
-            nextByte = parseOneByte(bufferedInputStream);
+            nextByte = parseOneByte(inputStream);
         }
         return currentData;
     }
 
-    private VdfInteger parseIntValue(BufferedInputStream bufferedInputStream, StringCache stringCache)
-            throws IOException {
-        if (stringCache == null) {
-            List<Byte> bytes = getBytes(bufferedInputStream);
-            String keyName = new String(byteListToByteArray(bytes));
-            int value = parse32Int(bufferedInputStream);
-            return new VdfInteger(keyName, value);
-        } else {
-            int stringKeyIndex = parse32Int(bufferedInputStream);
-            String keyName = stringCache.get(stringKeyIndex);
-            int value = parse32Int(bufferedInputStream);
-            return new VdfInteger(keyName, value);
+    private VdfInteger parseIntValue(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
+        int value = parse32Int(inputStream);
+        return new VdfInteger(keyName, value);
+    }
+
+    private VdfFloat parseFloatValue(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
+        byte[] bytes = inputStream.readNBytes(4);
+        float value = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        return new VdfFloat(keyName, value);
+    }
+
+    private VdfLong parseLongValue(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
+        long value = parse64Long(inputStream);
+        return new VdfLong(keyName, value);
+    }
+
+    private VdfString parseStringValue(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
+        List<Byte> bytes = getBytes(inputStream);
+        String value = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
+        return new VdfString(keyName, value);
+    }
+
+    private VdfString parseWideStringValue(InputStream inputStream, StringCache stringCache) throws IOException {
+        String keyName = readKeyName(inputStream, stringCache);
+        byte[] bytes = getWideBytes(inputStream);
+        String value = new String(bytes, StandardCharsets.UTF_16LE);
+        return new VdfString(keyName, value);
+    }
+
+    private byte[] getWideBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        while (true) {
+            byte[] codeUnit = inputStream.readNBytes(2);
+            if (codeUnit.length < 2) {
+                throw new IOException("Unexpected end of stream while reading a wide string");
+            }
+            if (codeUnit[0] == 0 && codeUnit[1] == 0) {
+                return buffer.toByteArray();
+            }
+            buffer.write(codeUnit);
         }
     }
 
-    private VdfString parseStringValue(BufferedInputStream bufferedInputStream, StringCache stringCache)
-            throws IOException {
-        if (stringCache == null) {
-            List<Byte> bytes = getBytes(bufferedInputStream);
-            String keyName = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
-            List<Byte> bytes1 = getBytes(bufferedInputStream);
-            String value = new String(byteListToByteArray(bytes1), StandardCharsets.UTF_8);
-            return new VdfString(keyName, value);
-        } else {
-            int stringKeyIndex = parse32Int(bufferedInputStream);
-            String keyName = stringCache.get(stringKeyIndex);
-            List<Byte> bytes = getBytes(bufferedInputStream);
-            String value = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
-            return new VdfString(keyName, value);
-        }
-    }
-
-    private String readFourBytes(BufferedInputStream bufferedInputStream) throws IOException {
-        byte[] magicBytes = bufferedInputStream.readNBytes(4);
+    private String readFourBytes(InputStream inputStream) throws IOException {
+        byte[] magicBytes = inputStream.readNBytes(4);
         List<String> magicByteValues = new ArrayList<>();
         for (byte magicByte : magicBytes) {
             magicByteValues.add(Integer.toHexString(magicByte));
@@ -153,8 +225,8 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
         return String.join(" ", magicByteValues);
     }
 
-    private byte[] getSha1(BufferedInputStream bufferedInputStream) throws IOException {
-        return bufferedInputStream.readNBytes(20);
+    private byte[] getSha1(InputStream inputStream) throws IOException {
+        return inputStream.readNBytes(20);
     }
 
     private byte[] byteListToByteArray(List<Byte> byteList) {
@@ -165,18 +237,18 @@ public class AppCacheBufferedReader implements Callable<AppCache> {
         return bytes;
     }
 
-    private int parse32Int(BufferedInputStream bufferedInputStream) throws IOException {
-        byte[] bytes = bufferedInputStream.readNBytes(4);
+    private int parse32Int(InputStream inputStream) throws IOException {
+        byte[] bytes = inputStream.readNBytes(4);
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    private int parse64Int(BufferedInputStream bufferedInputStream) throws IOException {
-        byte[] bytes = bufferedInputStream.readNBytes(8);
-        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    private long parse64Long(InputStream inputStream) throws IOException {
+        byte[] bytes = inputStream.readNBytes(8);
+        return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getLong();
     }
 
-    private byte parseOneByte(BufferedInputStream bufferedInputStream) throws IOException {
-        byte[] oneByte = bufferedInputStream.readNBytes(1);
+    private byte parseOneByte(InputStream inputStream) throws IOException {
+        byte[] oneByte = inputStream.readNBytes(1);
         return oneByte[0];
     }
 }

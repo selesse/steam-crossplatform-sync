@@ -76,7 +76,7 @@ public class AppCacheBufferedReaderTest {
 
     private AppCache loadAppCache(Path path) throws Exception {
         var appCacheBufferedReader = new AppCacheBufferedReader(path);
-        return appCacheBufferedReader.call();
+        return appCacheBufferedReader.read();
     }
 
     private static String byteArrayToHex(final byte[] hash) {

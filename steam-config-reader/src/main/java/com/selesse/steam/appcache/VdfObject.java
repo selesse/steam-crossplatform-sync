@@ -28,6 +28,14 @@ public class VdfObject {
         this.values.add(vdf);
     }
 
+    public void add(VdfFloat vdf) {
+        this.values.add(vdf);
+    }
+
+    public void add(VdfLong vdf) {
+        this.values.add(vdf);
+    }
+
     public List<Object> getValues() {
         return values;
     }
