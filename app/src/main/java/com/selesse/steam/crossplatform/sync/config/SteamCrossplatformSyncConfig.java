@@ -3,6 +3,8 @@ package com.selesse.steam.crossplatform.sync.config;
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 public interface SteamCrossplatformSyncConfig {
@@ -17,9 +19,7 @@ public interface SteamCrossplatformSyncConfig {
      * incorporates {@link #getCloudStorageRelativeWritePath()}}
      */
     default Path getLocalCloudSyncBaseDirectory() {
-        return ConfigLoader.loadIfExists(getConfigFileLocation())
-                .map(ConfigRaw::getPathToCloudStorage)
-                .filter(x -> !x.isEmpty())
+        return configValue(ConfigRaw::getPathToCloudStorage)
                 .map(Path::of)
                 .orElseGet(() -> CloudSyncLocationSupplier.get(this)
                         .orElseThrow(() -> new IllegalStateException(
@@ -30,26 +30,24 @@ public interface SteamCrossplatformSyncConfig {
 
     // Which folder to write into the cloud storage, relative to the root
     default Path getCloudStorageRelativeWritePath() {
-        return ConfigLoader.loadIfExists(getConfigFileLocation())
-                .map(ConfigRaw::getCloudStorageRelativeWritePath)
-                .filter(x -> !x.isEmpty())
+        return configValue(ConfigRaw::getCloudStorageRelativeWritePath)
                 .map(Path::of)
                 .orElse(Path.of("steam-crossplatform-sync"));
     }
 
     default Path getGamesFile() {
-        return ConfigLoader.loadIfExists(getConfigFileLocation())
-                .map(ConfigRaw::getGamesFileLocation)
-                .filter(x -> !x.isEmpty())
+        return configValue(ConfigRaw::getGamesFileLocation)
                 .map(Path::of)
-                .orElse(Path.of(
+                .orElseGet(() -> Path.of(
                         getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
 
     @Nullable
     default String getCloudProvider() {
-        return ConfigLoader.loadIfExists(getConfigFileLocation())
-                .map(r -> r.cloudProvider)
-                .orElse(null);
+        return configValue(r -> r.cloudProvider).orElse(null);
+    }
+
+    private Optional<String> configValue(Function<ConfigRaw, String> getter) {
+        return ConfigLoader.loadIfExists(getConfigFileLocation()).map(getter).filter(x -> !x.isEmpty());
     }
 }

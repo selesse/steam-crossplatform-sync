@@ -1,7 +1,6 @@
 package com.selesse.steam.crossplatform.sync.serialize;
 
 import com.selesse.os.FilePathSanitizer;
-import java.util.Optional;
 
 public class ConfigRaw {
     public String pathToCloudStorage;
@@ -10,20 +9,18 @@ public class ConfigRaw {
     public String cloudProvider;
 
     public String getGamesFileLocation() {
-        return Optional.ofNullable(gamesFileLocation)
-                .map(FilePathSanitizer::sanitize)
-                .orElse(null);
+        return sanitized(gamesFileLocation);
     }
 
     public String getPathToCloudStorage() {
-        return Optional.ofNullable(pathToCloudStorage)
-                .map(FilePathSanitizer::sanitize)
-                .orElse(null);
+        return sanitized(pathToCloudStorage);
     }
 
     public String getCloudStorageRelativeWritePath() {
-        return Optional.ofNullable(cloudStorageRelativeWritePath)
-                .map(FilePathSanitizer::sanitize)
-                .orElse(null);
+        return sanitized(cloudStorageRelativeWritePath);
+    }
+
+    private static String sanitized(String raw) {
+        return raw == null ? null : FilePathSanitizer.sanitize(raw);
     }
 }
