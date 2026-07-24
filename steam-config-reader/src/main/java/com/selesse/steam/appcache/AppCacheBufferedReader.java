@@ -15,6 +15,45 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Parses Steam's binary {@code appinfo.vdf} app cache.
+ *
+ * <pre>
+ * +------------------------------------------------------------------------+
+ * | HEADER                                                                 |
+ * |                                                                        |
+ * |  magic(4B: 27/28/29) + "1 0 0 0"(4B) + [stringTableOffset(8B) fmt>=29] |
+ * |                                                                        |
+ * | APP ENTRIES (repeated until appId == 0)                                |
+ * |  appId(4B) + size(4B) + entryBytes[size] ---> see ENTRY BODY below     |
+ * |                                                                        |
+ * | STRING TABLE (fmt >= 29 only, near EOF, at stringTableOffset)          |
+ * |  count(4B) + count x null-terminated UTF-8 strings                     |
+ * |  (referenced by index instead of inlining key names in each entry)     |
+ * +------------------------------------------------------------------------+
+ *
+ * ENTRY BODY (entryBytes[size], read with EntryCursor)
+ * +--------------+-------------+--------------+----------+--------------+----------------+
+ * | infoState 4B | lastUpdated | picsToken 8B | sha1 20B | changeNumber | sha1Binary 20B |
+ * |              | 4B          |              |          | 4B           | (fmt>=28 only) |
+ * +--------------+-------------+--------------+----------+--------------+----------------+
+ * followed by: BEGIN_OBJECT, a recursive VDF tree, END_OBJECT
+ *
+ * VDF TREE NODE - keyName then typed fields until END_OBJECT
+ *   keyName = stringCache[readInt32()]   (fmt >= 29)
+ *           | readCString()              (fmt below 29)
+ *
+ *   0x00 BEGIN_OBJECT  nested VdfObject (recurse)
+ *   0x01 STRING        key + C-string (UTF-8)
+ *   0x02 INT_32        key + int32 LE
+ *   0x03 FLOAT_32      key + int32 bits reinterpreted as float
+ *   0x04 POINTER       key + int32
+ *   0x05 WIDESTRING    key + UTF-16LE, terminated by 0x0000
+ *   0x06 COLOR         key + int32
+ *   0x07 INT_64        key + int64 LE
+ *   0x08 END_OBJECT    stop, return to parent
+ * </pre>
+ */
 public class AppCacheBufferedReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheBufferedReader.class);
 
@@ -176,8 +215,9 @@ public class AppCacheBufferedReader {
 
     private VdfString parseStringValue(EntryCursor cursor, StringCache stringCache) throws IOException {
         String keyName = readKeyName(cursor, stringCache);
-        String value = cursor.readCString();
-        return new VdfString(keyName, value);
+        int start = cursor.position();
+        cursor.skipCString();
+        return new VdfString(keyName, cursor.backingArray(), start, cursor.position() - start - 1);
     }
 
     private VdfString parseWideStringValue(EntryCursor cursor, StringCache stringCache) throws IOException {
@@ -256,11 +296,23 @@ public class AppCacheBufferedReader {
 
         String readCString() throws EOFException {
             int start = pos;
+            skipCString();
+            return new String(data, start, pos - start - 1, StandardCharsets.UTF_8);
+        }
+
+        void skipCString() throws EOFException {
             byte b = readByte();
             while (b < BEGIN_OBJECT || b > END_OBJECT) {
                 b = readByte();
             }
-            return new String(data, start, pos - start - 1, StandardCharsets.UTF_8);
+        }
+
+        int position() {
+            return pos;
+        }
+
+        byte[] backingArray() {
+            return data;
         }
 
         String readWideString() throws EOFException {
