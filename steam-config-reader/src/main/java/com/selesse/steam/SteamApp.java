@@ -51,7 +51,8 @@ public class SteamApp {
         RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/oslist");
         List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
         return oses.stream()
-                .map(x -> SteamOperatingSystem.fromString(x).toOperatingSystem())
+                .flatMap(x -> SteamOperatingSystem.tryFromString(x).stream())
+                .map(SteamOperatingSystem::toOperatingSystem)
                 .toList();
     }
 
