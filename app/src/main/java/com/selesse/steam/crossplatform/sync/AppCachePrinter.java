@@ -9,6 +9,8 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class AppCachePrinter {
     public void run() {
@@ -19,9 +21,9 @@ public class AppCachePrinter {
     }
 
     public void run(Long... appIds) {
-        AppCache appCache = new AppCacheReader().load();
+        Map<Long, App> apps = new AppCacheReader().loadSome(Set.of(appIds));
         for (Long appId : appIds) {
-            App app = appCache.getById(appId);
+            App app = apps.get(appId);
             if (app == null) {
                 System.out.println("No app found in the app cache for ID " + appId);
                 continue;

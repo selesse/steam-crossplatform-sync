@@ -1,5 +1,6 @@
 package com.selesse.steam.games;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamAppLoader;
@@ -10,15 +11,22 @@ import java.util.Set;
 
 public class InstalledGameFinderService {
     private final List<InstalledGameFetcher> finders;
+    private final AppCacheReader appCacheReader;
 
     public InstalledGameFinderService() {
-        this.finders = List.of(new AppManifestInstalledGameFinder());
+        this(List.of(new AppManifestInstalledGameFinder()), new AppCacheReader());
+    }
+
+    @VisibleForTesting
+    InstalledGameFinderService(List<InstalledGameFetcher> finders, AppCacheReader appCacheReader) {
+        this.finders = finders;
+        this.appCacheReader = appCacheReader;
     }
 
     public List<Long> find() {
         for (InstalledGameFetcher finder : finders) {
             List<Long> candidateIds = finder.fetch();
-            Map<Long, App> apps = new AppCacheReader().loadSome(Set.copyOf(candidateIds));
+            Map<Long, App> apps = appCacheReader.loadSome(Set.copyOf(candidateIds));
             var ids = candidateIds.stream().filter(id -> isAGame(apps.get(id))).toList();
             if (!ids.isEmpty()) {
                 return ids;
