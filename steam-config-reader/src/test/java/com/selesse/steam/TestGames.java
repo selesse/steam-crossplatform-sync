@@ -4,8 +4,8 @@ import com.google.common.base.Splitter;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.Resources;
 import com.selesse.steam.registry.RegistryPrettyPrint;
+import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public enum TestGames {
         return gameId;
     }
 
-    public RegistryStore getGameRegistryStore() {
+    public RegistryObject getGameRegistryObject() {
         return RegistryParser.parseWithoutRegistryCollapse(registryFileContents());
     }
 
@@ -42,9 +42,9 @@ public enum TestGames {
         if (Resources.exists(getGameId() + ".vdf")) {
             return registryFileContentsFromFile();
         } else {
-            RegistryStore registryStore =
-                    SteamAppLoader.load(TestAppCache.PATH, getGameId()).getRegistryStore();
-            return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryStore));
+            RegistryObject registryObject =
+                    SteamAppLoader.load(TestAppCache.PATH, getGameId()).getRegistryObject();
+            return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryObject));
         }
     }
 

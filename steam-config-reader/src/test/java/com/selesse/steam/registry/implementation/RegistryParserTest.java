@@ -12,7 +12,7 @@ public class RegistryParserTest {
         String specialKeyName = String.format("\"%s\"", "hello\t");
         String specialValue = String.format("\"%s\"", "my \tfriend\\\"");
         List<String> lines = List.of(String.format("\t\t%s\t\t%s", specialKeyName, specialValue));
-        RegistryStore registry = RegistryParser.parse(lines);
+        RegistryObject registry = RegistryParser.parse(lines);
 
         RegistryValue objectValue = registry.getObjectValue("hello\t");
         assertThat(objectValue).isInstanceOf(RegistryString.class);
@@ -40,8 +40,8 @@ public class RegistryParserTest {
                 \t\t\t\t\t"dawnofwar_ver"\t\t"1.51"
                 \t\t\t\t}
                 """;
-        RegistryStore registryStore = RegistryParser.parse(Splitter.on("\n").splitToList(value));
-        assertThat(registryStore.getObjectValueAsObject("string").getKeys())
+        RegistryObject registryObject = RegistryParser.parse(Splitter.on("\n").splitToList(value));
+        assertThat(registryObject.getObjectValueAsObject("string").getKeys())
                 .contains("admin_rights", "analysis_disclaimer", "analysis_done", "%file%", "dawnofwar_ver");
     }
 }

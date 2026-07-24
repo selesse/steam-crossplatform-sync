@@ -4,7 +4,6 @@ import com.selesse.steam.appcache.*;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.nio.file.Path;
 
@@ -58,6 +57,6 @@ public class SteamAppLoader {
     }
 
     private static SteamApp toSteamApp(App rawApp) {
-        return new SteamApp(new RegistryStore(convert(rawApp.vdfObject())));
+        return new SteamApp(convert(rawApp.vdfObject()));
     }
 }

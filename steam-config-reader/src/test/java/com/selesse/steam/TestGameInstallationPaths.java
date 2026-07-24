@@ -30,7 +30,7 @@ public class TestGameInstallationPaths {
 
             System.out.println("Failed to test " + gameTestCase.name() + "'s installation paths");
             System.out.println(
-                    RegistryPrettyPrint.prettyPrint(steamApp.getRegistryStore().getObjectValueAsObject("ufs")));
+                    RegistryPrettyPrint.prettyPrint(steamApp.getRegistryObject().getObjectValueAsObject("ufs")));
         }
     };
 

@@ -4,7 +4,6 @@ import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -32,8 +31,8 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
             return List.of();
         }
 
-        RegistryStore registryStore = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(libraryFoldersPath));
-        RegistryObject libraries = registryStore.getObjectValueAsObject("libraryfolders");
+        RegistryObject registryObject = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(libraryFoldersPath));
+        RegistryObject libraries = registryObject.getObjectValueAsObject("libraryfolders");
         if (libraries == null) {
             return List.of();
         }
@@ -53,9 +52,9 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     }
 
     private Long loadInstalledAppIdOrNull(File appManifestFile) {
-        RegistryStore registryStore =
+        RegistryObject registryObject =
                 RegistryParser.parse(RuntimeExceptionFiles.readAllLines(appManifestFile.toPath()));
-        RegistryObject appState = registryStore.getObjectValueAsObject("AppState");
+        RegistryObject appState = registryObject.getObjectValueAsObject("AppState");
         boolean fullyInstalled = appState != null
                 && appState.pathExists("StateFlags")
                 && isFullyInstalled(

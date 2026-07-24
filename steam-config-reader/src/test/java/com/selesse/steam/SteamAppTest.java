@@ -3,8 +3,8 @@ package com.selesse.steam;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.selesse.os.OperatingSystems;
+import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import java.util.List;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class SteamAppTest {
         List<String> lines = oslist == null
                 ? List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "}")
                 : List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "\t\"oslist\"\t\"" + oslist + "\"", "}");
-        RegistryStore registryStore = RegistryParser.parse(lines);
-        return new SteamApp(registryStore);
+        RegistryObject registryObject = RegistryParser.parse(lines);
+        return new SteamApp(registryObject);
     }
 }

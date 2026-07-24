@@ -3,7 +3,6 @@ package com.selesse.steam.registry;
 import com.google.common.base.Strings;
 import com.selesse.collections.MapCollectors;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryStore;
 import com.selesse.steam.registry.implementation.RegistryString;
 import com.selesse.steam.registry.implementation.RegistryValue;
 import java.util.Map;
@@ -11,15 +10,9 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 
 /**
- * Pretty prints a {@link RegistryStore}, using the same format as steamcmd.
+ * Pretty prints a {@link RegistryObject}, using the same format as steamcmd.
  */
 public class RegistryPrettyPrint {
-    public static String prettyPrint(RegistryStore registryStore) {
-        Map<String, RegistryValue> keyValuePairs =
-                registryStore.getKeys().stream().collect(keyAndValueCollector(registryStore));
-        return prettyPrintKeyValuePairs(keyValuePairs);
-    }
-
     public static String prettyPrint(RegistryObject registryObject) {
         Map<String, RegistryValue> keyValuePairs =
                 registryObject.getKeys().stream().collect(keyAndValueCollector(registryObject));
@@ -96,9 +89,5 @@ public class RegistryPrettyPrint {
 
     private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryObject value) {
         return MapCollectors.toLinkedMap(Function.identity(), value::get);
-    }
-
-    private static Collector<String, ?, Map<String, RegistryValue>> keyAndValueCollector(RegistryStore value) {
-        return MapCollectors.toLinkedMap(Function.identity(), value::getObjectValue);
     }
 }

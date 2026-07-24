@@ -2,7 +2,6 @@ package com.selesse.steam.registry.implementation;
 
 import com.google.common.collect.Iterables;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,27 +9,26 @@ public class RegistryParser {
     private static final Pattern lineMatchingPattern = Pattern.compile("\t*\"(.+?)\"\t*\"(.*)\"", Pattern.DOTALL);
     private static final Pattern multiLinePatternStart = Pattern.compile("\t*\"(.+?)\"\t*\"[^\"]*");
 
-    public static RegistryStore parse(List<String> lines) {
-        return collapseRegistryStoreIfNecessary(parseWithoutRegistryCollapse(lines));
+    public static RegistryObject parse(List<String> lines) {
+        return collapseIfNecessary(parseWithoutRegistryCollapse(lines));
     }
 
-    public static RegistryStore parseWithoutRegistryCollapse(List<String> lines) {
+    public static RegistryObject parseWithoutRegistryCollapse(List<String> lines) {
         if (Iterables.getLast(lines).isEmpty()) {
             lines = lines.subList(0, lines.size() - 1);
         }
-        RegistryValue object = parseValue(lines);
-        return new RegistryStore((RegistryObject) object);
+        return (RegistryObject) parseValue(lines);
     }
 
-    private static RegistryStore collapseRegistryStoreIfNecessary(RegistryStore registryStore) {
-        Set<String> keys = registryStore.getKeys();
+    private static RegistryObject collapseIfNecessary(RegistryObject registryObject) {
+        List<String> keys = registryObject.getKeys();
         if (keys.size() == 1) {
-            String keyValue = keys.stream().findFirst().orElse("");
+            String keyValue = keys.get(0);
             if (keyValue.matches("\\d+")) {
-                return new RegistryStore(registryStore.getObjectValueAsObject(keyValue));
+                return registryObject.getObjectValueAsObject(keyValue);
             }
         }
-        return registryStore;
+        return registryObject;
     }
 
     private static RegistryValue parseValue(List<String> blockScope) {

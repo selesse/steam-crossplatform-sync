@@ -6,38 +6,38 @@ import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamOperatingSystem;
-import com.selesse.steam.registry.implementation.RegistryStore;
+import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.List;
 
 public class SteamApp {
-    private final RegistryStore registryStore;
+    private final RegistryObject registryObject;
 
-    public SteamApp(RegistryStore registryStore) {
-        this.registryStore = registryStore;
+    public SteamApp(RegistryObject registryObject) {
+        this.registryObject = registryObject;
     }
 
-    public RegistryStore getRegistryStore() {
-        return registryStore;
+    public RegistryObject getRegistryObject() {
+        return registryObject;
     }
 
     public long getId() {
-        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/gameid");
+        RegistryString objectValueAsString = registryObject.getObjectValueAsString("common/gameid");
         return Long.parseLong(objectValueAsString.getValue());
     }
 
     public String getName() {
-        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/name");
+        RegistryString objectValueAsString = registryObject.getObjectValueAsString("common/name");
         return objectValueAsString.getValue();
     }
 
     public AppType getType() {
-        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/type");
+        RegistryString objectValueAsString = registryObject.getObjectValueAsString("common/type");
         return AppType.fromString(objectValueAsString);
     }
 
     public String getInstallationDirectory() {
-        return registryStore.getObjectValueAsString("config/installdir").getValue();
+        return registryObject.getObjectValueAsString("config/installdir").getValue();
     }
 
     public String getInstallationDirectory(OperatingSystems.OperatingSystem os) {
@@ -45,10 +45,10 @@ public class SteamApp {
     }
 
     public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {
-        if (!getRegistryStore().pathExists("common/oslist")) {
+        if (!getRegistryObject().pathExists("common/oslist")) {
             return List.of(OperatingSystems.OperatingSystem.WINDOWS);
         }
-        RegistryString objectValueAsString = registryStore.getObjectValueAsString("common/oslist");
+        RegistryString objectValueAsString = registryObject.getObjectValueAsString("common/oslist");
         List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
         return oses.stream()
                 .flatMap(x -> SteamOperatingSystem.tryFromString(x).stream())
@@ -85,6 +85,6 @@ public class SteamApp {
     }
 
     public boolean hasUserFileSystem() {
-        return registryStore.getObjectValueAsObject("ufs") != null && registryStore.pathExists("ufs/savefiles");
+        return registryObject.getObjectValueAsObject("ufs") != null && registryObject.pathExists("ufs/savefiles");
     }
 }

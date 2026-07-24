@@ -35,7 +35,7 @@ public class FindUndetectedSaveFiles {
 
                 if (!isFullyIntegrated) {
                     System.out.println("");
-                    RegistryObject ufs = steamGame.getRegistryStore().getObjectValueAsObject("ufs");
+                    RegistryObject ufs = steamGame.getRegistryObject().getObjectValueAsObject("ufs");
                     System.out.println(RegistryPrettyPrint.prettyPrint(ufs));
                     System.out.println("");
                 }

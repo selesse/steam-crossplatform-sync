@@ -8,7 +8,7 @@ public class GameLoadingService {
     public GameLoadingService() {}
 
     public SteamGame loadGame(long gameId) {
-        return new SteamGame(SteamAppLoader.load(gameId).getRegistryStore());
+        return new SteamGame(SteamAppLoader.load(gameId).getRegistryObject());
     }
 
     public List<SteamGame> loadGames(List<Long> gameIds) {
