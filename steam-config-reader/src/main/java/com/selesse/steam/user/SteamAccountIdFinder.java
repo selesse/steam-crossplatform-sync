@@ -1,14 +1,10 @@
 package com.selesse.steam.user;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.selesse.files.RuntimeExceptionFiles;
-import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamAccountId;
-import com.selesse.steam.games.SteamInstallationPaths;
+import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryParser;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -34,12 +30,12 @@ public class SteamAccountIdFinder {
     }
 
     Optional<SteamAccountId> findMostRecentUserIdIfPresent() {
-        var loginUsersFile = getLoginUsersPath(OperatingSystems.get());
-        if (loginUsersFile.isEmpty()) {
+        var loginUsersRegistryMaybe = readLoginUsers();
+        if (loginUsersRegistryMaybe.isEmpty()) {
             LOGGER.info("Could not find loginusers.vdf");
             return Optional.empty();
         }
-        var loginUsersRegistry = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(loginUsersFile.get()));
+        var loginUsersRegistry = loginUsersRegistryMaybe.get();
         var userIds = Optional.ofNullable(loginUsersRegistry.getObjectValueAsObject("users"))
                 .map(RegistryObject::getKeys)
                 .orElse(new ArrayList<>());
@@ -53,12 +49,8 @@ public class SteamAccountIdFinder {
                 .findFirst();
     }
 
-    Optional<Path> getLoginUsersPath(OperatingSystems.OperatingSystem os) {
-        String steamRoot = FilePathSanitizer.sanitize(SteamInstallationPaths.getRoot(os));
-        Path loginUsersPath = Path.of(steamRoot, "config/loginusers.vdf").toAbsolutePath();
-        if (loginUsersPath.toFile().exists()) {
-            return Optional.of(loginUsersPath);
-        }
-        return Optional.empty();
+    @VisibleForTesting
+    Optional<RegistryObject> readLoginUsers() {
+        return SteamRegistry.getInstance().readLoginUsers();
     }
 }
