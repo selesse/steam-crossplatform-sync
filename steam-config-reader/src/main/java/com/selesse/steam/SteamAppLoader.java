@@ -41,7 +41,7 @@ public class SteamAppLoader {
         return new SteamApp(new RegistryStore(registryObject));
     }
 
-    private static RegistryObject convert(VdfObject object) {
+    public static RegistryObject convert(VdfObject object) {
         RegistryObject registryObject = new RegistryObject();
 
         for (Object value : object.getValues()) {
