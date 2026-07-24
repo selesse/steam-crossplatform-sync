@@ -3,6 +3,7 @@ package com.selesse.steam.appcache;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +28,6 @@ public class AppCacheBufferedReader {
     private static final Byte COLOR = 6;
     private static final Byte INT_64 = 7;
     private static final Byte END_OBJECT = 8;
-    private static final List<Byte> SPECIAL_BYTES =
-            List.of(BEGIN_OBJECT, STRING, INT_32, FLOAT_32, POINTER, WIDESTRING, COLOR, INT_64, END_OBJECT);
     private static final String VERSION_MARKER = "1 0 0 0";
     private final Path path;
 
@@ -151,22 +150,21 @@ public class AppCacheBufferedReader {
 
     private String readKeyName(InputStream inputStream, StringCache stringCache) throws IOException {
         if (stringCache == null) {
-            List<Byte> currentData = getBytes(inputStream);
-            return new String(byteListToByteArray(currentData), StandardCharsets.UTF_8);
+            return new String(getBytes(inputStream), StandardCharsets.UTF_8);
         } else {
             int index = parse32Int(inputStream);
             return stringCache.get(index);
         }
     }
 
-    private List<Byte> getBytes(InputStream inputStream) throws IOException {
-        List<Byte> currentData = new ArrayList<>();
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream currentData = new ByteArrayOutputStream();
         byte nextByte = parseOneByte(inputStream);
-        while (!SPECIAL_BYTES.contains(nextByte)) {
-            currentData.add(nextByte);
+        while (nextByte < BEGIN_OBJECT || nextByte > END_OBJECT) {
+            currentData.write(nextByte);
             nextByte = parseOneByte(inputStream);
         }
-        return currentData;
+        return currentData.toByteArray();
     }
 
     private VdfInteger parseIntValue(InputStream inputStream, StringCache stringCache) throws IOException {
@@ -190,8 +188,7 @@ public class AppCacheBufferedReader {
 
     private VdfString parseStringValue(InputStream inputStream, StringCache stringCache) throws IOException {
         String keyName = readKeyName(inputStream, stringCache);
-        List<Byte> bytes = getBytes(inputStream);
-        String value = new String(byteListToByteArray(bytes), StandardCharsets.UTF_8);
+        String value = new String(getBytes(inputStream), StandardCharsets.UTF_8);
         return new VdfString(keyName, value);
     }
 
@@ -229,14 +226,6 @@ public class AppCacheBufferedReader {
         return inputStream.readNBytes(20);
     }
 
-    private byte[] byteListToByteArray(List<Byte> byteList) {
-        byte[] bytes = new byte[byteList.size()];
-        for (int i = 0; i < byteList.size(); i++) {
-            bytes[i] = byteList.get(i);
-        }
-        return bytes;
-    }
-
     private int parse32Int(InputStream inputStream) throws IOException {
         byte[] bytes = inputStream.readNBytes(4);
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -248,7 +237,10 @@ public class AppCacheBufferedReader {
     }
 
     private byte parseOneByte(InputStream inputStream) throws IOException {
-        byte[] oneByte = inputStream.readNBytes(1);
-        return oneByte[0];
+        int value = inputStream.read();
+        if (value == -1) {
+            throw new EOFException("Unexpected end of stream");
+        }
+        return (byte) value;
     }
 }
