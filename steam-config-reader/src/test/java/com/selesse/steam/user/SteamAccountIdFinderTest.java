@@ -30,4 +30,15 @@ public class SteamAccountIdFinderTest {
 
         assertThat(userIdFinderSpy.findMostRecentUserIdIfPresent()).isEmpty();
     }
+
+    @Test
+    public void fallsBackToOnlyUserId_whenNoUserIsMarkedMostRecent() {
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        var loginUsers = RegistryParser.parse(
+                RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_single_no_most_recent.vdf")));
+        doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
+
+        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findMostRecentUserIdIfPresent();
+        assertThat(steamAccountIdMaybe.orElseThrow()).isEqualTo(new SteamAccountId("76561198009129143"));
+    }
 }

@@ -40,13 +40,23 @@ public class SteamAccountIdFinder {
                 .map(RegistryObject::getKeys)
                 .orElse(new ArrayList<>());
 
-        return userIds.stream()
-                .filter(userId -> loginUsersRegistry
-                        .getObjectValueAsString("users/%s/MostRecent".formatted(userId))
-                        .getValue()
-                        .equals("1"))
-                .map(SteamAccountId::new)
+        var mostRecentUserId = userIds.stream()
+                .filter(userId -> {
+                    var mostRecent = loginUsersRegistry.getObjectValueAsString("users/%s/MostRecent".formatted(userId));
+                    return mostRecent != null && "1".equals(mostRecent.getValue());
+                })
                 .findFirst();
+
+        if (mostRecentUserId.isPresent()) {
+            return mostRecentUserId.map(SteamAccountId::new);
+        }
+
+        if (userIds.size() == 1) {
+            LOGGER.info("No user marked as MostRecent, falling back to the only user present");
+            return Optional.of(new SteamAccountId(userIds.get(0)));
+        }
+
+        return Optional.empty();
     }
 
     @VisibleForTesting
