@@ -1,13 +1,21 @@
 plugins {
     id "com.diffplug.spotless" version "8.1.0" apply false
+    id "org.gradlex.extra-java-module-info" version "1.14.2" apply false
 }
 
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'org.gradlex.extra-java-module-info'
 
     repositories {
         mavenCentral()
+    }
+
+    extraJavaModuleInfo {
+        failOnMissingModuleInfo = false
+        skipLocalJars = true
+        automaticModule('org.flywaydb:flyway-core', 'flyway.core')
     }
 
     spotless {
