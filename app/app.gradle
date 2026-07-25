@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'com.gradleup.shadow' version '9.3.0'
     id 'com.selesse.daemon-app' version '0.7.0'
+    id 'org.beryx.jlink' version '4.1.0'
 }
 
 dependencies {
@@ -13,7 +14,18 @@ dependencies {
 }
 
 application {
+    mainModule = 'com.selesse.steam.crossplatform.sync'
     mainClass = 'com.selesse.steam.crossplatform.sync.App'
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'steam-crossplatform-sync'
+    }
+    // flyway-core (merged as a non-modular jar) references org.slf4j.Logger reflectively, so the
+    // generated merged module-info requires it - but the plugin's own dependency-copy step misses it.
+    addExtraDependencies('slf4j-api')
 }
 
 daemonApp {
