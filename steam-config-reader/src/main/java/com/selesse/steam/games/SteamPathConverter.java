@@ -12,6 +12,7 @@ class SteamPathConverter {
                 .replace("MacAppSupport", "~/Library/Application Support")
                 .replace("MacDocuments", "~/Documents")
                 .replace("LinuxHome", "~")
-                .replace("LinuxXdgDataHome", System.getenv().getOrDefault("XDG_DATA_HOME", "~/.config"));
+                .replace("LinuxXdgDataHome", System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share"))
+                .replace("LinuxXdgConfigHome", System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
     }
 }

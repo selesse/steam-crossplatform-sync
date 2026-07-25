@@ -64,7 +64,7 @@ games:
   mac:
     - "~/Library/Application Support/Pillars of Eternity/*.savegame"
   linux:
-    - "~/.config/PillarsOfEternity/*.savegame"
+    - "~/.local/share/PillarsOfEternity/*.savegame"
 - name: "Avadon: The Black Fortress"
   windows:
     - "%USERPROFILE%/Documents/Spiderweb Software/Avadon Saved Games/Save0/*"
