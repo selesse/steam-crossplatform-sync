@@ -99,6 +99,12 @@ public class UserFileSystemPath {
         return recursive;
     }
 
+    public UserFileSystemPath rerootForProton(String protonPrefixUserProfileRoot) {
+        String convertedRoot = SteamPathConverter.convert(root);
+        String rerootedRoot = convertedRoot.replace("%USERPROFILE%", protonPrefixUserProfileRoot);
+        return new UserFileSystemPath(rerootedRoot, path, pattern, recursive, platform);
+    }
+
     public UserFileSystemPath convert(OperatingSystem target) {
         String root = getRoot();
         if (getRoot().equals("gameinstall")) {

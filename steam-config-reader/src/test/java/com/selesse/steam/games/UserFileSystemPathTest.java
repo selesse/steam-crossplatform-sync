@@ -22,4 +22,17 @@ public class UserFileSystemPathTest {
                         "~/Library/Application Support/Steam/steamapps/common/Torchlight II/my games/runic games/torchlight 2/save/%s/"
                                 .formatted(steamAccountId));
     }
+
+    @Test
+    public void rerootForProtonReplacesUserProfileWithTheProtonPrefix() {
+        UserFileSystemPath userFileSystemPath =
+                new UserFileSystemPath("WinAppDataLocalLow", "Team Cherry/Hollow Knight", "*.dat", false, null);
+
+        UserFileSystemPath rerooted = userFileSystemPath.rerootForProton(
+                "~/.steam/steam/steamapps/compatdata/367520/pfx/drive_c/users/steamuser");
+
+        assertThat(rerooted.getSymbolPath())
+                .isEqualTo(
+                        "~/.steam/steam/steamapps/compatdata/367520/pfx/drive_c/users/steamuser/AppData/LocalLow/Team Cherry/Hollow Knight/*.dat");
+    }
 }

@@ -5,8 +5,11 @@ import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SteamRegistry {
     public static SteamRegistry getInstance() {
@@ -37,14 +40,30 @@ public class SteamRegistry {
         return RegistryParser.parse(RuntimeExceptionFiles.readAllLines(path));
     }
 
+    public boolean hasActiveProtonPrefix(long appId) {
+        Path driveC = getSteamAppsPath()
+                .resolve("compatdata")
+                .resolve(String.valueOf(appId))
+                .resolve("pfx")
+                .resolve("drive_c");
+        if (!Files.isDirectory(driveC)) {
+            return false;
+        }
+        try (Stream<Path> entries = Files.list(driveC)) {
+            return entries.findAny().isPresent();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     private String getBasePath() {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam").toString();
             case MAC ->
                 Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
                         .toString();
-            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam")).toString();
-            case STEAM_OS ->
+            // ~/.steam has no steamapps symlink of its own; only ~/.steam/steam does.
+            case LINUX, STEAM_OS ->
                 Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
         };
     }
