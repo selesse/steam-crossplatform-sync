@@ -2,9 +2,12 @@ package com.selesse.steam.games.saves;
 
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
+import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.games.UserFileSystemPathConverter;
+import com.selesse.steam.registry.SteamRegistry;
 import java.util.List;
+import java.util.Optional;
 
 public class EverythingInSaveFiles extends SaveFile {
     public EverythingInSaveFiles(SteamApp steamApp) {
@@ -58,8 +61,13 @@ public class EverythingInSaveFiles extends SaveFile {
                     .map(key -> ufs.getObjectValueAsObject("rootoverrides/" + key))
                     .map(RootOverrideObject::new)
                     .toList();
-            if (os == OperatingSystems.OperatingSystem.LINUX
-                    && overrides.stream().noneMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX)) {
+            boolean hasExplicitLinuxOverride =
+                    overrides.stream().anyMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX);
+            if (os == OperatingSystems.OperatingSystem.LINUX && !hasExplicitLinuxOverride) {
+                Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton();
+                if (protonResolved.isPresent()) {
+                    return protonResolved.get();
+                }
                 overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
             }
             return overrides.stream()
@@ -69,6 +77,12 @@ public class EverythingInSaveFiles extends SaveFile {
                     .flatMap(List::stream)
                     .toList();
         }
+        if (os == OperatingSystems.OperatingSystem.LINUX) {
+            Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton();
+            if (protonResolved.isPresent()) {
+                return protonResolved.get();
+            }
+        }
         if (isNonWindowsButWeOnlyHaveWindowsSaveFiles(os, saveFileObjects)) {
             return saveFileObjects.stream().map(x -> x.convert(os)).toList();
         }
@@ -76,6 +90,33 @@ public class EverythingInSaveFiles extends SaveFile {
             return saveFileObjects.stream().filter(x -> x.getPlatform() == os).toList();
         }
         return saveFileObjects;
+    }
+
+    /**
+     * A Linux/SteamOS machine running this specific game under Proton has its saves in a Windows-shaped
+     * user profile inside the compatdata prefix, not wherever the native-Linux ufs entries point. Returns
+     * empty when Proton isn't in play here, or when the Windows-target resolution isn't purely
+     * user-profile-rooted (e.g. a gameinstall-rooted save, which lives at the same path either way).
+     */
+    private Optional<List<UserFileSystemPath>> tryResolveViaProton() {
+        boolean gameHasNoNativeLinuxDepot =
+                !steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX);
+        boolean protonActive = SteamRegistry.getInstance().hasActiveProtonPrefix(steamApp.getId());
+        if (!protonActive && !gameHasNoNativeLinuxDepot) {
+            return Optional.empty();
+        }
+
+        List<UserFileSystemPath> windowsSavePaths = getWindowsSavePaths();
+        boolean allWinRooted = !windowsSavePaths.isEmpty()
+                && windowsSavePaths.stream().allMatch(p -> p.getRoot().startsWith("Win"));
+        if (!allWinRooted) {
+            return Optional.empty();
+        }
+
+        String protonPrefixRoot = SteamInstallationPaths.getProtonPrefixUserProfileRoot(steamApp.getId());
+        return Optional.of(windowsSavePaths.stream()
+                .map(p -> p.rerootForProton(protonPrefixRoot))
+                .toList());
     }
 
     private boolean isNonWindowsButWeOnlyHaveWindowsSaveFiles(
