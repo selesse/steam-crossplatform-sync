@@ -15,4 +15,9 @@ public class SteamInstallationPaths {
             case LINUX, STEAM_OS -> "~/.steam/steam";
         };
     }
+
+    public static String getProtonPrefixUserProfileRoot(long appId) {
+        return getRoot(OperatingSystems.OperatingSystem.LINUX) + "/steamapps/compatdata/" + appId
+                + "/pfx/drive_c/users/steamuser";
+    }
 }

@@ -5,8 +5,11 @@ import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SteamRegistry {
     public static SteamRegistry getInstance() {
@@ -35,6 +38,22 @@ public class SteamRegistry {
 
     public RegistryObject readVdf(Path path) {
         return RegistryParser.parse(RuntimeExceptionFiles.readAllLines(path));
+    }
+
+    public boolean hasActiveProtonPrefix(long appId) {
+        Path driveC = getSteamAppsPath()
+                .resolve("compatdata")
+                .resolve(String.valueOf(appId))
+                .resolve("pfx")
+                .resolve("drive_c");
+        if (!Files.isDirectory(driveC)) {
+            return false;
+        }
+        try (Stream<Path> entries = Files.list(driveC)) {
+            return entries.findAny().isPresent();
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     private String getBasePath() {

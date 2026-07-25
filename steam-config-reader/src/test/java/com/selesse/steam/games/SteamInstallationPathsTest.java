@@ -12,4 +12,10 @@ public class SteamInstallationPathsTest {
                 .isEqualTo(SteamInstallationPaths.getRoot(OperatingSystems.OperatingSystem.STEAM_OS))
                 .isEqualTo("~/.steam/steam");
     }
+
+    @Test
+    public void getProtonPrefixUserProfileRootBuildsTheExpectedPath() {
+        assertThat(SteamInstallationPaths.getProtonPrefixUserProfileRoot(646570L))
+                .isEqualTo("~/.steam/steam/steamapps/compatdata/646570/pfx/drive_c/users/steamuser");
+    }
 }
