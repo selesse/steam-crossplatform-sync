@@ -43,8 +43,8 @@ public class SteamRegistry {
             case MAC ->
                 Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
                         .toString();
-            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam")).toString();
-            case STEAM_OS ->
+            // ~/.steam has no steamapps symlink of its own; only ~/.steam/steam does.
+            case LINUX, STEAM_OS ->
                 Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
         };
     }

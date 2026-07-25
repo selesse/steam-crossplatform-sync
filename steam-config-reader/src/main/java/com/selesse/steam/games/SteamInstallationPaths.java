@@ -11,13 +11,8 @@ public class SteamInstallationPaths {
         return switch (operatingSystem) {
             case MAC -> "~/Library/Application Support/Steam";
             case WINDOWS -> "%PROGRAMFILES(X86)%/Steam";
-            case LINUX -> "~/.steam";
-            // TODO: for Steam OS, generate path based on Windows like so:
-            // If it's SteamOS, it's:
-            // $HOME/.local/share/Steam/steamapps/compatdata/<steamlappid>/pfx/drive_c/users/steamuser/
-            // If it doesn't have Steam Auto-Cloud configured, the cloud stuff is saved in:
-            // $HOME/.steam/steam/userdata/<user id>/<steam app id>/remote
-            case STEAM_OS -> "~/.steam/steam";
+            // ~/.steam has no steamapps symlink of its own; only ~/.steam/steam does.
+            case LINUX, STEAM_OS -> "~/.steam/steam";
         };
     }
 }
