@@ -1,6 +1,7 @@
 package com.selesse.steam.appcache;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,13 +9,20 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,19 +65,27 @@ import org.slf4j.LoggerFactory;
  *   0x07 INT_64        key + int64 LE
  *   0x08 END_OBJECT    stop, return to parent
  * </pre>
+ *
+ * read() parses the whole cache concurrently: entries aren't independently seekable (each one's
+ * size is only known after reading its own header), so a single thread first indexes every
+ * entry's offset, then hands entries out in byte-size-balanced chunks (not equal-count chunks -
+ * entry size varies enough that a naive split leaves one thread doing most of the work) to worker
+ * threads parsing concurrently against a shared, read-only copy of the file. readOne()/readSome()
+ * stay single-threaded and skip-based - skipping bytes you don't need is cheaper than parsing them
+ * on any number of cores, so a targeted lookup is faster than even a fully parallel full read.
  */
 public class AppCacheBufferedReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheBufferedReader.class);
 
-    private static final Byte BEGIN_OBJECT = 0;
-    private static final Byte STRING = 1;
-    private static final Byte INT_32 = 2;
-    private static final Byte FLOAT_32 = 3;
-    private static final Byte POINTER = 4;
-    private static final Byte WIDESTRING = 5;
-    private static final Byte COLOR = 6;
-    private static final Byte INT_64 = 7;
-    private static final Byte END_OBJECT = 8;
+    private static final byte BEGIN_OBJECT = 0;
+    private static final byte STRING = 1;
+    private static final byte INT_32 = 2;
+    private static final byte FLOAT_32 = 3;
+    private static final byte POINTER = 4;
+    private static final byte WIDESTRING = 5;
+    private static final byte COLOR = 6;
+    private static final byte INT_64 = 7;
+    private static final byte END_OBJECT = 8;
     private static final String VERSION_MARKER = "1 0 0 0";
     private final Path path;
 
@@ -78,12 +94,7 @@ public class AppCacheBufferedReader {
     }
 
     public AppCache read() throws IOException {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
-            Header header = readHeader(bufferedInputStream);
-            AppCache appCache = new AppCache();
-            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), new AllApps(appCache));
-            return appCache;
-        }
+        return read(Runtime.getRuntime().availableProcessors());
     }
 
     /** Reads a single app by ID, skipping every other entry's bytes without parsing them. */
@@ -99,7 +110,7 @@ public class AppCacheBufferedReader {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             Header header = readHeader(bufferedInputStream);
             SomeApps selector = new SomeApps(targetAppIds);
-            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), selector);
+            scanAppEntries(bufferedInputStream, header, selector);
             return selector.results();
         }
     }
@@ -113,35 +124,157 @@ public class AppCacheBufferedReader {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
             Header header = readHeader(bufferedInputStream);
             FirstMatch selector = new FirstMatch(predicate);
-            scanAppEntries(bufferedInputStream, header.parseSha1Binary(), header.stringCache(), selector);
+            scanAppEntries(bufferedInputStream, header, selector);
             return Optional.ofNullable(selector.result());
         }
     }
 
     private record Header(boolean parseSha1Binary, StringCache stringCache) {}
 
-    private Header readHeader(BufferedInputStream bufferedInputStream) throws IOException {
-        String firstFourBytes = readFourBytes(bufferedInputStream);
+    private Header readHeader(InputStream inputStream) throws IOException {
+        String firstFourBytes = readFourBytes(inputStream);
         AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
         boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
-        String versionMarker = readFourBytes(bufferedInputStream);
+        String versionMarker = readFourBytes(inputStream);
         if (!versionMarker.equals(VERSION_MARKER)) {
             throw new IllegalStateException(
                     "Expected version marker '" + VERSION_MARKER + "' but got '" + versionMarker + "'");
         }
         StringCache stringCache = null;
         if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
-            long offsetToStringTable = parse64Long(bufferedInputStream);
+            long offsetToStringTable = parse64Long(inputStream);
             stringCache = new StringCacheReader(path, offsetToStringTable).read();
         }
         return new Header(parseSha1Binary, stringCache);
     }
 
-    private void scanAppEntries(
-            BufferedInputStream bufferedInputStream,
-            boolean parseSha1Binary,
-            StringCache stringCache,
-            AppQuery selector)
+    /**
+     * Parses the whole cache using an explicit worker thread count instead of the default of
+     * {@link Runtime#availableProcessors()}. See {@link #read()}.
+     */
+    public AppCache read(int parallelism) throws IOException {
+        byte[] data = Files.readAllBytes(path);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
+        Header header = readHeader(byteArrayInputStream);
+        int entriesStart = data.length - byteArrayInputStream.available();
+
+        List<EntryLocation> entries = indexEntries(data, entriesStart);
+        AppCache appCache = new AppCache();
+        if (entries.isEmpty()) {
+            return appCache;
+        }
+
+        int workerCount = Math.max(1, Math.min(parallelism, entries.size()));
+        List<List<EntryLocation>> chunks = partitionByBytes(entries, workerCount);
+
+        ExecutorService executor = Executors.newFixedThreadPool(workerCount);
+        try {
+            List<Future<Map<Long, App>>> futures = new ArrayList<>();
+            for (List<EntryLocation> chunk : chunks) {
+                futures.add(executor.submit(() -> parseChunk(data, chunk, header)));
+            }
+            for (Future<Map<Long, App>> future : futures) {
+                for (App app : awaitResult(future).values()) {
+                    appCache.add(app);
+                }
+            }
+        } finally {
+            executor.shutdown();
+        }
+        return appCache;
+    }
+
+    private record EntryLocation(int appId, int entryStart, int size) {}
+
+    /** Walks entry headers only (no VDF parsing) to record where each entry's bytes live. */
+    private List<EntryLocation> indexEntries(byte[] data, int start) {
+        List<EntryLocation> entries = new ArrayList<>();
+        int pos = start;
+        while (pos + 8 <= data.length) {
+            int appId = readInt32LE(data, pos);
+            if (appId == 0) {
+                break;
+            }
+            int size = readInt32LE(data, pos + 4);
+            int entryStart = pos + 8;
+            entries.add(new EntryLocation(appId, entryStart, size));
+            pos = entryStart + size;
+        }
+        return entries;
+    }
+
+    private static int readInt32LE(byte[] data, int offset) {
+        return (data[offset] & 0xFF)
+                | ((data[offset + 1] & 0xFF) << 8)
+                | ((data[offset + 2] & 0xFF) << 16)
+                | ((data[offset + 3] & 0xFF) << 24);
+    }
+
+    // Tracks one chunk's entries alongside its running byte total, so partitionByBytes can find
+    // the currently-smallest chunk without maintaining a second, index-parallel array.
+    private static final class Bucket {
+        private final List<EntryLocation> entries = new ArrayList<>();
+        private long totalBytes;
+
+        void add(EntryLocation entry) {
+            entries.add(entry);
+            totalBytes += entry.size();
+        }
+    }
+
+    // Balances total entry bytes per chunk rather than entry count: entry size is a decent proxy
+    // for parse cost (more bytes roughly means more VDF fields to walk), so an even split by count
+    // alone can leave one thread with a disproportionate share of the file's largest entries.
+    // Greedy LPT (largest-first, always into the currently-smallest chunk) keeps chunks close to
+    // balanced without the cost of computing an optimal partition.
+    private static List<List<EntryLocation>> partitionByBytes(List<EntryLocation> entries, int chunkCount) {
+        List<EntryLocation> bySizeDescending = new ArrayList<>(entries);
+        bySizeDescending.sort(Comparator.comparingInt(EntryLocation::size).reversed());
+
+        List<Bucket> buckets = new ArrayList<>(chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            buckets.add(new Bucket());
+        }
+
+        for (EntryLocation entry : bySizeDescending) {
+            Bucket smallest = buckets.get(0);
+            for (Bucket bucket : buckets) {
+                if (bucket.totalBytes < smallest.totalBytes) {
+                    smallest = bucket;
+                }
+            }
+            smallest.add(entry);
+        }
+        return buckets.stream().map(bucket -> bucket.entries).toList();
+    }
+
+    private Map<Long, App> parseChunk(byte[] data, List<EntryLocation> chunk, Header header) {
+        Map<Long, App> results = new HashMap<>();
+        for (EntryLocation location : chunk) {
+            byte[] entryBytes =
+                    Arrays.copyOfRange(data, location.entryStart(), location.entryStart() + location.size());
+            try {
+                App app = parseAppEntry(location.appId(), location.size(), entryBytes, header);
+                results.put((long) location.appId(), app);
+            } catch (Exception e) {
+                LOGGER.warn("Skipping app cache entry for appId={} because it failed to parse", location.appId(), e);
+            }
+        }
+        return results;
+    }
+
+    private static Map<Long, App> awaitResult(Future<Map<Long, App>> future) throws IOException {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted while waiting for parallel app cache parsing", e);
+        } catch (ExecutionException e) {
+            throw new IOException("Parallel app cache parsing failed", e.getCause());
+        }
+    }
+
+    private void scanAppEntries(BufferedInputStream bufferedInputStream, Header header, AppQuery selector)
             throws IOException {
         while (!selector.isDone()) {
             int appId;
@@ -160,7 +293,7 @@ public class AppCacheBufferedReader {
             if (selector.shouldParse(appId)) {
                 byte[] entryBytes = bufferedInputStream.readNBytes(size);
                 try {
-                    selector.onParsed(appId, parseAppEntry(appId, size, entryBytes, parseSha1Binary, stringCache));
+                    selector.onParsed(appId, parseAppEntry(appId, size, entryBytes, header));
                 } catch (Exception e) {
                     LOGGER.warn("Skipping app cache entry for appId={} because it failed to parse", appId, e);
                 }
@@ -170,8 +303,7 @@ public class AppCacheBufferedReader {
         }
     }
 
-    private App parseAppEntry(int appId, int size, byte[] entryBytes, boolean parseSha1Binary, StringCache stringCache)
-            throws IOException {
+    private App parseAppEntry(int appId, int size, byte[] entryBytes, Header header) throws IOException {
         EntryCursor cursor = new EntryCursor(entryBytes);
         int infoState = cursor.readInt32();
         int lastUpdated = cursor.readInt32();
@@ -179,7 +311,7 @@ public class AppCacheBufferedReader {
         byte[] sha1 = cursor.readSha1();
         int changeNumber = cursor.readInt32();
         byte[] sha1Binary = null;
-        if (parseSha1Binary) {
+        if (header.parseSha1Binary()) {
             sha1Binary = cursor.readSha1();
         }
 
@@ -187,7 +319,7 @@ public class AppCacheBufferedReader {
         if (b != BEGIN_OBJECT) {
             throw new IllegalStateException("Expected BEGIN_OBJECT for appId=" + appId + " but got " + b);
         }
-        VdfObject object = parseVdfObject(cursor, stringCache);
+        VdfObject object = parseVdfObject(cursor, header.stringCache());
         b = cursor.readByte();
         if (b != END_OBJECT) {
             throw new IllegalStateException("Expected END_OBJECT for appId=" + appId + " but got " + b);
@@ -202,24 +334,16 @@ public class AppCacheBufferedReader {
 
         byte nextByte;
         while ((nextByte = cursor.readByte()) != END_OBJECT) {
-            if (nextByte == BEGIN_OBJECT) {
-                VdfObject nestedObject = parseVdfObject(cursor, stringCache);
-                vdfObject.add(nestedObject);
-            } else if (nextByte == STRING) {
-                vdfObject.add(parseStringValue(cursor, stringCache));
-            } else if (nextByte == INT_32) {
-                vdfObject.add(parseIntValue(cursor, stringCache));
-            } else if (nextByte == FLOAT_32) {
-                vdfObject.add(parseFloatValue(cursor, stringCache));
-            } else if (nextByte == INT_64) {
-                vdfObject.add(parseLongValue(cursor, stringCache));
-            } else if (nextByte == POINTER || nextByte == COLOR) {
-                vdfObject.add(parseIntValue(cursor, stringCache));
-            } else if (nextByte == WIDESTRING) {
-                vdfObject.add(parseWideStringValue(cursor, stringCache));
-            } else {
-                throw new IllegalStateException(
-                        "Unhandled parsing for byte while parsing key=" + keyName + " => " + nextByte);
+            switch (nextByte) {
+                case BEGIN_OBJECT -> vdfObject.add(parseVdfObject(cursor, stringCache));
+                case STRING -> vdfObject.add(parseStringValue(cursor, stringCache));
+                case INT_32, POINTER, COLOR -> vdfObject.add(parseIntValue(cursor, stringCache));
+                case FLOAT_32 -> vdfObject.add(parseFloatValue(cursor, stringCache));
+                case INT_64 -> vdfObject.add(parseLongValue(cursor, stringCache));
+                case WIDESTRING -> vdfObject.add(parseWideStringValue(cursor, stringCache));
+                default ->
+                    throw new IllegalStateException(
+                            "Unhandled parsing for byte while parsing key=" + keyName + " => " + nextByte);
             }
         }
 
@@ -340,11 +464,19 @@ public class AppCacheBufferedReader {
             return new String(data, start, pos - start - 1, StandardCharsets.UTF_8);
         }
 
+        // Scans the local array/index directly instead of going through readByte(), since this is
+        // called once per byte of every string value across every app in the cache.
         void skipCString() throws EOFException {
-            byte b = readByte();
-            while (b < BEGIN_OBJECT || b > END_OBJECT) {
-                b = readByte();
+            int p = pos;
+            int length = data.length;
+            while (p < length) {
+                byte b = data[p++];
+                if (b >= BEGIN_OBJECT && b <= END_OBJECT) {
+                    pos = p;
+                    return;
+                }
             }
+            throw new EOFException("Unexpected end of stream");
         }
 
         int position() {
