@@ -108,7 +108,7 @@ public class AppCacheBufferedReader {
      */
     public Map<Long, App> readSome(Set<Long> targetAppIds) throws IOException {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
-            Header header = readHeader(bufferedInputStream);
+            Header header = readHeader(bufferedInputStream, null);
             SomeApps selector = new SomeApps(targetAppIds);
             scanAppEntries(bufferedInputStream, header, selector);
             return selector.results();
@@ -122,7 +122,7 @@ public class AppCacheBufferedReader {
      */
     public Optional<App> readFirst(Predicate<App> predicate) throws IOException {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(path.toFile()))) {
-            Header header = readHeader(bufferedInputStream);
+            Header header = readHeader(bufferedInputStream, null);
             FirstMatch selector = new FirstMatch(predicate);
             scanAppEntries(bufferedInputStream, header, selector);
             return Optional.ofNullable(selector.result());
@@ -131,7 +131,13 @@ public class AppCacheBufferedReader {
 
     private record Header(boolean parseSha1Binary, StringCache stringCache) {}
 
-    private Header readHeader(InputStream inputStream) throws IOException {
+    /**
+     * Reads the header from a stream positioned at its start. If {@code fullFileData} is non-null
+     * (the caller already has the whole file in memory, e.g. via {@link Files#readAllBytes}), the
+     * string table is read out of it directly instead of re-reading the file from disk - avoiding
+     * a second I/O pass and a possible inconsistency if the file changed between the two reads.
+     */
+    private Header readHeader(InputStream inputStream, byte[] fullFileData) throws IOException {
         String firstFourBytes = readFourBytes(inputStream);
         AppCacheFormat appCacheFormat = AppCacheFormat.fromFirstFourBytes(firstFourBytes);
         boolean parseSha1Binary = appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_EIGHT);
@@ -143,7 +149,10 @@ public class AppCacheBufferedReader {
         StringCache stringCache = null;
         if (appCacheFormat.isAtLeast(AppCacheFormat.TWENTY_NINE)) {
             long offsetToStringTable = parse64Long(inputStream);
-            stringCache = new StringCacheReader(path, offsetToStringTable).read();
+            StringCacheReader stringCacheReader = fullFileData != null
+                    ? new StringCacheReader(fullFileData, offsetToStringTable)
+                    : new StringCacheReader(path, offsetToStringTable);
+            stringCache = stringCacheReader.read();
         }
         return new Header(parseSha1Binary, stringCache);
     }
@@ -155,7 +164,7 @@ public class AppCacheBufferedReader {
     public AppCache read(int parallelism) throws IOException {
         byte[] data = Files.readAllBytes(path);
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
-        Header header = readHeader(byteArrayInputStream);
+        Header header = readHeader(byteArrayInputStream, data);
         int entriesStart = data.length - byteArrayInputStream.available();
 
         List<EntryLocation> entries = indexEntries(data, entriesStart);
