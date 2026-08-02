@@ -1,13 +1,11 @@
 package com.selesse.steam;
 
 import com.selesse.steam.processes.GameOverlayProcessLocator;
+import java.util.OptionalLong;
 
 public class GameRunningDetector {
-    public static boolean isGameCurrentlyRunning() {
-        return GameOverlayProcessLocator.getRunningAppId() > 0;
-    }
-
-    public static long getCurrentlyRunningGameId() {
-        return GameOverlayProcessLocator.getRunningAppId();
+    public static OptionalLong getCurrentlyRunningGameId() {
+        long appId = GameOverlayProcessLocator.getRunningAppId();
+        return appId > 0 ? OptionalLong.of(appId) : OptionalLong.empty();
     }
 }

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,11 +75,10 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
             monitor.run();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
         }
 
@@ -95,11 +95,10 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(99L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(99L));
             monitor.run();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
         }
 
@@ -116,15 +115,14 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
             monitor.run();
             monitor.run();
             monitor.run();
 
             verify(syncConfig, never()).getGamesFile();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
 
             verify(syncConfig, times(1)).getGamesFile();
@@ -141,14 +139,13 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
             monitor.run();
 
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(367520L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(367520L));
             monitor.run();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
         }
 
@@ -166,14 +163,13 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(99L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(99L));
             monitor.run();
 
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
             monitor.run();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
         }
 
@@ -199,8 +195,7 @@ public class GameMonitorTest {
 
             GameMonitor monitor = new GameMonitor(context);
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(99L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(99L));
             monitor.run();
         }
 
@@ -236,11 +231,10 @@ public class GameMonitorTest {
             doReturn(brotato).when(context).loadGame(1236720L);
 
             GameMonitor monitor = new GameMonitor(context);
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(true);
-            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
             monitor.run();
 
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenReturn(false);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
             monitor.run();
         }
 
@@ -270,7 +264,7 @@ public class GameMonitorTest {
         gameMonitorLogger.addAppender(logCapture);
 
         try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class)) {
-            detector.when(GameRunningDetector::isGameCurrentlyRunning).thenThrow(new RuntimeException("boom"));
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenThrow(new RuntimeException("boom"));
 
             GameMonitor monitor = new GameMonitor(context);
             assertThatCode(monitor::run).doesNotThrowAnyException();

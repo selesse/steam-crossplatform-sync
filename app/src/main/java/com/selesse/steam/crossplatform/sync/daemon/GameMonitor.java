@@ -5,6 +5,7 @@ import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSession;
+import java.util.OptionalLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,10 @@ public class GameMonitor implements Runnable {
         // callback (see startTracking() below) - the latter has no caller able to observe or log
         // a thrown exception, so it must never escape this method.
         try {
-            if (GameRunningDetector.isGameCurrentlyRunning()) {
-                long currentGameId = GameRunningDetector.getCurrentlyRunningGameId();
+            OptionalLong currentGameIdMaybe = GameRunningDetector.getCurrentlyRunningGameId();
+
+            if (currentGameIdMaybe.isPresent()) {
+                long currentGameId = currentGameIdMaybe.getAsLong();
 
                 if (currentGame == null) {
                     currentGame = startTracking(currentGameId);
