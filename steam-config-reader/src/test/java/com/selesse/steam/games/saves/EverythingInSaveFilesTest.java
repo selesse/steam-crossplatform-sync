@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import com.selesse.files.OsAgnosticPaths;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.TestGames;
 import com.selesse.steam.games.SteamInstallationPaths;
@@ -54,7 +55,7 @@ public class EverythingInSaveFilesTest {
         // Wargroove has no native Linux depot but declares an explicit Linux rootoverride
         // (useinstead: LinuxXdgDataHome). Even with Proton "active", that explicit override must win.
         SteamApp steamApp = realFixtureSteamApp(TestGames.WARGROOVE);
-        String xdgDataHome = System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share");
+        String xdgDataHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share"));
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
             List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).getLinuxSavePaths();
@@ -70,7 +71,7 @@ public class EverythingInSaveFilesTest {
         // "LinuxXdgConfigHome" used to pass through SteamPathConverter unconverted. Also proves
         // this explicit override wins over Proton, exactly like the Wargroove case above.
         SteamApp steamApp = gameWithLinuxXdgConfigHomeOverride();
-        String xdgConfigHome = System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config");
+        String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
             List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).getLinuxSavePaths();
