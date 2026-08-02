@@ -1,11 +1,11 @@
 package com.selesse.steam.user;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,20 +16,12 @@ public class SteamAccountIdFinder {
     @VisibleForTesting
     SteamAccountIdFinder() {}
 
-    private Optional<SteamAccountId> find() {
-        var os = OperatingSystems.get();
-        if (os == OperatingSystems.OperatingSystem.WINDOWS) {
-            return WindowsUserIdFinder.find();
-        } else {
-            return new SteamAccountIdFinder().findMostRecentUserIdIfPresent();
-        }
-    }
-
     public static Optional<SteamAccountId> findIfPresent() {
-        return new SteamAccountIdFinder().find();
+        return new SteamAccountIdFinder().findCurrentUserId();
     }
 
-    Optional<SteamAccountId> findMostRecentUserIdIfPresent() {
+    @VisibleForTesting
+    Optional<SteamAccountId> findCurrentUserId() {
         var loginUsersRegistryMaybe = readLoginUsers();
         if (loginUsersRegistryMaybe.isEmpty()) {
             LOGGER.info("Could not find loginusers.vdf");
@@ -40,23 +32,34 @@ public class SteamAccountIdFinder {
                 .map(RegistryObject::getKeys)
                 .orElse(new ArrayList<>());
 
-        var mostRecentUserId = userIds.stream()
-                .filter(userId -> {
-                    var mostRecent = loginUsersRegistry.getObjectValueAsString("users/%s/MostRecent".formatted(userId));
-                    return mostRecent != null && "1".equals(mostRecent.getValue());
-                })
-                .findFirst();
-
-        if (mostRecentUserId.isPresent()) {
-            return mostRecentUserId.map(SteamAccountId::new);
+        if (userIds.isEmpty()) {
+            return Optional.empty();
         }
 
         if (userIds.size() == 1) {
-            LOGGER.info("No user marked as MostRecent, falling back to the only user present");
             return Optional.of(new SteamAccountId(userIds.get(0)));
         }
 
-        return Optional.empty();
+        var autoLoginUserId = userIds.stream()
+                .filter(userId -> {
+                    var autoLogin = loginUsersRegistry.getObjectValueAsString("users/%s/AutoLogin".formatted(userId));
+                    return autoLogin != null && "1".equals(autoLogin.getValue());
+                })
+                .findFirst();
+
+        if (autoLoginUserId.isPresent()) {
+            return autoLoginUserId.map(SteamAccountId::new);
+        }
+
+        LOGGER.info("No user marked as AutoLogin, falling back to the most recently logged in user");
+        return userIds.stream()
+                .max(Comparator.comparingLong(userId -> getTimestamp(loginUsersRegistry, userId)))
+                .map(SteamAccountId::new);
+    }
+
+    private static long getTimestamp(RegistryObject loginUsersRegistry, String userId) {
+        var timestamp = loginUsersRegistry.getObjectValueAsString("users/%s/Timestamp".formatted(userId));
+        return timestamp != null ? Long.parseLong(timestamp.getValue()) : 0L;
     }
 
     @VisibleForTesting

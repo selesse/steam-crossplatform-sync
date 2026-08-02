@@ -11,15 +11,16 @@ import org.mockito.Mockito;
 public class SteamAccountPathReplacerTest {
     @Test
     public void replaceHandlesEmpty64BitIds() {
-        MockedStatic<SteamAccountIdFinder> steamAccountIdFinderMockedStatic =
-                Mockito.mockStatic(SteamAccountIdFinder.class);
-        steamAccountIdFinderMockedStatic
-                .when(SteamAccountIdFinder::findIfPresent)
-                .thenReturn(Optional.empty());
+        try (MockedStatic<SteamAccountIdFinder> steamAccountIdFinderMockedStatic =
+                Mockito.mockStatic(SteamAccountIdFinder.class)) {
+            steamAccountIdFinderMockedStatic
+                    .when(SteamAccountIdFinder::findIfPresent)
+                    .thenReturn(Optional.empty());
 
-        SteamAccountPathReplacer steamAccountPathReplacer = new SteamAccountPathReplacer();
+            SteamAccountPathReplacer steamAccountPathReplacer = new SteamAccountPathReplacer();
 
-        assertThat(steamAccountPathReplacer.replace("/Users/alex/torchlight/{64BitSteamID}/*", "**"))
-                .isEqualTo("/Users/alex/torchlight/**/*");
+            assertThat(steamAccountPathReplacer.replace("/Users/alex/torchlight/{64BitSteamID}/*", "**"))
+                    .isEqualTo("/Users/alex/torchlight/**/*");
+        }
     }
 }

@@ -13,13 +13,13 @@ import org.mockito.Mockito;
 
 public class SteamAccountIdFinderTest {
     @Test
-    public void canFindUserId_whenLoginUsersIsPresent() {
+    public void findsAutoLoginUser_whenMultipleUsersArePresent() {
         SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
         var loginUsers =
                 RegistryParser.parse(RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers.vdf")));
         doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
 
-        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findMostRecentUserIdIfPresent();
+        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findCurrentUserId();
         assertThat(steamAccountIdMaybe.orElseThrow()).isEqualTo(new SteamAccountId("76561197960287930"));
     }
 
@@ -28,17 +28,28 @@ public class SteamAccountIdFinderTest {
         var userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
         doReturn(Optional.empty()).when(userIdFinderSpy).readLoginUsers();
 
-        assertThat(userIdFinderSpy.findMostRecentUserIdIfPresent()).isEmpty();
+        assertThat(userIdFinderSpy.findCurrentUserId()).isEmpty();
     }
 
     @Test
-    public void fallsBackToOnlyUserId_whenNoUserIsMarkedMostRecent() {
+    public void fallsBackToOnlyUserId_whenOnlyOneUserIsPresent() {
         SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
         var loginUsers = RegistryParser.parse(
-                RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_single_no_most_recent.vdf")));
+                RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_single.vdf")));
         doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
 
-        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findMostRecentUserIdIfPresent();
+        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findCurrentUserId();
         assertThat(steamAccountIdMaybe.orElseThrow()).isEqualTo(new SteamAccountId("76561198009129143"));
+    }
+
+    @Test
+    public void fallsBackToMostRecentTimestamp_whenNoUserIsMarkedAutoLogin() {
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        var loginUsers = RegistryParser.parse(
+                RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_timestamp_fallback.vdf")));
+        doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
+
+        Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findCurrentUserId();
+        assertThat(steamAccountIdMaybe.orElseThrow()).isEqualTo(new SteamAccountId("76561199027325428"));
     }
 }
