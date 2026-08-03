@@ -28,7 +28,7 @@ public class BypassRegistrySaveFile extends SaveFile {
         return objectMapper.readValue(inputStream, SaveFileOverrides.class);
     }
 
-    @Override
+    /** Whether this app has a hand-maintained override, and so bypasses the ufs registry entirely. */
     public boolean applies() {
         return saveFileOverrides.overrides().stream()
                 .anyMatch(x -> steamApp.getName().equals(x.game()));

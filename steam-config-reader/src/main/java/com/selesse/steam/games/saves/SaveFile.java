@@ -15,8 +15,6 @@ public abstract class SaveFile {
         this.ufs = steamApp.getRegistryObject().getObjectValueAsObject("ufs");
     }
 
-    public abstract boolean applies();
-
     /**
      * Where this app's saves live when running on {@code os}. Only windows/macos/linux are ever
      * passed in - SteamOS is normalized to Linux upstream, in {@link SteamApp#getSavePaths}.

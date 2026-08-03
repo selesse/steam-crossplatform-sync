@@ -15,12 +15,6 @@ public class EverythingInSaveFiles extends SaveFile {
     }
 
     @Override
-    public boolean applies() {
-        return ufs.pathExists("savefiles")
-                && ufs.getObjectValueAsObject("savefiles").getKeys().size() > 1;
-    }
-
-    @Override
     public List<UserFileSystemPath> savePathsFor(OperatingSystems.OperatingSystem os) {
         var saveFileObjects = ufs.getObjectValueAsObject("savefiles").getKeys().stream()
                 .map(key -> ufs.getObjectValueAsObject("savefiles/" + key))
