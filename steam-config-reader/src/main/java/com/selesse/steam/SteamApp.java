@@ -60,28 +60,11 @@ public class SteamApp {
         return getSupportedOperatingSystems().contains(operatingSystem);
     }
 
-    public String getWindowsInstallationPath() {
-        return new UserFileSystem(this).getWindowsInstallationPath();
-    }
-
-    public List<UserFileSystemPath> getWindowsInstallationPaths() {
-        return new UserFileSystem(this).getWindowsInstallationPaths();
-    }
-
-    public String getMacInstallationPath() {
-        return new UserFileSystem(this).getMacInstallationPath();
-    }
-
-    public List<UserFileSystemPath> getMacInstallationPaths() {
-        return new UserFileSystem(this).getMacInstallationPaths();
-    }
-
-    public String getLinuxInstallationPath() {
-        return new UserFileSystem(this).getLinuxInstallationPath();
-    }
-
-    public List<UserFileSystemPath> getLinuxInstallationPaths() {
-        return new UserFileSystem(this).getLinuxInstallationPaths();
+    /**
+     * Where this app's saves live when running on {@code os}, or empty if it has none there.
+     */
+    public List<UserFileSystemPath> getSavePaths(OperatingSystems.OperatingSystem os) {
+        return new UserFileSystem(this).getSavePaths(os);
     }
 
     public boolean hasUserFileSystem() {

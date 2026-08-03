@@ -10,6 +10,7 @@ import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -44,43 +45,43 @@ public class TestGameInstallationPaths {
         SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
-            var windowsInstallationPaths = steamApp.getWindowsInstallationPaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(windowsInstallationPaths).isEqualTo(gameTestCase.windowsPath());
-            var windowsSavePaths = saveFile.getWindowsSavePaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(windowsSavePaths).isEqualTo(gameTestCase.windowsPath());
+            assertThat(symbolPaths(steamApp, OperatingSystems.OperatingSystem.WINDOWS))
+                    .isEqualTo(gameTestCase.windowsPath());
+            assertThat(symbolPaths(saveFile, OperatingSystems.OperatingSystem.WINDOWS))
+                    .isEqualTo(gameTestCase.windowsPath());
         }
         if (gameTestCase.mac() != null) {
-            var macInstallationPaths = steamApp.getMacInstallationPaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(macInstallationPaths).isEqualTo(gameTestCase.macPath());
-            var macSavePaths = saveFile.getMacSavePaths().stream()
-                    .map(UserFileSystemPath::getSymbolPath)
-                    .toList();
-            assertThat(macSavePaths).isEqualTo(gameTestCase.macPath());
+            assertThat(symbolPaths(steamApp, OperatingSystems.OperatingSystem.MAC))
+                    .isEqualTo(gameTestCase.macPath());
+            assertThat(symbolPaths(saveFile, OperatingSystems.OperatingSystem.MAC))
+                    .isEqualTo(gameTestCase.macPath());
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
             fail(steamApp.getName() + " supports OS X but no path was provided. " + "Add \""
-                    + steamApp.getMacInstallationPath() + "\" to the file.");
+                    + symbolPaths(steamApp, OperatingSystems.OperatingSystem.MAC) + "\" to the file.");
         }
         if (gameTestCase.linux() != null) {
             if (!gameTestCase.linux().contains("unsupported")) {
-                var linuxInstallationPaths = steamApp.getLinuxInstallationPaths().stream()
-                        .map(UserFileSystemPath::getSymbolPath)
-                        .toList();
-                assertThat(linuxInstallationPaths).isEqualTo(gameTestCase.linuxPath());
-                var linuxSavePaths = saveFile.getLinuxSavePaths().stream()
-                        .map(UserFileSystemPath::getSymbolPath)
-                        .toList();
-                assertThat(linuxSavePaths).isEqualTo(gameTestCase.linuxPath());
+                assertThat(symbolPaths(steamApp, OperatingSystems.OperatingSystem.LINUX))
+                        .isEqualTo(gameTestCase.linuxPath());
+                assertThat(symbolPaths(saveFile, OperatingSystems.OperatingSystem.LINUX))
+                        .isEqualTo(gameTestCase.linuxPath());
             }
         } else if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
             fail(steamApp.getName() + " supports Linux but no path was provided. " + "Add \""
-                    + steamApp.getLinuxInstallationPath() + "\" to the file.");
+                    + symbolPaths(steamApp, OperatingSystems.OperatingSystem.LINUX) + "\" to the file.");
         }
+    }
+
+    private List<String> symbolPaths(SteamApp steamApp, OperatingSystems.OperatingSystem os) {
+        return steamApp.getSavePaths(os).stream()
+                .map(UserFileSystemPath::getSymbolPath)
+                .toList();
+    }
+
+    private List<String> symbolPaths(SaveFile saveFile, OperatingSystems.OperatingSystem os) {
+        return saveFile.savePathsFor(os).stream()
+                .map(UserFileSystemPath::getSymbolPath)
+                .toList();
     }
 
     @Parameterized.Parameters(name = "#{0}")

@@ -22,7 +22,7 @@ public class FindUndetectedSaveFiles {
                 List<OperatingSystems.OperatingSystem> operatingSystems = steamGame.supportedOperatingSystems();
                 for (OperatingSystems.OperatingSystem operatingSystem : operatingSystems) {
                     try {
-                        List<UserFileSystemPath> installationPaths = steamGame.getInstallationPaths(operatingSystem);
+                        List<UserFileSystemPath> installationPaths = steamGame.getSavePaths(operatingSystem);
                         if (installationPaths.isEmpty()) {
                             throw new RuntimeException("Did not find installation path for OS " + operatingSystem);
                         }

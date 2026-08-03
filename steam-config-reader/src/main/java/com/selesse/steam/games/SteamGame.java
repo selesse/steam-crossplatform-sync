@@ -40,24 +40,8 @@ public class SteamGame {
         return app.hasUserFileSystem();
     }
 
-    public List<UserFileSystemPath> getInstallationPaths(OperatingSystems.OperatingSystem operatingSystem) {
-        return switch (operatingSystem) {
-            case WINDOWS -> getWindowsInstallationPaths();
-            case MAC -> getMacInstallationPaths();
-            case LINUX, STEAM_OS -> getLinuxInstallationPaths();
-        };
-    }
-
-    public List<UserFileSystemPath> getWindowsInstallationPaths() {
-        return app.getWindowsInstallationPaths();
-    }
-
-    public List<UserFileSystemPath> getMacInstallationPaths() {
-        return app.getMacInstallationPaths();
-    }
-
-    public List<UserFileSystemPath> getLinuxInstallationPaths() {
-        return app.getLinuxInstallationPaths();
+    public List<UserFileSystemPath> getSavePaths(OperatingSystems.OperatingSystem os) {
+        return app.getSavePaths(os);
     }
 
     public boolean isGame() {
@@ -73,34 +57,20 @@ public class SteamGame {
         return metadata.toString();
     }
 
-    public boolean hasWindowsPath() {
+    /** Whether {@link #getSavePaths} resolves to anything for {@code os}. */
+    public boolean hasSavePathsFor(OperatingSystems.OperatingSystem os) {
         try {
-            return getWindowsInstallationPaths() != null
-                    && !getWindowsInstallationPaths().isEmpty();
+            return !getSavePaths(os).isEmpty();
         } catch (RuntimeException e) {
             return false;
         }
     }
 
-    public boolean hasMacPath() {
-        try {
-            return getMacInstallationPaths() != null
-                    && !getMacInstallationPaths().isEmpty();
-        } catch (RuntimeException e) {
-            return false;
-        }
-    }
-
-    public boolean hasLinuxPath() {
-        try {
-            return getLinuxInstallationPaths() != null
-                    && !getLinuxInstallationPaths().isEmpty();
-        } catch (RuntimeException e) {
-            return false;
-        }
-    }
-
-    public boolean hasComputedInstallationPath() {
-        return Stream.of(hasWindowsPath(), hasMacPath(), hasLinuxPath()).anyMatch(x -> x);
+    public boolean hasAnySavePaths() {
+        return Stream.of(
+                        OperatingSystems.OperatingSystem.WINDOWS,
+                        OperatingSystems.OperatingSystem.MAC,
+                        OperatingSystems.OperatingSystem.LINUX)
+                .anyMatch(this::hasSavePathsFor);
     }
 }

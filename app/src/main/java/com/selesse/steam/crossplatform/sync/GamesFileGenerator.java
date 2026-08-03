@@ -24,7 +24,7 @@ public class GamesFileGenerator {
         List<SyncableGameRaw> syncableGames = Lists.newArrayList();
 
         for (SteamGame steamGame : steamGames) {
-            if (steamGame.hasUserCloud() && steamGame.hasComputedInstallationPath()) {
+            if (steamGame.hasUserCloud() && steamGame.hasAnySavePaths()) {
                 List<String> windowsPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.WINDOWS);
                 List<String> macPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.MAC);
                 List<String> linuxPaths = getPathsOrNull(steamGame, OperatingSystems.OperatingSystem.LINUX);
@@ -43,16 +43,16 @@ public class GamesFileGenerator {
         objectMapper.writeValue(System.out, gameConfigRaw);
     }
 
+    // Null rather than an empty list, so games.yml simply omits the key for an OS the game
+    // doesn't run on. Windows is always emitted: a game with no oslist is treated as
+    // Windows-only, and Windows-rooted save paths are the fallback shape regardless.
     private List<String> getPathsOrNull(SteamGame steamGame, OperatingSystems.OperatingSystem os) {
-        var installationPaths =
-                switch (os) {
-                    case MAC -> steamGame.getMacInstallationPaths();
-                    case WINDOWS -> steamGame.getWindowsInstallationPaths();
-                    case LINUX, STEAM_OS -> steamGame.getLinuxInstallationPaths();
-                };
-        if (installationPaths == null) {
+        if (os != OperatingSystems.OperatingSystem.WINDOWS
+                && !steamGame.supportedOperatingSystems().contains(os)) {
             return null;
         }
-        return installationPaths.stream().map(UserFileSystemPath::getSymbolPath).toList();
+        return steamGame.getSavePaths(os).stream()
+                .map(UserFileSystemPath::getSymbolPath)
+                .toList();
     }
 }

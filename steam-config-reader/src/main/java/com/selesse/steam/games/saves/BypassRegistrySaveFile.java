@@ -1,10 +1,12 @@
 package com.selesse.steam.games.saves;
 
+import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.os.Resources;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import tools.jackson.databind.ObjectMapper;
 
 public class BypassRegistrySaveFile extends SaveFile {
@@ -33,18 +35,15 @@ public class BypassRegistrySaveFile extends SaveFile {
     }
 
     @Override
-    public UserFileSystemPath getMacInfo() {
-        return new UserFileSystemPath(getOverride().mac());
-    }
-
-    @Override
-    public UserFileSystemPath getWindowsInfo() {
-        return new UserFileSystemPath(getOverride().windows());
-    }
-
-    @Override
-    public UserFileSystemPath getLinuxInfo() {
-        return new UserFileSystemPath(getOverride().linux());
+    public List<UserFileSystemPath> savePathsFor(OperatingSystem os) {
+        SaveFileOverride override = getOverride();
+        String path =
+                switch (os) {
+                    case WINDOWS -> override.windows();
+                    case MAC -> override.mac();
+                    case LINUX, STEAM_OS -> override.linux();
+                };
+        return List.of(new UserFileSystemPath(path));
     }
 
     private SaveFileOverride getOverride() {

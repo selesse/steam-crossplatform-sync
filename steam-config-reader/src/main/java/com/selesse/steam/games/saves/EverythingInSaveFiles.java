@@ -21,36 +21,7 @@ public class EverythingInSaveFiles extends SaveFile {
     }
 
     @Override
-    public UserFileSystemPath getWindowsInfo() {
-        return getWindowsSavePaths().get(0);
-    }
-
-    @Override
-    public UserFileSystemPath getMacInfo() {
-        return getMacSavePaths().get(0);
-    }
-
-    @Override
-    public UserFileSystemPath getLinuxInfo() {
-        return getLinuxSavePaths().get(0);
-    }
-
-    @Override
-    public List<UserFileSystemPath> getWindowsSavePaths() {
-        return getSaveFiles(OperatingSystems.OperatingSystem.WINDOWS);
-    }
-
-    @Override
-    public List<UserFileSystemPath> getMacSavePaths() {
-        return getSaveFiles(OperatingSystems.OperatingSystem.MAC);
-    }
-
-    @Override
-    public List<UserFileSystemPath> getLinuxSavePaths() {
-        return getSaveFiles(OperatingSystems.OperatingSystem.LINUX);
-    }
-
-    private List<UserFileSystemPath> getSaveFiles(OperatingSystems.OperatingSystem os) {
+    public List<UserFileSystemPath> savePathsFor(OperatingSystems.OperatingSystem os) {
         var saveFileObjects = ufs.getObjectValueAsObject("savefiles").getKeys().stream()
                 .map(key -> ufs.getObjectValueAsObject("savefiles/" + key))
                 .map(registryObject -> new SaveFileObject(steamApp, registryObject))
@@ -106,7 +77,7 @@ public class EverythingInSaveFiles extends SaveFile {
             return Optional.empty();
         }
 
-        List<UserFileSystemPath> windowsSavePaths = getWindowsSavePaths();
+        List<UserFileSystemPath> windowsSavePaths = savePathsFor(OperatingSystems.OperatingSystem.WINDOWS);
         boolean allWinRooted = !windowsSavePaths.isEmpty()
                 && windowsSavePaths.stream().allMatch(p -> p.getRoot().startsWith("Win"));
         if (!allWinRooted) {

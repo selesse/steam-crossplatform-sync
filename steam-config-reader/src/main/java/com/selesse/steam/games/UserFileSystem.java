@@ -1,8 +1,7 @@
 package com.selesse.steam.games;
 
-import com.selesse.os.OperatingSystems;
+import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.steam.SteamApp;
-import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.games.saves.SaveFilesFactory;
 import java.util.List;
 
@@ -13,43 +12,18 @@ public class UserFileSystem {
         this.steamApp = steamApp;
     }
 
-    public String getWindowsInstallationPath() {
-        return getSaveFile().getWindowsInfo().getSymbolPath();
-    }
-
-    public List<UserFileSystemPath> getWindowsInstallationPaths() {
-        return getSaveFile().getWindowsSavePaths();
-    }
-
-    public String getMacInstallationPath() {
-        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
-            return getSaveFile().getMacInfo().getSymbolPath();
+    /**
+     * Where this app's saves live when running on {@code os}, or empty if it has none there.
+     */
+    public List<UserFileSystemPath> getSavePaths(OperatingSystem os) {
+        // ufs entries and rootoverrides only ever describe windows/macos/linux, so SteamOS reads
+        // as Linux from here down. Windows is never gated on declared support: an app with no
+        // oslist is treated as Windows-only, and Windows-rooted ufs entries are the fallback
+        // shape even for apps that don't list Windows.
+        OperatingSystem target = os == OperatingSystem.STEAM_OS ? OperatingSystem.LINUX : os;
+        if (target != OperatingSystem.WINDOWS && !steamApp.supports(target)) {
+            return List.of();
         }
-        return null;
-    }
-
-    public List<UserFileSystemPath> getMacInstallationPaths() {
-        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.MAC)) {
-            return getSaveFile().getMacSavePaths();
-        }
-        return null;
-    }
-
-    public String getLinuxInstallationPath() {
-        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
-            return getSaveFile().getLinuxInfo().getSymbolPath();
-        }
-        return null;
-    }
-
-    public List<UserFileSystemPath> getLinuxInstallationPaths() {
-        if (steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX)) {
-            return getSaveFile().getLinuxSavePaths();
-        }
-        return null;
-    }
-
-    private SaveFile getSaveFile() {
-        return SaveFilesFactory.determineSaveFile(steamApp);
+        return SaveFilesFactory.determineSaveFile(steamApp).savePathsFor(target);
     }
 }

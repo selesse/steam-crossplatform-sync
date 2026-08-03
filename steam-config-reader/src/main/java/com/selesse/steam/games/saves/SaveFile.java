@@ -1,5 +1,6 @@
 package com.selesse.steam.games.saves;
 
+import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.implementation.RegistryObject;
@@ -7,32 +8,19 @@ import java.util.List;
 
 public abstract class SaveFile {
     protected final SteamApp steamApp;
-    protected final RegistryObject gameRegistry;
     protected final RegistryObject ufs;
 
     public SaveFile(SteamApp steamApp) {
         this.steamApp = steamApp;
-        this.gameRegistry = steamApp.getRegistryObject();
-        this.ufs = gameRegistry.getObjectValueAsObject("ufs");
+        this.ufs = steamApp.getRegistryObject().getObjectValueAsObject("ufs");
     }
 
     public abstract boolean applies();
 
-    public abstract UserFileSystemPath getMacInfo();
-
-    public abstract UserFileSystemPath getWindowsInfo();
-
-    public abstract UserFileSystemPath getLinuxInfo();
-
-    public List<UserFileSystemPath> getWindowsSavePaths() {
-        return List.of(getWindowsInfo());
-    }
-
-    public List<UserFileSystemPath> getMacSavePaths() {
-        return List.of(getMacInfo());
-    }
-
-    public List<UserFileSystemPath> getLinuxSavePaths() {
-        return List.of(getLinuxInfo());
-    }
+    /**
+     * Where this app's saves live when running on {@code os}. Only windows/macos/linux are ever
+     * passed in - SteamOS is normalized to Linux upstream, in {@link
+     * com.selesse.steam.games.UserFileSystem#getSavePaths}.
+     */
+    public abstract List<UserFileSystemPath> savePathsFor(OperatingSystem os);
 }
