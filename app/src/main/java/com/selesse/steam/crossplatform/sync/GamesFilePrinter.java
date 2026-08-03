@@ -2,7 +2,7 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.google.common.base.Joiner;
 import com.selesse.os.OperatingSystems.OperatingSystem;
-import com.selesse.steam.games.SteamGame;
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,25 +19,25 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamGame> steamGames = new ArrayList<>(context.fetchAllGamesOrLoadInstalledGames());
-        steamGames.sort(Comparator.comparing(SteamGame::getName));
-        steamGames.forEach(this::printSteamGame);
+        List<SteamApp> steamApps = new ArrayList<>(context.fetchAllGamesOrLoadInstalledGames());
+        steamApps.sort(Comparator.comparing(SteamApp::getName));
+        steamApps.forEach(this::printApp);
     }
 
     public void run(Long... gameIds) {
         for (Long gameId : gameIds) {
-            printSteamGame(context.loadGame(gameId));
+            printApp(context.loadGame(gameId));
         }
     }
 
-    private void printSteamGame(SteamGame steamGame) {
-        if (!steamGame.isGame()) {
+    private void printApp(SteamApp steamApp) {
+        if (!steamApp.isGame()) {
             return;
         }
-        System.out.println(steamGame.metadata());
-        System.out.println("  Supported OSes: " + Joiner.on(", ").join(steamGame.supportedOperatingSystems()));
+        System.out.println(steamApp);
+        System.out.println("  Supported OSes: " + Joiner.on(", ").join(steamApp.getSupportedOperatingSystems()));
 
-        if (!steamGame.hasUserCloud()) {
+        if (!steamApp.hasUserFileSystem()) {
             System.out.println("  No save data found");
             System.out.println("");
             return;
@@ -45,22 +45,22 @@ public class GamesFilePrinter {
 
         boolean printedAnyPath = false;
         for (OperatingSystem os : PRINTED_OSES) {
-            for (UserFileSystemPath path : savePathsOrEmpty(steamGame, os)) {
+            for (UserFileSystemPath path : savePathsOrEmpty(steamApp, os)) {
                 System.out.println("  " + label(os) + " path: " + path.getSymbolPath());
                 printedAnyPath = true;
             }
         }
         if (!printedAnyPath) {
-            System.out.println("  Did not compute installation path for " + steamGame);
+            System.out.println("  Did not compute installation path for " + steamApp);
         }
         System.out.println("");
     }
 
     // Printing is best-effort: one OS whose save paths can't be resolved shouldn't stop us from
     // reporting the ones that can.
-    private List<UserFileSystemPath> savePathsOrEmpty(SteamGame steamGame, OperatingSystem os) {
+    private List<UserFileSystemPath> savePathsOrEmpty(SteamApp steamApp, OperatingSystem os) {
         try {
-            return steamGame.getSavePaths(os);
+            return steamApp.getSavePaths(os);
         } catch (RuntimeException e) {
             return List.of();
         }

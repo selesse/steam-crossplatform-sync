@@ -5,8 +5,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
-import com.selesse.steam.games.SteamGame;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRecord;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
 import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
@@ -47,7 +47,7 @@ public class GameNameEnricherTest {
                 "my-hostname",
                 3600));
 
-        SteamGame mockGame = mock(SteamGame.class);
+        SteamApp mockGame = mock(SteamApp.class);
         doReturn("Brotato").when(mockGame).getName();
         doReturn(mockGame).when(context).loadGame(1236720L);
 

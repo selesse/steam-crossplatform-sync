@@ -7,9 +7,9 @@ import static org.mockito.Mockito.*;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.selesse.steam.GameRunningDetector;
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
 import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
@@ -29,8 +29,8 @@ public class GameMonitorTest {
     private GameSessionRepository repository;
     private SteamCrossplatformSyncContext context;
     private SteamCrossplatformSyncConfig syncConfig;
-    private SteamGame brotato;
-    private SteamGame hollowKnight;
+    private SteamApp brotato;
+    private SteamApp hollowKnight;
 
     @Before
     public void setup() throws IOException {
@@ -57,11 +57,11 @@ public class GameMonitorTest {
         context = mock(SteamCrossplatformSyncContext.class);
         doReturn(syncConfig).when(context).getConfig();
 
-        brotato = mock(SteamGame.class);
+        brotato = mock(SteamApp.class);
         doReturn(1236720L).when(brotato).getId();
         doReturn("Brotato").when(brotato).getName();
 
-        hollowKnight = mock(SteamGame.class);
+        hollowKnight = mock(SteamApp.class);
         doReturn(367520L).when(hollowKnight).getId();
         doReturn("Hollow Knight").when(hollowKnight).getName();
     }

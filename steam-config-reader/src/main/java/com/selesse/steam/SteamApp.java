@@ -3,12 +3,13 @@ package com.selesse.steam;
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
-import com.selesse.steam.games.UserFileSystem;
 import com.selesse.steam.games.UserFileSystemPath;
+import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class SteamApp {
     private final RegistryObject registryObject;
@@ -64,10 +65,45 @@ public class SteamApp {
      * Where this app's saves live when running on {@code os}, or empty if it has none there.
      */
     public List<UserFileSystemPath> getSavePaths(OperatingSystems.OperatingSystem os) {
-        return new UserFileSystem(this).getSavePaths(os);
+        // ufs entries and rootoverrides only ever describe windows/macos/linux, so SteamOS reads
+        // as Linux from here down. Windows is never gated on declared support: an app with no
+        // oslist is treated as Windows-only, and Windows-rooted ufs entries are the fallback
+        // shape even for apps that don't list Windows.
+        OperatingSystems.OperatingSystem target =
+                os == OperatingSystems.OperatingSystem.STEAM_OS ? OperatingSystems.OperatingSystem.LINUX : os;
+        if (target != OperatingSystems.OperatingSystem.WINDOWS && !supports(target)) {
+            return List.of();
+        }
+        return SaveFilesFactory.determineSaveFile(this).savePathsFor(target);
+    }
+
+    /** Whether {@link #getSavePaths} resolves to anything for {@code os}. */
+    public boolean hasSavePathsFor(OperatingSystems.OperatingSystem os) {
+        try {
+            return !getSavePaths(os).isEmpty();
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    public boolean hasAnySavePaths() {
+        return Stream.of(
+                        OperatingSystems.OperatingSystem.WINDOWS,
+                        OperatingSystems.OperatingSystem.MAC,
+                        OperatingSystems.OperatingSystem.LINUX)
+                .anyMatch(this::hasSavePathsFor);
     }
 
     public boolean hasUserFileSystem() {
         return registryObject.getObjectValueAsObject("ufs") != null && registryObject.pathExists("ufs/savefiles");
+    }
+
+    public boolean isGame() {
+        return getType() == AppType.GAME;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d)", getName(), getId());
     }
 }

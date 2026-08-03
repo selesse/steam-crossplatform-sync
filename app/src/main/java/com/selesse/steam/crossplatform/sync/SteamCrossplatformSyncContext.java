@@ -1,22 +1,21 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.steam.SteamAccountId;
+import com.selesse.steam.SteamApp;
+import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.InstalledGameFinderService;
-import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.user.SteamAccountIdFinder;
 import java.util.List;
 
 public class SteamCrossplatformSyncContext {
     private final SteamCrossplatformSyncConfig config;
-    private final GameLoadingService gameLoadingService;
     private final InstalledGameFinderService installedGameFinderService;
     private final SteamAccountId steamAccountId;
 
     public SteamCrossplatformSyncContext() {
         this.config = SteamCrossplatformSync.loadConfiguration();
-        this.gameLoadingService = new GameLoadingService();
         this.steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
         this.installedGameFinderService = new InstalledGameFinderService();
     }
@@ -25,13 +24,12 @@ public class SteamCrossplatformSyncContext {
         return config;
     }
 
-    public SteamGame loadGame(long gameId) {
-        return gameLoadingService.loadGame(gameId);
+    public SteamApp loadGame(long gameId) {
+        return SteamAppLoader.load(gameId);
     }
 
-    public List<SteamGame> fetchAllGamesOrLoadInstalledGames() {
-        List<Long> gameIds = installedGameFinderService.find();
-        return gameLoadingService.loadGames(gameIds);
+    public List<SteamApp> fetchAllGamesOrLoadInstalledGames() {
+        return installedGameFinderService.find().stream().map(this::loadGame).toList();
     }
 
     public SteamAccountId getSteamAccountIdIfPresent() {

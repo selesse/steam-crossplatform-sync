@@ -1,8 +1,8 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
 import com.selesse.steam.GameRunningDetector;
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
-import com.selesse.steam.games.SteamGame;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSession;
 import java.util.OptionalLong;
@@ -52,7 +52,7 @@ public class GameMonitor implements Runnable {
     private TrackedGame startTracking(long gameId) {
         TrackedGame tracked;
         try {
-            SteamGame game = context.loadGame(gameId);
+            SteamApp game = context.loadGame(gameId);
             tracked = new KnownGame(game, GameSession.start(game));
             LOGGER.info("Game launched: {}", game.getName());
         } catch (RuntimeException e) {

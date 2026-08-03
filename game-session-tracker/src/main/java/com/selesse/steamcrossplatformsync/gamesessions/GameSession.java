@@ -1,7 +1,7 @@
 package com.selesse.steamcrossplatformsync.gamesessions;
 
 import com.selesse.os.Hostnames;
-import com.selesse.steam.games.SteamGame;
+import com.selesse.steam.SteamApp;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -28,8 +28,8 @@ public class GameSession {
         this.activePlaytimeSeconds = 0;
     }
 
-    public static GameSession start(SteamGame steamGame) {
-        return start(steamGame.getId(), steamGame.getName());
+    public static GameSession start(SteamApp steamApp) {
+        return start(steamApp.getId(), steamApp.getName());
     }
 
     public static GameSession start(long gameId, String gameName) {

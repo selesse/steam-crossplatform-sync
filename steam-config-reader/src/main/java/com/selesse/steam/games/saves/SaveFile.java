@@ -19,8 +19,7 @@ public abstract class SaveFile {
 
     /**
      * Where this app's saves live when running on {@code os}. Only windows/macos/linux are ever
-     * passed in - SteamOS is normalized to Linux upstream, in {@link
-     * com.selesse.steam.games.UserFileSystem#getSavePaths}.
+     * passed in - SteamOS is normalized to Linux upstream, in {@link SteamApp#getSavePaths}.
      */
     public abstract List<UserFileSystemPath> savePathsFor(OperatingSystem os);
 }

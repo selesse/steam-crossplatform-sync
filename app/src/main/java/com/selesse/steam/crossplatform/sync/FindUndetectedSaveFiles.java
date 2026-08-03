@@ -1,7 +1,7 @@
 package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.os.OperatingSystems;
-import com.selesse.steam.games.SteamGame;
+import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryObject;
@@ -15,27 +15,27 @@ public class FindUndetectedSaveFiles {
     }
 
     public void run() {
-        List<SteamGame> steamGames = context.fetchAllGamesOrLoadInstalledGames();
-        for (SteamGame steamGame : steamGames) {
-            if (steamGame.hasUserCloud()) {
+        List<SteamApp> steamApps = context.fetchAllGamesOrLoadInstalledGames();
+        for (SteamApp steamApp : steamApps) {
+            if (steamApp.hasUserFileSystem()) {
                 boolean isFullyIntegrated = true;
-                List<OperatingSystems.OperatingSystem> operatingSystems = steamGame.supportedOperatingSystems();
+                List<OperatingSystems.OperatingSystem> operatingSystems = steamApp.getSupportedOperatingSystems();
                 for (OperatingSystems.OperatingSystem operatingSystem : operatingSystems) {
                     try {
-                        List<UserFileSystemPath> installationPaths = steamGame.getSavePaths(operatingSystem);
+                        List<UserFileSystemPath> installationPaths = steamApp.getSavePaths(operatingSystem);
                         if (installationPaths.isEmpty()) {
                             throw new RuntimeException("Did not find installation path for OS " + operatingSystem);
                         }
                     } catch (RuntimeException e) {
                         isFullyIntegrated = false;
                         System.out.println(
-                                steamGame.getName() + " => " + operatingSystem + " - installation path not found");
+                                steamApp.getName() + " => " + operatingSystem + " - installation path not found");
                     }
                 }
 
                 if (!isFullyIntegrated) {
                     System.out.println("");
-                    RegistryObject ufs = steamGame.getRegistryObject().getObjectValueAsObject("ufs");
+                    RegistryObject ufs = steamApp.getRegistryObject().getObjectValueAsObject("ufs");
                     System.out.println(RegistryPrettyPrint.prettyPrint(ufs));
                     System.out.println("");
                 }
