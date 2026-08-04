@@ -34,15 +34,15 @@ public class App {
             int index = arguments.indexOf("--print-app-cache");
             List<String> argList = Arrays.stream(args).toList();
             if (argList.size() == 1) {
-                new AppCachePrinter().run();
+                new AppCachePrinter(context.getSteamInstall()).run();
             } else {
                 Long[] appIds = argList.subList(index + 1, args.length).stream()
                         .map(Long::parseLong)
                         .toArray(Long[]::new);
-                new AppCachePrinter().run(appIds);
+                new AppCachePrinter(context.getSteamInstall()).run(appIds);
             }
         } else if (arguments.contains("--list-app-ids")) {
-            new AppCachePrinter().listIds();
+            new AppCachePrinter(context.getSteamInstall()).listIds();
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(context).run();
         } else if (arguments.contains("--find-unresolved-save-paths")) {

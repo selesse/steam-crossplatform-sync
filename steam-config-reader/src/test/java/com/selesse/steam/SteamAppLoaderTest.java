@@ -9,7 +9,8 @@ public class SteamAppLoaderTest {
     public void canLoadHollowKnight() {
         TestGames hollowKnightGame = TestGames.HOLLOW_KNIGHT;
 
-        SteamApp hollowKnightApp = SteamAppLoader.load(TestAppCache.PATH, hollowKnightGame.getGameId());
+        SteamApp hollowKnightApp =
+                new SteamAppLoader(TestSteamInstall.get()).load(TestAppCache.PATH, hollowKnightGame.getGameId());
 
         assertThat(hollowKnightApp.getType()).isEqualTo(AppType.GAME);
     }

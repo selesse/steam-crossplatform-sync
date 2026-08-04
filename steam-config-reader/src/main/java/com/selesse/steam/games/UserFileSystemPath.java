@@ -2,37 +2,42 @@ package com.selesse.steam.games;
 
 import static com.selesse.os.OperatingSystems.OperatingSystem;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.selesse.files.OsAgnosticPaths;
 import com.selesse.os.FilePathSanitizer;
+import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.games.saves.SaveFileObject;
 import com.selesse.steam.registry.SteamOperatingSystem;
-import java.util.List;
 
 public class UserFileSystemPath {
     private final String root;
     private final String path;
+    private final SteamAccountId accountId;
 
     private String pattern;
     private boolean recursive;
     private OperatingSystem platform;
 
-    public UserFileSystemPath(String root, String path) {
+    public UserFileSystemPath(String root, String path, SteamAccountId accountId) {
         this.root = root;
         this.path = path;
+        this.accountId = accountId;
     }
 
-    public UserFileSystemPath(String root, String path, String pattern, boolean recursive, OperatingSystem platform) {
-        this(root, path);
+    public UserFileSystemPath(
+            String root,
+            String path,
+            SteamAccountId accountId,
+            String pattern,
+            boolean recursive,
+            OperatingSystem platform) {
+        this(root, path, accountId);
         this.pattern = pattern;
         this.recursive = recursive;
         this.platform = platform;
     }
 
-    public static UserFileSystemPath fromSaveFile(SaveFileObject object, OperatingSystem os) {
-        var userFileSystemPath = new UserFileSystemPath(object.getRoot(os), object.getPath());
+    public static UserFileSystemPath fromSaveFile(SaveFileObject object, OperatingSystem os, SteamAccountId accountId) {
+        var userFileSystemPath = new UserFileSystemPath(object.getRoot(os), object.getPath(), accountId);
         if (object.hasPattern()) {
             userFileSystemPath.pattern = object.getPattern();
         }
@@ -50,12 +55,6 @@ public class UserFileSystemPath {
         return userFileSystemPath;
     }
 
-    public UserFileSystemPath(String fullPath) {
-        List<String> parts = Splitter.on("/").splitToList(fullPath);
-        this.root = Joiner.on("/").join(parts.subList(0, parts.size() - 1));
-        this.path = Iterables.getLast(parts);
-    }
-
     public String getRoot() {
         return root;
     }
@@ -65,7 +64,7 @@ public class UserFileSystemPath {
     }
 
     public String getPath() {
-        String path = new SteamAccountPathReplacer().replace(backslashToForwardSlash(this.path), "**");
+        String path = new SteamAccountPathReplacer(accountId).replace(backslashToForwardSlash(this.path), "**");
         if (pattern != null) {
             if (!path.endsWith("/")) {
                 path += "/";
@@ -77,10 +76,11 @@ public class UserFileSystemPath {
 
     public String getSymbolPath() {
         String convertedRoot = SteamPathConverter.convert(root);
-        if (getPath().startsWith("/") || convertedRoot.endsWith("/")) {
-            return backslashToForwardSlash(convertedRoot) + getPath();
+        String path = getPath();
+        if (path.startsWith("/") || convertedRoot.endsWith("/")) {
+            return backslashToForwardSlash(convertedRoot) + path;
         }
-        return backslashToForwardSlash(convertedRoot) + "/" + getPath();
+        return backslashToForwardSlash(convertedRoot) + "/" + path;
     }
 
     public String getLiteralPath() {
@@ -102,7 +102,7 @@ public class UserFileSystemPath {
     public UserFileSystemPath rerootForProton(String protonPrefixUserProfileRoot) {
         String convertedRoot = SteamPathConverter.convert(root);
         String rerootedRoot = convertedRoot.replace("%USERPROFILE%", protonPrefixUserProfileRoot);
-        return new UserFileSystemPath(rerootedRoot, path, pattern, recursive, platform);
+        return new UserFileSystemPath(rerootedRoot, path, accountId, pattern, recursive, platform);
     }
 
     public UserFileSystemPath convert(OperatingSystem target) {
@@ -117,7 +117,7 @@ public class UserFileSystemPath {
             }
         }
 
-        return new UserFileSystemPath(root, getPath());
+        return new UserFileSystemPath(root, getPath(), accountId);
     }
 
     private String backslashToForwardSlash(String value) {

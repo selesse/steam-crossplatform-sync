@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doReturn;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.Resources;
 import com.selesse.steam.SteamAccountId;
+import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import java.util.Optional;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import org.mockito.Mockito;
 public class SteamAccountIdFinderTest {
     @Test
     public void findsAutoLoginUser_whenMultipleUsersArePresent() {
-        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder(new SteamRegistry()));
         var loginUsers =
                 RegistryParser.parse(RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers.vdf")));
         doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
@@ -25,7 +26,7 @@ public class SteamAccountIdFinderTest {
 
     @Test
     public void doesNotFindUserId_whenLoginUsersIsNotPresent() {
-        var userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        var userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder(new SteamRegistry()));
         doReturn(Optional.empty()).when(userIdFinderSpy).readLoginUsers();
 
         assertThat(userIdFinderSpy.findCurrentUserId()).isEmpty();
@@ -33,7 +34,7 @@ public class SteamAccountIdFinderTest {
 
     @Test
     public void fallsBackToOnlyUserId_whenOnlyOneUserIsPresent() {
-        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder(new SteamRegistry()));
         var loginUsers = RegistryParser.parse(
                 RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_single.vdf")));
         doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
@@ -44,7 +45,7 @@ public class SteamAccountIdFinderTest {
 
     @Test
     public void fallsBackToMostRecentTimestamp_whenNoUserIsMarkedAutoLogin() {
-        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder());
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder(new SteamRegistry()));
         var loginUsers = RegistryParser.parse(
                 RuntimeExceptionFiles.readAllLines(Resources.getResource("loginusers_timestamp_fallback.vdf")));
         doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();

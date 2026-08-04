@@ -17,7 +17,7 @@ public class SteamRegistryTest {
     public void readVdfParsesAFile() {
         Path path = Resources.getResource("loginusers.vdf");
 
-        RegistryObject registryObject = SteamRegistry.getInstance().readVdf(path);
+        RegistryObject registryObject = new SteamRegistry().readVdf(path);
 
         assertThat(registryObject.pathExists("users/76561197960287930/AccountName"))
                 .isTrue();
@@ -31,7 +31,7 @@ public class SteamRegistryTest {
     public void readVdfIfPresentReturnsEmptyWhenFileIsMissing() {
         Path path = Path.of("does/not/exist.vdf");
 
-        Optional<RegistryObject> result = SteamRegistry.getInstance().readVdfIfPresent(path);
+        Optional<RegistryObject> result = new SteamRegistry().readVdfIfPresent(path);
 
         assertThat(result).isEmpty();
     }
@@ -40,7 +40,7 @@ public class SteamRegistryTest {
     public void readVdfIfPresentParsesTheFileWhenItExists() {
         Path path = Resources.getResource("loginusers.vdf");
 
-        Optional<RegistryObject> result = SteamRegistry.getInstance().readVdfIfPresent(path);
+        Optional<RegistryObject> result = new SteamRegistry().readVdfIfPresent(path);
 
         assertThat(result).isPresent();
         assertThat(result.get().pathExists("users")).isTrue();
@@ -74,7 +74,7 @@ public class SteamRegistryTest {
     }
 
     private SteamRegistry spyOnSteamApps(Path steamApps) {
-        SteamRegistry steamRegistry = Mockito.spy(SteamRegistry.getInstance());
+        SteamRegistry steamRegistry = Mockito.spy(new SteamRegistry());
         doReturn(steamApps).when(steamRegistry).getSteamAppsPath();
         return steamRegistry;
     }

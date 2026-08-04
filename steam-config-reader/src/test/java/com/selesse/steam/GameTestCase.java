@@ -11,19 +11,19 @@ import tools.jackson.dataformat.yaml.YAMLFactory;
 public record GameTestCase(String name, List<String> windows, List<String> mac, List<String> linux) {
     public List<String> windowsPath() {
         return windows().stream()
-                .map(x -> new SteamAccountPathReplacer().replace(x, "**"))
+                .map(x -> new SteamAccountPathReplacer(TestSteamInstall.ACCOUNT_ID).replace(x, "**"))
                 .toList();
     }
 
     public List<String> macPath() {
         return mac().stream()
-                .map(x -> new SteamAccountPathReplacer().replace(x, "**"))
+                .map(x -> new SteamAccountPathReplacer(TestSteamInstall.ACCOUNT_ID).replace(x, "**"))
                 .toList();
     }
 
     public List<String> linuxPath() {
         return linux().stream()
-                .map(x -> new SteamAccountPathReplacer().replace(x, "**"))
+                .map(x -> new SteamAccountPathReplacer(TestSteamInstall.ACCOUNT_ID).replace(x, "**"))
                 .toList();
     }
 

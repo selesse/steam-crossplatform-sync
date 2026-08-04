@@ -40,7 +40,7 @@ public class TestGameInstallationPaths {
 
     @Test
     public void testGame() {
-        steamApp = SteamAppLoader.findByName(TestAppCache.PATH, gameTestCase.name());
+        steamApp = new SteamAppLoader(TestSteamInstall.get()).findByName(TestAppCache.PATH, gameTestCase.name());
         SaveFile saveFile = new SaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {

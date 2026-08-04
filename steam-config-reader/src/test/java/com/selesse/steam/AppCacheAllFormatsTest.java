@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.selesse.os.Resources;
 import com.selesse.steam.appcache.AppCache;
+import com.selesse.steam.registry.SteamRegistry;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class AppCacheAllFormatsTest {
     @Test
     public void testCanParse() {
         Path path = Resources.getResource(fileName);
-        AppCache appCache = new AppCacheReader().load(path);
+        AppCache appCache = new AppCacheReader(new SteamRegistry()).load(path);
         assertThat(appCache).isNotNull();
         assertThat(appCache.size()).isEqualTo(expectedAppCount);
     }

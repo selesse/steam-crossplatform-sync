@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamAppLoader;
+import com.selesse.steam.SteamInstall;
 import com.selesse.steam.appcache.App;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,8 @@ public class InstalledGameFinderService {
     private final List<InstalledGameFetcher> finders;
     private final AppCacheReader appCacheReader;
 
-    public InstalledGameFinderService() {
-        this(List.of(new AppManifestInstalledGameFinder()), new AppCacheReader());
+    public InstalledGameFinderService(SteamInstall install) {
+        this(List.of(new AppManifestInstalledGameFinder(install.registry())), new AppCacheReader(install.registry()));
     }
 
     @VisibleForTesting

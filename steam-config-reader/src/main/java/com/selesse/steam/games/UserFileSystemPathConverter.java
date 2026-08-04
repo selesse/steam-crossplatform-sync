@@ -33,7 +33,12 @@ public class UserFileSystemPathConverter {
                     }
 
                     return new UserFileSystemPath(
-                            rootToUseInstead, path, model.getPattern(), model.isRecursive(), model.getPlatform());
+                            rootToUseInstead,
+                            path,
+                            steamApp.getInstall().accountId(),
+                            model.getPattern(),
+                            model.isRecursive(),
+                            model.getPlatform());
                 })
                 .toList();
     }

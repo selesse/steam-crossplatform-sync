@@ -42,8 +42,9 @@ public enum TestGames {
         if (Resources.exists(getGameId() + ".vdf")) {
             return registryFileContentsFromFile();
         } else {
-            RegistryObject registryObject =
-                    SteamAppLoader.load(TestAppCache.PATH, getGameId()).getRegistryObject();
+            RegistryObject registryObject = new SteamAppLoader(TestSteamInstall.get())
+                    .load(TestAppCache.PATH, getGameId())
+                    .getRegistryObject();
             return Splitter.on("\n").splitToList(RegistryPrettyPrint.prettyPrint(registryObject));
         }
     }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.selesse.os.Resources;
 import com.selesse.steam.appcache.*;
+import com.selesse.steam.registry.SteamRegistry;
 import java.nio.file.Path;
 import java.util.Formatter;
 import org.junit.Test;
@@ -12,7 +13,7 @@ public class AppCacheReaderTest {
     @Test
     public void testAppId5_preDec2022() {
         Path path = Resources.getResource("appinfo-pre-dec-2022.vdf");
-        AppCache appCache = new AppCacheReader().load(path);
+        AppCache appCache = new AppCacheReader(new SteamRegistry()).load(path);
         App app = appCache.getById(5);
 
         assertThat(app.appId()).isEqualTo(5);
@@ -32,7 +33,7 @@ public class AppCacheReaderTest {
     @Test
     public void testAppId5_appinfo() {
         Path path = Resources.getResource("appinfo.vdf");
-        AppCache appCache = new AppCacheReader().load(path);
+        AppCache appCache = new AppCacheReader(new SteamRegistry()).load(path);
         App app = appCache.getById(5);
 
         assertThat(app.appId()).isEqualTo(5);
@@ -52,7 +53,7 @@ public class AppCacheReaderTest {
     @Test
     public void testAppId5_magic28() {
         Path path = Resources.getResource("appinfo-magic-28.vdf");
-        AppCache appCache = new AppCacheReader().load(path);
+        AppCache appCache = new AppCacheReader(new SteamRegistry()).load(path);
         App app = appCache.getById(5);
 
         assertThat(app.appId()).isEqualTo(5);

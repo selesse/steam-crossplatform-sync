@@ -12,10 +12,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class SteamRegistry {
-    public static SteamRegistry getInstance() {
-        return new SteamRegistry();
-    }
-
     public Path getAppCachePath() {
         return Path.of(getBasePath(), "appcache/appinfo.vdf");
     }

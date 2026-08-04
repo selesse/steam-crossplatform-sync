@@ -24,7 +24,8 @@ public class Daemon implements Runnable {
     }
 
     private void ensureAppCacheIsReadable() {
-        AppCacheReader appCacheReader = new AppCacheReader();
+        AppCacheReader appCacheReader =
+                new AppCacheReader(context.getSteamInstall().registry());
         try {
             AppCache appCache = appCacheReader.load();
             LOGGER.info("Found {} games in the app cache", appCache.getApps().size());

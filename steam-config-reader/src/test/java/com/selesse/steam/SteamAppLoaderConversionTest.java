@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import com.selesse.os.Resources;
 import com.selesse.steam.appcache.App;
 import com.selesse.steam.appcache.AppCache;
+import com.selesse.steam.registry.SteamRegistry;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +34,7 @@ public class SteamAppLoaderConversionTest {
     @Test
     public void everyAppConvertsWithoutThrowing() {
         Path path = Resources.getResource(fileName);
-        AppCache appCache = new AppCacheReader().load(path);
+        AppCache appCache = new AppCacheReader(new SteamRegistry()).load(path);
 
         for (App app : appCache.getApps()) {
             assertThatCode(() -> SteamAppLoader.convert(app.vdfObject()))

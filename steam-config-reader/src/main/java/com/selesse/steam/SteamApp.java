@@ -13,13 +13,20 @@ import java.util.stream.Stream;
 
 public class SteamApp {
     private final RegistryObject registryObject;
+    private final SteamInstall install;
 
-    public SteamApp(RegistryObject registryObject) {
+    public SteamApp(RegistryObject registryObject, SteamInstall install) {
         this.registryObject = registryObject;
+        this.install = install;
     }
 
     public RegistryObject getRegistryObject() {
         return registryObject;
+    }
+
+    /** The installation this app was read out of, and whose account its save paths resolve against. */
+    public SteamInstall getInstall() {
+        return install;
     }
 
     public long getId() {

@@ -5,7 +5,6 @@ import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.games.UserFileSystemPathConverter;
-import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,8 @@ public class SaveFile {
         var saveFileObjects = ufs.getObjectValueAsObject("savefiles").getKeys().stream()
                 .map(key -> ufs.getObjectValueAsObject("savefiles/" + key))
                 .map(registryObject -> new SaveFileObject(steamApp, registryObject))
-                .map(saveFileObject -> UserFileSystemPath.fromSaveFile(saveFileObject, os))
+                .map(saveFileObject -> UserFileSystemPath.fromSaveFile(
+                        saveFileObject, os, steamApp.getInstall().accountId()))
                 .toList();
         if (ufs.pathExists("rootoverrides") && os != OperatingSystems.OperatingSystem.WINDOWS) {
             var overrides = ufs.getObjectValueAsObject("rootoverrides").getKeys().stream()
@@ -77,7 +77,7 @@ public class SaveFile {
     private Optional<List<UserFileSystemPath>> tryResolveViaProton() {
         boolean gameHasNoNativeLinuxDepot =
                 !steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX);
-        boolean protonActive = SteamRegistry.getInstance().hasActiveProtonPrefix(steamApp.getId());
+        boolean protonActive = steamApp.getInstall().registry().hasActiveProtonPrefix(steamApp.getId());
         if (!protonActive && !gameHasNoNativeLinuxDepot) {
             return Optional.empty();
         }

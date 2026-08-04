@@ -16,55 +16,50 @@ import org.slf4j.LoggerFactory;
 public class AppCacheReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppCacheReader.class);
 
+    private final SteamRegistry registry;
+
+    public AppCacheReader(SteamRegistry registry) {
+        this.registry = registry;
+    }
+
     public AppCache load() {
-        return load(SteamRegistry.getInstance().getAppCachePath());
+        return load(registry.getAppCachePath());
     }
 
     public AppCache load(Path path) {
-        try {
-            return new AppCacheBufferedReader(path).read();
-        } catch (Exception e) {
-            LOGGER.info("Unable to read app cache", e);
-            throw new RegistryNotFoundException();
-        }
-    }
-
-    public Optional<App> loadOne(long appId) {
-        return loadOne(SteamRegistry.getInstance().getAppCachePath(), appId);
+        return read(path, AppCacheBufferedReader::read);
     }
 
     public Optional<App> loadOne(Path path, long appId) {
-        try {
-            return new AppCacheBufferedReader(path).readOne(appId);
-        } catch (Exception e) {
-            LOGGER.info("Unable to read app cache", e);
-            throw new RegistryNotFoundException();
-        }
+        return read(path, reader -> reader.readOne(appId));
     }
 
     public Map<Long, App> loadSome(Set<Long> appIds) {
-        return loadSome(SteamRegistry.getInstance().getAppCachePath(), appIds);
+        return loadSome(registry.getAppCachePath(), appIds);
     }
 
     public Map<Long, App> loadSome(Path path, Set<Long> appIds) {
-        try {
-            return new AppCacheBufferedReader(path).readSome(appIds);
-        } catch (Exception e) {
-            LOGGER.info("Unable to read app cache", e);
-            throw new RegistryNotFoundException();
-        }
-    }
-
-    public Optional<App> findFirst(Predicate<App> predicate) {
-        return findFirst(SteamRegistry.getInstance().getAppCachePath(), predicate);
+        return read(path, reader -> reader.readSome(appIds));
     }
 
     public Optional<App> findFirst(Path path, Predicate<App> predicate) {
+        return read(path, reader -> reader.readFirst(predicate));
+    }
+
+    /**
+     * Every read fails the same way: the app cache is a single binary file, so a malformed or
+     * missing one is not a per-entry problem worth distinguishing from any other.
+     */
+    private <T> T read(Path path, CacheRead<T> read) {
         try {
-            return new AppCacheBufferedReader(path).readFirst(predicate);
+            return read.apply(new AppCacheBufferedReader(path));
         } catch (Exception e) {
             LOGGER.info("Unable to read app cache", e);
             throw new RegistryNotFoundException();
         }
+    }
+
+    private interface CacheRead<T> {
+        T apply(AppCacheBufferedReader reader) throws Exception;
     }
 }

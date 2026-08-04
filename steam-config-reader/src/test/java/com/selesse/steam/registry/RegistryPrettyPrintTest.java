@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.TestAppCache;
 import com.selesse.steam.TestGames;
+import com.selesse.steam.TestSteamInstall;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import java.util.List;
@@ -21,7 +22,8 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void canPrettyPrintInscryptionBasedOnAppCache() {
-        RegistryObject registryObject = SteamAppLoader.load(TestAppCache.PATH, TestGames.INSCRYPTION.getGameId())
+        RegistryObject registryObject = new SteamAppLoader(TestSteamInstall.get())
+                .load(TestAppCache.PATH, TestGames.INSCRYPTION.getGameId())
                 .getRegistryObject();
         String prettyPrint = RegistryPrettyPrint.prettyPrint(registryObject);
 
@@ -43,7 +45,8 @@ public class RegistryPrettyPrintTest {
 
     @Test
     public void prettyPrinting_pathOfExile_handlesKeysWithSlashesInThem() {
-        RegistryObject registryObject = SteamAppLoader.load(TestAppCache.PATH, TestGames.PATH_OF_EXILE.getGameId())
+        RegistryObject registryObject = new SteamAppLoader(TestSteamInstall.get())
+                .load(TestAppCache.PATH, TestGames.PATH_OF_EXILE.getGameId())
                 .getRegistryObject();
         String prettyPrintFromAppInfo = RegistryPrettyPrint.prettyPrint(registryObject);
 

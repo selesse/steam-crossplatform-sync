@@ -40,6 +40,6 @@ public class SteamAppTest {
                 ? List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "}")
                 : List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "\t\"oslist\"\t\"" + oslist + "\"", "}");
         RegistryObject registryObject = RegistryParser.parse(lines);
-        return new SteamApp(registryObject);
+        return new SteamApp(registryObject, TestSteamInstall.get());
     }
 }

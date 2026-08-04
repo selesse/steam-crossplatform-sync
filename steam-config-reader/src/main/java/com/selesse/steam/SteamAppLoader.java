@@ -2,27 +2,34 @@ package com.selesse.steam;
 
 import com.selesse.steam.appcache.*;
 import com.selesse.steam.registry.RegistryNotFoundException;
-import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.nio.file.Path;
 
 public class SteamAppLoader {
-    public static SteamApp load(long gameId) {
-        return load(SteamRegistry.getInstance().getAppCachePath(), gameId);
+    private final SteamInstall install;
+    private final AppCacheReader appCacheReader;
+
+    public SteamAppLoader(SteamInstall install) {
+        this.install = install;
+        this.appCacheReader = new AppCacheReader(install.registry());
     }
 
-    public static SteamApp load(Path appCachePath, long gameId) {
-        App rawApp = new AppCacheReader().loadOne(appCachePath, gameId).orElseThrow(RegistryNotFoundException::new);
+    public SteamApp load(long gameId) {
+        return load(install.registry().getAppCachePath(), gameId);
+    }
+
+    public SteamApp load(Path appCachePath, long gameId) {
+        App rawApp = appCacheReader.loadOne(appCachePath, gameId).orElseThrow(RegistryNotFoundException::new);
         return toSteamApp(rawApp);
     }
 
-    public static SteamApp findByName(String name) {
-        return findByName(SteamRegistry.getInstance().getAppCachePath(), name);
+    public SteamApp findByName(String name) {
+        return findByName(install.registry().getAppCachePath(), name);
     }
 
-    public static SteamApp findByName(Path appCachePath, String name) {
-        App rawApp = new AppCacheReader()
+    public SteamApp findByName(Path appCachePath, String name) {
+        App rawApp = appCacheReader
                 .findFirst(appCachePath, app -> nameMatches(app, name))
                 .orElseThrow(() -> new RuntimeException("Could not find app named " + name));
         return toSteamApp(rawApp);
@@ -56,7 +63,7 @@ public class SteamAppLoader {
                         .equals(name);
     }
 
-    private static SteamApp toSteamApp(App rawApp) {
-        return new SteamApp(convert(rawApp.vdfObject()));
+    private SteamApp toSteamApp(App rawApp) {
+        return new SteamApp(convert(rawApp.vdfObject()), install);
     }
 }

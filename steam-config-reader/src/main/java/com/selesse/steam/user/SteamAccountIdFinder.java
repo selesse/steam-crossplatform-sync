@@ -13,15 +13,13 @@ import org.slf4j.LoggerFactory;
 public class SteamAccountIdFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteamAccountIdFinder.class);
 
-    @VisibleForTesting
-    SteamAccountIdFinder() {}
+    private final SteamRegistry registry;
 
-    public static Optional<SteamAccountId> findIfPresent() {
-        return new SteamAccountIdFinder().findCurrentUserId();
+    public SteamAccountIdFinder(SteamRegistry registry) {
+        this.registry = registry;
     }
 
-    @VisibleForTesting
-    Optional<SteamAccountId> findCurrentUserId() {
+    public Optional<SteamAccountId> findCurrentUserId() {
         var loginUsersRegistryMaybe = readLoginUsers();
         if (loginUsersRegistryMaybe.isEmpty()) {
             LOGGER.info("Could not find loginusers.vdf");
@@ -64,6 +62,6 @@ public class SteamAccountIdFinder {
 
     @VisibleForTesting
     Optional<RegistryObject> readLoginUsers() {
-        return SteamRegistry.getInstance().readLoginUsers();
+        return registry.readLoginUsers();
     }
 }

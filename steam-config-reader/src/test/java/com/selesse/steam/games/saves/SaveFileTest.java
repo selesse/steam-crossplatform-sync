@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 import com.selesse.files.OsAgnosticPaths;
 import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.steam.SteamApp;
+import com.selesse.steam.SteamInstall;
 import com.selesse.steam.TestGames;
+import com.selesse.steam.TestSteamInstall;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamRegistry;
@@ -15,7 +17,6 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import java.util.List;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 public class SaveFileTest {
@@ -23,47 +24,41 @@ public class SaveFileTest {
 
     @Test
     public void windowsOnlyGameWithProtonActiveResolvesUnderTheProtonPrefix() {
-        SteamApp steamApp = windowsOnlyGame();
+        SteamApp steamApp = windowsOnlyGame(protonInstall(true));
 
-        try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
-            assertThat(paths).hasSize(1);
-            assertThat(paths.get(0).getSymbolPath())
-                    .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
-                            + "/AppData/LocalLow/Test Game/save/*.sav");
-        }
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/Test Game/save/*.sav");
     }
 
     @Test
     public void windowsOnlyGameNeverLaunchedStillResolvesUnderTheProtonPrefix() {
         // No native Linux depot exists at all, so Proton is the only way this game can ever run here,
         // regardless of whether it's been launched yet (i.e. before compatdata/pfx even exists).
-        SteamApp steamApp = windowsOnlyGame();
+        SteamApp steamApp = windowsOnlyGame(protonInstall(false));
 
-        try (MockedStatic<SteamRegistry> mocked = mockProton(false)) {
-            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
-            assertThat(paths).hasSize(1);
-            assertThat(paths.get(0).getSymbolPath())
-                    .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
-                            + "/AppData/LocalLow/Test Game/save/*.sav");
-        }
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/Test Game/save/*.sav");
     }
 
     @Test
     public void explicitLinuxRootOverrideWinsOverProton() {
         // Wargroove has no native Linux depot but declares an explicit Linux rootoverride
         // (useinstead: LinuxXdgDataHome). Even with Proton "active", that explicit override must win.
-        SteamApp steamApp = realFixtureSteamApp(TestGames.WARGROOVE);
+        SteamApp steamApp = realFixtureSteamApp(TestGames.WARGROOVE, protonInstall(true));
         String xdgDataHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share"));
 
-        try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
-            assertThat(paths).hasSize(1);
-            assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgDataHome + "/Chucklefish/Wargroove/save/*");
-        }
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgDataHome + "/Chucklefish/Wargroove/save/*");
     }
 
     @Test
@@ -71,40 +66,34 @@ public class SaveFileTest {
         // Regression test for the real Rogue Legacy 2 bug: an explicit rootoverride using
         // "LinuxXdgConfigHome" used to pass through SteamPathConverter unconverted. Also proves
         // this explicit override wins over Proton, exactly like the Wargroove case above.
-        SteamApp steamApp = gameWithLinuxXdgConfigHomeOverride();
+        SteamApp steamApp = gameWithLinuxXdgConfigHomeOverride(protonInstall(true));
         String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
 
-        try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
-            assertThat(paths).hasSize(1);
-            assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
-        }
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
     }
 
     @Test
     public void gameInstallRootedSaveIsUnaffectedByProton() {
         // Inscryption's saves live inside the install directory itself, which is the same real
         // directory on disk whether Steam installed the Windows or Linux depot there.
-        SteamApp steamApp = realFixtureSteamApp(TestGames.INSCRYPTION);
+        SteamApp steamApp = realFixtureSteamApp(TestGames.INSCRYPTION, protonInstall(true));
 
-        try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
-            assertThat(paths).hasSize(1);
-            assertThat(paths.get(0).getRoot()).doesNotContain("compatdata");
-        }
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getRoot()).doesNotContain("compatdata");
     }
 
-    private MockedStatic<SteamRegistry> mockProton(boolean active) {
+    private SteamInstall protonInstall(boolean active) {
         SteamRegistry steamRegistry = Mockito.mock(SteamRegistry.class);
         when(steamRegistry.hasActiveProtonPrefix(anyLong())).thenReturn(active);
-        MockedStatic<SteamRegistry> mocked = Mockito.mockStatic(SteamRegistry.class);
-        mocked.when(SteamRegistry::getInstance).thenReturn(steamRegistry);
-        return mocked;
+        return new SteamInstall(steamRegistry, TestSteamInstall.ACCOUNT_ID);
     }
 
-    private SteamApp windowsOnlyGame() {
+    private SteamApp windowsOnlyGame(SteamInstall install) {
         List<String> lines = List.of(
                 "\"common\"",
                 "{",
@@ -124,10 +113,10 @@ public class SaveFileTest {
                 "\t\t}",
                 "\t}",
                 "}");
-        return new SteamApp(RegistryParser.parseWithoutRegistryCollapse(lines));
+        return new SteamApp(RegistryParser.parseWithoutRegistryCollapse(lines), install);
     }
 
-    private SteamApp gameWithLinuxXdgConfigHomeOverride() {
+    private SteamApp gameWithLinuxXdgConfigHomeOverride(SteamInstall install) {
         List<String> lines = List.of(
                 "\"common\"",
                 "{",
@@ -159,11 +148,11 @@ public class SaveFileTest {
                 "\t}",
                 "}");
         RegistryObject registryObject = RegistryParser.parseWithoutRegistryCollapse(lines);
-        return new SteamApp(registryObject);
+        return new SteamApp(registryObject, install);
     }
 
-    private SteamApp realFixtureSteamApp(TestGames testGame) {
+    private SteamApp realFixtureSteamApp(TestGames testGame, SteamInstall install) {
         RegistryObject registryObject = RegistryParser.parse(testGame.registryFileContentsFromFile());
-        return new SteamApp(registryObject);
+        return new SteamApp(registryObject, install);
     }
 }

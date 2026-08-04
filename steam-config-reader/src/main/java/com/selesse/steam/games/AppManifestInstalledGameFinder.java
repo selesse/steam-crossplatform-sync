@@ -13,6 +13,12 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     // other bits (e.g. 6 = Fully Installed | Update Required), so this can't be an equality check.
     private static final int FULLY_INSTALLED_BIT = 4;
 
+    private final SteamRegistry registry;
+
+    public AppManifestInstalledGameFinder(SteamRegistry registry) {
+        this.registry = registry;
+    }
+
     @Override
     public List<Long> fetch() {
         return getLibrarySteamAppsPaths().stream()
@@ -24,8 +30,7 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     }
 
     private List<Path> getLibrarySteamAppsPaths() {
-        RegistryObject libraries = SteamRegistry.getInstance()
-                .readLibraryFolders()
+        RegistryObject libraries = registry.readLibraryFolders()
                 .map(registryObject -> registryObject.getObjectValueAsObject("libraryfolders"))
                 .orElse(null);
         if (libraries == null) {
@@ -47,7 +52,7 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
     }
 
     private Long loadInstalledAppIdOrNull(File appManifestFile) {
-        RegistryObject registryObject = SteamRegistry.getInstance().readVdf(appManifestFile.toPath());
+        RegistryObject registryObject = registry.readVdf(appManifestFile.toPath());
         RegistryObject appState = registryObject.getObjectValueAsObject("AppState");
         boolean fullyInstalled = appState != null
                 && appState.pathExists("StateFlags")

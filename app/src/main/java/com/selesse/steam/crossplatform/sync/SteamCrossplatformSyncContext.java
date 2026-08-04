@@ -3,16 +3,17 @@ package com.selesse.steam.crossplatform.sync;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.SteamAppLoader;
+import com.selesse.steam.SteamInstall;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.InstalledGameFinderService;
-import com.selesse.steam.user.SteamAccountIdFinder;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
 import java.util.List;
 
 public class SteamCrossplatformSyncContext {
     private final SteamCrossplatformSyncConfig config;
     private final InstalledGameFinderService installedGameFinderService;
-    private final SteamAccountId steamAccountId;
+    private final SteamInstall steamInstall;
+    private final SteamAppLoader steamAppLoader;
 
     // Built on first use, not up front: opening it migrates the schema, and the reporting
     // commands (--print-games and friends) never record a session at all. They shouldn't pay to
@@ -21,8 +22,9 @@ public class SteamCrossplatformSyncContext {
 
     public SteamCrossplatformSyncContext() {
         this.config = SteamCrossplatformSyncConfig.load();
-        this.steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
-        this.installedGameFinderService = new InstalledGameFinderService();
+        this.steamInstall = SteamInstall.detect();
+        this.steamAppLoader = new SteamAppLoader(steamInstall);
+        this.installedGameFinderService = new InstalledGameFinderService(steamInstall);
     }
 
     public SteamCrossplatformSyncConfig getConfig() {
@@ -37,7 +39,11 @@ public class SteamCrossplatformSyncContext {
     }
 
     public SteamApp loadGame(long gameId) {
-        return SteamAppLoader.load(gameId);
+        return steamAppLoader.load(gameId);
+    }
+
+    public SteamInstall getSteamInstall() {
+        return steamInstall;
     }
 
     public List<SteamApp> fetchAllGamesOrLoadInstalledGames() {
@@ -45,6 +51,6 @@ public class SteamCrossplatformSyncContext {
     }
 
     public SteamAccountId getSteamAccountIdIfPresent() {
-        return steamAccountId;
+        return steamInstall.accountId();
     }
 }

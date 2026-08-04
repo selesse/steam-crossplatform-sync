@@ -1,14 +1,16 @@
 package com.selesse.steam.games;
 
 import com.selesse.steam.SteamAccountId;
-import com.selesse.steam.user.SteamAccountIdFinder;
 import java.util.Optional;
 
 public class SteamAccountPathReplacer {
     private final SteamAccountId steamAccountId;
 
-    public SteamAccountPathReplacer() {
-        steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
+    /**
+     * @param steamAccountId the signed-in account, or {@code null} to leave every path on its fallback
+     */
+    public SteamAccountPathReplacer(SteamAccountId steamAccountId) {
+        this.steamAccountId = steamAccountId;
     }
 
     public String replace(String path, String fallbackValue) {
