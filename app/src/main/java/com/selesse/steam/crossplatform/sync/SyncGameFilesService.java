@@ -20,7 +20,7 @@ public class SyncGameFilesService {
 
     public void runForAllGames() {
         GameConfig gameList = new GamesToSyncLoader().loadGames(context.getConfig());
-        gameList.getGames().forEach(this::sync);
+        gameList.games().forEach(this::sync);
     }
 
     public void run(SteamApp steamApp) {
@@ -45,10 +45,10 @@ public class SyncGameFilesService {
     void sync(SyncableGame game) {
         if (game.isSupportedOnThisOs()) {
             if (!game.sync()) {
-                LOGGER.info("Not syncing {} due to its configuration", game.getName());
+                LOGGER.info("Not syncing {} due to its configuration", game.name());
                 return;
             }
-            LOGGER.info("Checking {}", game.getName());
+            LOGGER.info("Checking {}", game.name());
 
             List<PatternSupportedPath> localPaths = game.getLocalPaths();
             for (PatternSupportedPath localPath : localPaths) {
@@ -67,7 +67,7 @@ public class SyncGameFilesService {
                 GameSyncer.sync(syncableLocalPath, syncableLocalCloudPath);
             }
         } else {
-            LOGGER.info("Did not check {} because it is unsupported on this OS", game.getName());
+            LOGGER.info("Did not check {} because it is unsupported on this OS", game.name());
         }
     }
 }

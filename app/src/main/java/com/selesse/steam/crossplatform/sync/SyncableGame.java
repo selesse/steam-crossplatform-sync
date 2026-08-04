@@ -1,19 +1,26 @@
 package com.selesse.steam.crossplatform.sync;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.selesse.files.PatternSupportedPath;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
-import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+// @JsonIncludeProperties pins games.yml to exactly the six stored fields. Without it Jackson also
+// treats the derived accessors below as properties and writes them out - getLocalPaths() throws on
+// the way. It also makes reading tolerant of keys we don't know, so no separate @JsonIgnoreProperties
+// is needed. @JsonPropertyOrder fixes the order fields are written in, independently of the
+// component order, so the file keeps its shape no matter how this record is declared.
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIncludeProperties({"name", "gameId", "windows", "mac", "linux", "sync"})
+@JsonPropertyOrder({"name", "gameId", "windows", "mac", "linux", "sync"})
 public record SyncableGame(
-        String name, List<String> windows, List<String> mac, List<String> linux, Long gameId, boolean sync) {
-    public static SyncableGame fromRaw(SyncableGameRaw raw) {
-        return new SyncableGame(raw.name(), raw.windows(), raw.mac(), raw.linux(), raw.gameId(), raw.sync());
-    }
+        String name, List<String> windows, List<String> mac, List<String> linux, long gameId, boolean sync) {
 
     public List<PatternSupportedPath> getLocalPaths() {
         return switch (OperatingSystems.get()) {
@@ -37,14 +44,6 @@ public record SyncableGame(
                 config.getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(),
                 "games",
                 name.toLowerCase().replaceAll(" ", "_").replaceAll("[^a-z0-9_]", ""));
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getGameId() {
-        return gameId;
     }
 
     public boolean isSupportedOnThisOs() {

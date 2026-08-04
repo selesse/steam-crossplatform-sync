@@ -27,7 +27,7 @@ public class GamesToSyncLoaderTest {
 
         var gameList = new GamesToSyncLoader().loadGames(config);
 
-        assertThat(gameList.getGames()).isEmpty();
+        assertThat(gameList.games()).isEmpty();
         verify(config).getGamesFile();
     }
 }

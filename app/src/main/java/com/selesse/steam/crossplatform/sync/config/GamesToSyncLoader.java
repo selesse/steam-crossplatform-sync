@@ -1,7 +1,6 @@
 package com.selesse.steam.crossplatform.sync.config;
 
 import com.selesse.steam.crossplatform.sync.GameConfig;
-import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
 import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +17,8 @@ public class GamesToSyncLoader {
         Path gamesFile = config.getGamesFile();
         LOGGER.info("Loading games config from {}", gamesFile);
         var mapper = new ObjectMapper(new YAMLFactory());
-        GameConfig gameList = GameConfig.fromRaw(mapper.readValue(gamesFile.toFile(), GameConfigRaw.class));
-        LOGGER.info("Loaded games config ({} games)", gameList.getGames().size());
+        GameConfig gameList = mapper.readValue(gamesFile.toFile(), GameConfig.class);
+        LOGGER.info("Loaded games config ({} games)", gameList.games().size());
         return gameList;
     }
 }

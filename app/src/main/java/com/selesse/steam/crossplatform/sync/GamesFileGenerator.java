@@ -3,8 +3,6 @@ package com.selesse.steam.crossplatform.sync;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
-import com.selesse.steam.crossplatform.sync.serialize.GameConfigRaw;
-import com.selesse.steam.crossplatform.sync.serialize.SyncableGameRaw;
 import com.selesse.steam.games.UserFileSystemPath;
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +19,7 @@ public class GamesFileGenerator {
     public void run() {
         List<SteamApp> steamApps = context.fetchAllGamesOrLoadInstalledGames();
 
-        List<SyncableGameRaw> syncableGames = Lists.newArrayList();
+        List<SyncableGame> syncableGames = Lists.newArrayList();
 
         for (SteamApp steamApp : steamApps) {
             if (steamApp.hasUserFileSystem() && steamApp.hasAnySavePaths()) {
@@ -29,18 +27,16 @@ public class GamesFileGenerator {
                 List<String> macPaths = getPathsOrNull(steamApp, OperatingSystems.OperatingSystem.MAC);
                 List<String> linuxPaths = getPathsOrNull(steamApp, OperatingSystems.OperatingSystem.LINUX);
 
-                SyncableGameRaw syncableGame = new SyncableGameRaw(
-                        windowsPaths, macPaths, linuxPaths, steamApp.getName(), steamApp.getId(), true);
+                SyncableGame syncableGame = new SyncableGame(
+                        steamApp.getName(), windowsPaths, macPaths, linuxPaths, steamApp.getId(), true);
                 syncableGames.add(syncableGame);
             }
         }
 
-        syncableGames.sort(Comparator.comparing(SyncableGameRaw::name));
-        GameConfigRaw gameConfigRaw = new GameConfigRaw();
-        gameConfigRaw.games = syncableGames;
+        syncableGames.sort(Comparator.comparing(SyncableGame::name));
         YAMLFactory yamlFactory = new YAMLFactory();
         ObjectMapper objectMapper = new ObjectMapper(yamlFactory);
-        objectMapper.writeValue(System.out, gameConfigRaw);
+        objectMapper.writeValue(System.out, new GameConfig(syncableGames));
     }
 
     // Null rather than an empty list, so games.yml simply omits the key for an OS the game
