@@ -12,7 +12,6 @@ import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
-import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +40,6 @@ public class GameMonitorTest {
             testDatabase.toFile().deleteOnExit();
         }
         SqliteFile sqliteFile = new SqliteFile(testDatabase);
-        Database.prepare(sqliteFile);
         repository = GameSessionRepository.getInstance(sqliteFile);
 
         // Stub sync config with an empty games file so sync is always a no-op in tests,

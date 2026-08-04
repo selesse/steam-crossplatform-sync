@@ -29,11 +29,12 @@ public class GameSessionRepository {
     private final SqliteFile sqliteFile;
 
     GameSessionRepository() {
-        this.sqliteFile = SqliteDatabaseLocation.get();
+        this(SqliteDatabaseLocation.get());
     }
 
     GameSessionRepository(SqliteFile sqliteFile) {
         this.sqliteFile = sqliteFile;
+        Database.migrate(sqliteFile);
     }
 
     private static final String INSERT_GAME = "INSERT OR IGNORE INTO GAMES (NAME, STEAM_APP_ID) VALUES (?, ?)";
@@ -42,7 +43,7 @@ public class GameSessionRepository {
             "INSERT INTO GAMING_SESSIONS (HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID, ACTIVE_PLAYTIME_SECONDS) VALUES (?, ?, ?, ?, ?)";
 
     public void save(GameSessionRecord gameSessionRecord) {
-        try (Connection connection = Database.getConnection(sqliteFile)) {
+        try (Connection connection = Database.open(sqliteFile)) {
             insertOrIgnoreGame(connection, gameSessionRecord);
             insertGamingSession(connection, gameSessionRecord.gameId(), gameSessionRecord);
         } catch (SQLException e) {
@@ -60,7 +61,7 @@ public class GameSessionRepository {
 
     public List<Long> findUnknownGameIds() {
         String sql = "SELECT STEAM_APP_ID FROM GAMES WHERE NAME IS NULL OR NAME = ''";
-        try (Connection connection = Database.getConnection(sqliteFile);
+        try (Connection connection = Database.open(sqliteFile);
                 PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             List<Long> ids = new ArrayList<>();
@@ -75,7 +76,7 @@ public class GameSessionRepository {
 
     public void updateGameName(long steamAppId, String name) {
         String sql = "UPDATE GAMES SET NAME = ? WHERE STEAM_APP_ID = ?";
-        try (Connection connection = Database.getConnection(sqliteFile);
+        try (Connection connection = Database.open(sqliteFile);
                 PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, name);
             ps.setLong(2, steamAppId);

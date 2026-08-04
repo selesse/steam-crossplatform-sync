@@ -9,7 +9,6 @@ import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRecord;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
-import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
@@ -30,9 +29,6 @@ public class GameNameEnricherTest {
             testDatabase.toFile().deleteOnExit();
         }
         SqliteFile sqliteFile = new SqliteFile(testDatabase);
-        // Database.initialized is a static flag — call prepare() directly to ensure the fresh
-        // file always gets its schema, regardless of whether a previous test already set the flag.
-        Database.prepare(sqliteFile);
         repository = GameSessionRepository.getInstance(sqliteFile);
         context = mock(SteamCrossplatformSyncContext.class);
     }

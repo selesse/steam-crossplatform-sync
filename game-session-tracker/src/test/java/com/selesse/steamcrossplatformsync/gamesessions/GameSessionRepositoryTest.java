@@ -23,13 +23,12 @@ public class GameSessionRepositoryTest {
             testDatabase.toFile().deleteOnExit();
         }
         this.sqliteFile = new SqliteFile(testDatabase);
-        Database.prepare(sqliteFile);
         this.repository = GameSessionRepository.getInstance(sqliteFile);
     }
 
     @Test
     public void databaseUsesWalJournalMode() throws SQLException {
-        try (var conn = Database.getConnection(sqliteFile);
+        try (var conn = Database.open(sqliteFile);
                 var stmt = conn.createStatement();
                 var rs = stmt.executeQuery("PRAGMA journal_mode")) {
             assertThat(rs.getString(1)).isEqualTo("wal");

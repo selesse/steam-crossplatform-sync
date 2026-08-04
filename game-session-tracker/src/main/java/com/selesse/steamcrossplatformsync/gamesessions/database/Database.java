@@ -7,9 +7,11 @@ import java.sql.SQLException;
 import org.flywaydb.core.Flyway;
 
 public class Database {
-    private static boolean initialized = false;
-
-    public static void prepare(SqliteFile sqliteFile) {
+    /**
+     * Brings {@code sqliteFile} up to the current schema, creating the file if it doesn't exist
+     * yet. Flyway is idempotent, so migrating the same file twice is harmless.
+     */
+    public static void migrate(SqliteFile sqliteFile) {
         File parentFile = sqliteFile.path().getParent().toFile();
         if (!parentFile.exists()) {
             boolean mkdirs = parentFile.mkdirs();
@@ -21,16 +23,8 @@ public class Database {
         flyway.migrate();
     }
 
-    public static Connection getConnection() throws SQLException {
-        return getConnection(SqliteDatabaseLocation.get());
-    }
-
-    public static Connection getConnection(SqliteFile sqliteFile) throws SQLException {
-        if (!initialized) {
-            prepare(sqliteFile);
-            initialized = true;
-        }
-
+    /** Opens a connection. Callers are responsible for having migrated the file first. */
+    public static Connection open(SqliteFile sqliteFile) throws SQLException {
         return DriverManager.getConnection(sqliteFile.jdbcPath());
     }
 }
