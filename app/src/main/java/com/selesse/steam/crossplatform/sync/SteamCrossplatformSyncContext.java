@@ -13,20 +13,26 @@ public class SteamCrossplatformSyncContext {
     private final SteamCrossplatformSyncConfig config;
     private final InstalledGameFinderService installedGameFinderService;
     private final SteamAccountId steamAccountId;
-    private final GameSessionRepository sessionRepository;
+
+    // Built on first use, not up front: opening it migrates the schema, and the reporting
+    // commands (--print-games and friends) never record a session at all. They shouldn't pay to
+    // stand up a database they don't touch.
+    private GameSessionRepository sessionRepository;
 
     public SteamCrossplatformSyncContext() {
         this.config = SteamCrossplatformSyncConfig.load();
         this.steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
         this.installedGameFinderService = new InstalledGameFinderService();
-        this.sessionRepository = new GameSessionRepository();
     }
 
     public SteamCrossplatformSyncConfig getConfig() {
         return config;
     }
 
-    public GameSessionRepository getSessionRepository() {
+    public synchronized GameSessionRepository getSessionRepository() {
+        if (sessionRepository == null) {
+            sessionRepository = new GameSessionRepository();
+        }
         return sessionRepository;
     }
 
