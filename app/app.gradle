@@ -33,3 +33,43 @@ daemonApp {
     jarTask = tasks.shadowJar
 }
 
+// Flyway finds migrations by scanning a classpath, and a jlink image has none. Nothing running
+// from a classpath - which is every test - can catch that, so this runs a real migration inside
+// the image.
+sourceSets {
+    jlinkSmokeTest {}
+}
+
+dependencies {
+    jlinkSmokeTestImplementation(project(':game-session-tracker'))
+}
+
+// Deliberately not wired into `check`: building the image costs more than the whole test suite,
+// and what it guards is packaging config that rarely moves. CI runs it as its own step; run it by
+// hand when touching the jlink block.
+tasks.register('verifyJlinkMigrations', Exec) {
+    group = 'verification'
+    description = 'Migrates a fresh database inside the jlink image to prove Flyway still finds its scripts.'
+    dependsOn tasks.jlink, tasks.named('jlinkSmokeTestClasses')
+
+    def windows = System.getProperty('os.name', '').toLowerCase().contains('windows')
+    def launcher = layout.buildDirectory.file('image/bin/' + (windows ? 'java.exe' : 'java'))
+    def dataDirectory = layout.buildDirectory.dir('jlink-smoke-test')
+    def probeClasses = sourceSets.jlinkSmokeTest.output.classesDirs
+
+    doFirst {
+        delete dataDirectory
+        mkdir dataDirectory
+    }
+
+    executable = launcher.get().asFile.absolutePath
+    argumentProviders.add({
+        [
+            '--add-modules', 'com.selesse.steamcrossplatformsync.gamesessions',
+            '-cp', probeClasses.asPath,
+            'com.selesse.steam.crossplatform.sync.jlink.JlinkMigrationSmokeTest',
+            dataDirectory.get().asFile.absolutePath,
+        ]
+    } as CommandLineArgumentProvider)
+}
+

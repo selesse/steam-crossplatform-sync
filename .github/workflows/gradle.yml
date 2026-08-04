@@ -33,6 +33,17 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build
 
+    # Kept out of `build`: it rebuilds the jlink image, which costs more than the whole test suite.
+    # Nothing running from a classpath can catch a migration that only fails inside the image.
+    #
+    # One OS is enough. What this guards - Flyway's scanner finding nothing in a `jrt:` runtime
+    # image - is JDK behaviour, identical on every platform, so the other two runners would rebuild
+    # an image to re-answer a settled question. Drop the `if` to widen it; the probe already takes
+    # its data directory as an argument so it needs no per-OS handling.
+    - name: Verify jlink image migrations
+      if: matrix.os == 'ubuntu-latest'
+      run: ./gradlew :app:verifyJlinkMigrations
+
     - name: Upload test reports
       if: failure()
       uses: actions/upload-artifact@v4
