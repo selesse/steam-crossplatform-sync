@@ -23,7 +23,7 @@ public record SyncableGame(
         String name, List<String> windows, List<String> mac, List<String> linux, long gameId, boolean sync) {
 
     public List<PatternSupportedPath> getLocalPaths() {
-        return switch (OperatingSystems.get()) {
+        return switch (OperatingSystems.get().family()) {
             case WINDOWS ->
                 windows().stream()
                         .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
@@ -32,7 +32,7 @@ public record SyncableGame(
                 mac().stream()
                         .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                         .toList();
-            case LINUX, STEAM_OS ->
+            case LINUX ->
                 linux().stream()
                         .map(path -> PatternSupportedPath.of(FilePathSanitizer.sanitize(path)))
                         .toList();
@@ -47,12 +47,11 @@ public record SyncableGame(
     }
 
     public boolean isSupportedOnThisOs() {
-        return switch (OperatingSystems.get()) {
+        return switch (OperatingSystems.get().family()) {
             case WINDOWS ->
                 Optional.ofNullable(windows()).map(x -> !x.isEmpty()).orElse(false);
             case MAC -> Optional.ofNullable(mac()).map(x -> !x.isEmpty()).orElse(false);
-            case LINUX, STEAM_OS ->
-                Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
+            case LINUX -> Optional.ofNullable(linux()).map(x -> !x.isEmpty()).orElse(false);
         };
     }
 }

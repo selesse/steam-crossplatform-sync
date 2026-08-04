@@ -32,9 +32,9 @@ public class SteamCrossplatformSyncConfig {
     }
 
     private static Path defaultConfigDirectory() {
-        return switch (OperatingSystems.get()) {
+        return switch (OperatingSystems.get().family()) {
             case WINDOWS -> Path.of(System.getenv("LOCALAPPDATA"), "steam-crossplatform-sync");
-            case MAC, LINUX, STEAM_OS -> {
+            case MAC, LINUX -> {
                 String xdgConfigHome = Optional.ofNullable(System.getenv("XDG_CONFIG_HOME"))
                         .orElse(System.getProperty("user.home") + "/.config");
                 yield Path.of(xdgConfigHome, "steam-crossplatform-sync");

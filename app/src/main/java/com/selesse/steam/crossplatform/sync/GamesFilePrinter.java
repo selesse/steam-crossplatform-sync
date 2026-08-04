@@ -67,10 +67,10 @@ public class GamesFilePrinter {
     }
 
     private String label(OperatingSystem os) {
-        return switch (os) {
+        return switch (os.family()) {
             case WINDOWS -> "Windows";
             case MAC -> "Mac";
-            case LINUX, STEAM_OS -> "Linux";
+            case LINUX -> "Linux";
         };
     }
 }

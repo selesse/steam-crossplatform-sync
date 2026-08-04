@@ -76,8 +76,7 @@ public class SteamApp {
         // as Linux from here down. Windows is never gated on declared support: an app with no
         // oslist is treated as Windows-only, and Windows-rooted ufs entries are the fallback
         // shape even for apps that don't list Windows.
-        OperatingSystems.OperatingSystem target =
-                os == OperatingSystems.OperatingSystem.STEAM_OS ? OperatingSystems.OperatingSystem.LINUX : os;
+        OperatingSystems.OperatingSystem target = os.family().canonicalOs();
         if (target != OperatingSystems.OperatingSystem.WINDOWS && !supports(target)) {
             return List.of();
         }

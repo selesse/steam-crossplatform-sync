@@ -53,14 +53,13 @@ public class SteamRegistry {
     }
 
     private String getBasePath() {
-        return switch (OperatingSystems.get()) {
+        return switch (OperatingSystems.get().family()) {
             case WINDOWS -> Path.of("C:\\Program Files (x86)\\Steam").toString();
             case MAC ->
                 Path.of(FilePathSanitizer.sanitize("~/Library/Application Support/Steam"))
                         .toString();
             // ~/.steam has no steamapps symlink of its own; only ~/.steam/steam does.
-            case LINUX, STEAM_OS ->
-                Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
+            case LINUX -> Path.of(FilePathSanitizer.sanitize("~/.steam/steam")).toString();
         };
     }
 }

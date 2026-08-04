@@ -8,11 +8,11 @@ public class SteamInstallationPaths {
     }
 
     public static String getRoot(OperatingSystems.OperatingSystem operatingSystem) {
-        return switch (operatingSystem) {
+        return switch (operatingSystem.family()) {
             case MAC -> "~/Library/Application Support/Steam";
             case WINDOWS -> "%PROGRAMFILES(X86)%/Steam";
             // ~/.steam has no steamapps symlink of its own; only ~/.steam/steam does.
-            case LINUX, STEAM_OS -> "~/.steam/steam";
+            case LINUX -> "~/.steam/steam";
         };
     }
 

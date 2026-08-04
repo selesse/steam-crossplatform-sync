@@ -40,8 +40,8 @@ public class GoogleDriveProvider implements CloudStorageProvider {
         }
 
         Optional<Path> localDbPathMaybe =
-                switch (OperatingSystems.get()) {
-                    case MAC, LINUX, STEAM_OS -> defaultMacDriveConfigPath();
+                switch (OperatingSystems.get().family()) {
+                    case MAC, LINUX -> defaultMacDriveConfigPath();
                     case WINDOWS -> defaultWindowsDriveConfigPath();
                 };
 

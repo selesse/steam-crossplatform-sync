@@ -26,7 +26,7 @@ public class GameOverlayProcessLocator {
     }
 
     public static long getRunningAppId() {
-        return switch (OperatingSystems.get()) {
+        return switch (OperatingSystems.get().family()) {
             case WINDOWS -> locate().isPresent() ? GetGameIdFromGameOverlay.get() : 0L;
             case MAC ->
                 locate().map(process -> {
@@ -38,7 +38,7 @@ public class GameOverlayProcessLocator {
                             return 0L;
                         })
                         .orElse(0L);
-            case LINUX, STEAM_OS ->
+            case LINUX ->
                 locate().map(process -> {
                             var args = process.info().arguments().orElse(new String[] {});
                             for (String arg : args) {
@@ -52,6 +52,7 @@ public class GameOverlayProcessLocator {
         };
     }
 
+    // The one place SteamOS genuinely differs from Linux, so this switches on the OS itself.
     private static String getGameOverlayProcessName() {
         return switch (OperatingSystems.get()) {
             case WINDOWS -> "GameOverlayUI64.exe";
