@@ -22,7 +22,7 @@ public class GameNameEnricher implements Runnable {
 
     @Override
     public void run() {
-        GameSessionRepository repository = GameSessionRepository.getInstance();
+        GameSessionRepository repository = context.getSessionRepository();
         List<Long> unknownIds = repository.findUnknownGameIds();
         if (unknownIds.isEmpty()) {
             return;

@@ -12,27 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameSessionRepository {
-    private static GameSessionRepository instance;
-
-    public static GameSessionRepository getInstance() {
-        if (instance == null) {
-            instance = new GameSessionRepository();
-        }
-        return instance;
-    }
-
-    public static GameSessionRepository getInstance(SqliteFile sqliteFile) {
-        instance = new GameSessionRepository(sqliteFile);
-        return instance;
-    }
-
     private final SqliteFile sqliteFile;
 
-    GameSessionRepository() {
+    /** Opens the repository at this machine's default location. */
+    public GameSessionRepository() {
         this(SqliteDatabaseLocation.get());
     }
 
-    GameSessionRepository(SqliteFile sqliteFile) {
+    public GameSessionRepository(SqliteFile sqliteFile) {
         this.sqliteFile = sqliteFile;
         Database.migrate(sqliteFile);
     }

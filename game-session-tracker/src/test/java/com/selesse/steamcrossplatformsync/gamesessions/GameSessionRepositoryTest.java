@@ -23,7 +23,7 @@ public class GameSessionRepositoryTest {
             testDatabase.toFile().deleteOnExit();
         }
         this.sqliteFile = new SqliteFile(testDatabase);
-        this.repository = GameSessionRepository.getInstance(sqliteFile);
+        this.repository = new GameSessionRepository(sqliteFile);
     }
 
     @Test

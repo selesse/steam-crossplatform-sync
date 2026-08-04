@@ -40,7 +40,7 @@ public class GameMonitorTest {
             testDatabase.toFile().deleteOnExit();
         }
         SqliteFile sqliteFile = new SqliteFile(testDatabase);
-        repository = GameSessionRepository.getInstance(sqliteFile);
+        repository = new GameSessionRepository(sqliteFile);
 
         // Stub sync config with an empty games file so sync is always a no-op in tests,
         // and an empty config directory so HookRunner finds no hook to execute.
@@ -54,6 +54,7 @@ public class GameMonitorTest {
 
         context = mock(SteamCrossplatformSyncContext.class);
         doReturn(syncConfig).when(context).getConfig();
+        doReturn(repository).when(context).getSessionRepository();
 
         brotato = mock(SteamApp.class);
         doReturn(1236720L).when(brotato).getId();

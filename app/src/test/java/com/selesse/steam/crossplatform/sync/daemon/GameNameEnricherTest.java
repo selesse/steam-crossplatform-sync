@@ -29,8 +29,9 @@ public class GameNameEnricherTest {
             testDatabase.toFile().deleteOnExit();
         }
         SqliteFile sqliteFile = new SqliteFile(testDatabase);
-        repository = GameSessionRepository.getInstance(sqliteFile);
+        repository = new GameSessionRepository(sqliteFile);
         context = mock(SteamCrossplatformSyncContext.class);
+        doReturn(repository).when(context).getSessionRepository();
     }
 
     @Test

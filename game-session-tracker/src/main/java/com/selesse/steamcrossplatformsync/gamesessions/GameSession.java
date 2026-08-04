@@ -55,13 +55,12 @@ public class GameSession {
         return activePlaytimeSeconds;
     }
 
+    /** Closes out the session and returns what happened. Persisting it is the caller's business. */
     public GameSessionRecord finish() {
         recordActive();
         var finishedAt = OffsetDateTime.now(clock);
 
-        var record = new GameSessionRecord(
+        return new GameSessionRecord(
                 startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), activePlaytimeSeconds);
-        GameSessionRepository.getInstance().save(record);
-        return record;
     }
 }
