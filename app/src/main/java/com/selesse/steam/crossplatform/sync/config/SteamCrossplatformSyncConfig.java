@@ -1,5 +1,7 @@
 package com.selesse.steam.crossplatform.sync.config;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 import java.nio.file.Path;
@@ -7,47 +9,83 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
-public interface SteamCrossplatformSyncConfig {
-    Path getConfigDirectory();
+public class SteamCrossplatformSyncConfig {
+    private final Path configDirectory;
+    private final @Nullable ConfigRaw raw;
+    private final CloudSyncLocationSupplier cloudSyncLocations;
 
-    default Path getConfigFileLocation() {
-        return Path.of(getConfigDirectory().toAbsolutePath().toString(), "config.yml");
+    /** Reads this machine's config file, once. */
+    public static SteamCrossplatformSyncConfig load() {
+        Path configDirectory = defaultConfigDirectory();
+        return new SteamCrossplatformSyncConfig(
+                configDirectory,
+                ConfigLoader.read(configFileIn(configDirectory)).orElse(null),
+                new CloudSyncLocationSupplier());
+    }
+
+    @VisibleForTesting
+    public SteamCrossplatformSyncConfig(
+            Path configDirectory, @Nullable ConfigRaw raw, CloudSyncLocationSupplier cloudSyncLocations) {
+        this.configDirectory = configDirectory;
+        this.raw = raw;
+        this.cloudSyncLocations = cloudSyncLocations;
+    }
+
+    private static Path defaultConfigDirectory() {
+        return switch (OperatingSystems.get()) {
+            case WINDOWS -> Path.of(System.getenv("LOCALAPPDATA"), "steam-crossplatform-sync");
+            case MAC, LINUX, STEAM_OS -> {
+                String xdgConfigHome = Optional.ofNullable(System.getenv("XDG_CONFIG_HOME"))
+                        .orElse(System.getProperty("user.home") + "/.config");
+                yield Path.of(xdgConfigHome, "steam-crossplatform-sync");
+            }
+        };
+    }
+
+    private static Path configFileIn(Path configDirectory) {
+        return Path.of(configDirectory.toAbsolutePath().toString(), "config.yml");
+    }
+
+    public Path getConfigDirectory() {
+        return configDirectory;
+    }
+
+    public Path getConfigFileLocation() {
+        return configFileIn(configDirectory);
     }
 
     /**
      * @return The absolute path to where we should be syncing games config files to, which
      * incorporates {@link #getCloudStorageRelativeWritePath()}}
      */
-    default Path getLocalCloudSyncBaseDirectory() {
-        return configValue(ConfigRaw::getPathToCloudStorage)
-                .map(Path::of)
-                .orElseGet(() -> CloudSyncLocationSupplier.get(this)
-                        .orElseThrow(() -> new IllegalStateException(
-                                "Could not find a cloud storage location. Set pathToCloudStorage in "
-                                        + getConfigFileLocation().toAbsolutePath()
-                                        + ", or install a supported cloud storage provider.")));
+    public Path getLocalCloudSyncBaseDirectory() {
+        return configValue(ConfigRaw::getPathToCloudStorage).map(Path::of).orElseGet(() -> cloudSyncLocations
+                .get(getCloudProvider(), getCloudStorageRelativeWritePath())
+                .orElseThrow(() ->
+                        new IllegalStateException("Could not find a cloud storage location. Set pathToCloudStorage in "
+                                + getConfigFileLocation().toAbsolutePath()
+                                + ", or install a supported cloud storage provider.")));
     }
 
     // Which folder to write into the cloud storage, relative to the root
-    default Path getCloudStorageRelativeWritePath() {
+    public Path getCloudStorageRelativeWritePath() {
         return configValue(ConfigRaw::getCloudStorageRelativeWritePath)
                 .map(Path::of)
                 .orElse(Path.of("steam-crossplatform-sync"));
     }
 
-    default Path getGamesFile() {
+    public Path getGamesFile() {
         return configValue(ConfigRaw::getGamesFileLocation)
                 .map(Path::of)
                 .orElseGet(() -> Path.of(
                         getLocalCloudSyncBaseDirectory().toAbsolutePath().toString(), "/games.yml"));
     }
 
-    @Nullable
-    default String getCloudProvider() {
+    public @Nullable String getCloudProvider() {
         return configValue(r -> r.cloudProvider).orElse(null);
     }
 
     private Optional<String> configValue(Function<ConfigRaw, String> getter) {
-        return ConfigLoader.loadIfExists(getConfigFileLocation()).map(getter).filter(x -> !x.isEmpty());
+        return Optional.ofNullable(raw).map(getter).filter(x -> !x.isEmpty());
     }
 }

@@ -2,7 +2,6 @@ package com.selesse;
 
 import ch.qos.logback.core.PropertyDefinerBase;
 import com.google.common.base.StandardSystemProperty;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import java.io.File;
 import java.util.Objects;
@@ -13,7 +12,7 @@ public class LoggingDirectoryProperty extends PropertyDefinerBase {
         if (runningInIde()) {
             return StandardSystemProperty.USER_DIR.value() + File.separatorChar + "log";
         } else {
-            SteamCrossplatformSyncConfig config = SteamCrossplatformSync.loadConfiguration();
+            SteamCrossplatformSyncConfig config = SteamCrossplatformSyncConfig.load();
             return config.getConfigDirectory().toAbsolutePath().toString();
         }
     }

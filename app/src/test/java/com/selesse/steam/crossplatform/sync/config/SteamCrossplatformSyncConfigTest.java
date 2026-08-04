@@ -3,21 +3,19 @@ package com.selesse.steam.crossplatform.sync.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.Test;
-import org.mockito.MockedStatic;
 
 public class SteamCrossplatformSyncConfigTest {
-    private static class TestConfig implements SteamCrossplatformSyncConfig {
-        @Override
-        public Path getConfigDirectory() {
-            return Path.of("unused-config-dir");
-        }
+    private static SteamCrossplatformSyncConfig configWith(ConfigRaw raw, CloudSyncLocationSupplier supplier) {
+        return new SteamCrossplatformSyncConfig(Path.of("unused-config-dir"), raw, supplier);
     }
 
     // Regression test: getLocalCloudSyncBaseDirectory() used to build its fallback value with
@@ -30,43 +28,28 @@ public class SteamCrossplatformSyncConfigTest {
         ConfigRaw raw = new ConfigRaw();
         raw.pathToCloudStorage = "/configured/cloud/storage";
 
-        try (MockedStatic<ConfigLoader> configLoader = mockStatic(ConfigLoader.class);
-                MockedStatic<CloudSyncLocationSupplier> cloudSupplier = mockStatic(CloudSyncLocationSupplier.class)) {
-            configLoader.when(() -> ConfigLoader.loadIfExists(any())).thenReturn(Optional.of(raw));
-            cloudSupplier
-                    .when(() -> CloudSyncLocationSupplier.get(any()))
-                    .thenThrow(new AssertionError("CloudSyncLocationSupplier.get() should not be evaluated"
-                            + " when pathToCloudStorage is already configured"));
+        CloudSyncLocationSupplier supplier = mock(CloudSyncLocationSupplier.class);
+        doThrow(new AssertionError("cloud storage auto-detection should not run when pathToCloudStorage is configured"))
+                .when(supplier)
+                .get(any(), any());
 
-            Path result = new TestConfig().getLocalCloudSyncBaseDirectory();
+        Path result = configWith(raw, supplier).getLocalCloudSyncBaseDirectory();
 
-            assertThat(result).isEqualTo(Path.of("/configured/cloud/storage"));
-        }
+        assertThat(result).isEqualTo(Path.of("/configured/cloud/storage"));
     }
 
-    // Regression test: the auto-detection fallback used to call
-    // CloudSyncLocationSupplier.get(this::getCloudStorageRelativeWritePath) - a method reference
-    // that only compiled because SteamCrossplatformSyncConfig happens to be a structurally
-    // compatible functional interface, not because it was the right argument. It silently passed
-    // a bogus config substitute instead of the real config. This asserts the real config instance
-    // is what actually gets passed through.
+    // Auto-detection used to be reached through a static call taking the whole config, which once
+    // silently received a bogus substitute because the config interface happened to be
+    // structurally compatible with a functional interface. The supplier is handed the two values
+    // it actually needs now, so there is nothing left to mix up - this covers the behaviour.
     @Test
-    public void missingPathToCloudStorageFallsBackToAutoDetectionWithTheRealConfigInstance() {
-        ConfigRaw raw = new ConfigRaw();
-        TestConfig config = new TestConfig();
+    public void missingPathToCloudStorageFallsBackToAutoDetection() {
+        CloudSyncLocationSupplier supplier = mock(CloudSyncLocationSupplier.class);
+        doReturn(Optional.of(Path.of("/detected/cloud/root"))).when(supplier).get(any(), any());
 
-        try (MockedStatic<ConfigLoader> configLoader = mockStatic(ConfigLoader.class);
-                MockedStatic<CloudSyncLocationSupplier> cloudSupplier = mockStatic(CloudSyncLocationSupplier.class)) {
-            configLoader.when(() -> ConfigLoader.loadIfExists(any())).thenReturn(Optional.of(raw));
-            cloudSupplier
-                    .when(() -> CloudSyncLocationSupplier.get(any()))
-                    .thenReturn(Optional.of(Path.of("/detected/cloud/root")));
+        Path result = configWith(new ConfigRaw(), supplier).getLocalCloudSyncBaseDirectory();
 
-            Path result = config.getLocalCloudSyncBaseDirectory();
-
-            assertThat(result).isEqualTo(Path.of("/detected/cloud/root"));
-            cloudSupplier.verify(() -> CloudSyncLocationSupplier.get(config));
-        }
+        assertThat(result).isEqualTo(Path.of("/detected/cloud/root"));
     }
 
     // When nothing is configured and auto-detection also finds nothing, the failure used to
@@ -74,19 +57,15 @@ public class SteamCrossplatformSyncConfigTest {
     // it. This asserts it now names the config file to edit.
     @Test
     public void noCloudStorageFoundGivesAnActionableErrorMessage() {
-        ConfigRaw raw = new ConfigRaw();
-        TestConfig config = new TestConfig();
+        CloudSyncLocationSupplier supplier = mock(CloudSyncLocationSupplier.class);
+        doReturn(Optional.empty()).when(supplier).get(any(), any());
 
-        try (MockedStatic<ConfigLoader> configLoader = mockStatic(ConfigLoader.class);
-                MockedStatic<CloudSyncLocationSupplier> cloudSupplier = mockStatic(CloudSyncLocationSupplier.class)) {
-            configLoader.when(() -> ConfigLoader.loadIfExists(any())).thenReturn(Optional.of(raw));
-            cloudSupplier.when(() -> CloudSyncLocationSupplier.get(any())).thenReturn(Optional.empty());
+        SteamCrossplatformSyncConfig config = configWith(new ConfigRaw(), supplier);
 
-            assertThatThrownBy(config::getLocalCloudSyncBaseDirectory)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("pathToCloudStorage")
-                    .hasMessageContaining(
-                            config.getConfigFileLocation().toAbsolutePath().toString());
-        }
+        assertThatThrownBy(config::getLocalCloudSyncBaseDirectory)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("pathToCloudStorage")
+                .hasMessageContaining(
+                        config.getConfigFileLocation().toAbsolutePath().toString());
     }
 }

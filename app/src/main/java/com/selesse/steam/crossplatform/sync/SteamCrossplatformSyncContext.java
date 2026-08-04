@@ -3,7 +3,6 @@ package com.selesse.steam.crossplatform.sync;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.SteamAppLoader;
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSync;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.InstalledGameFinderService;
 import com.selesse.steam.user.SteamAccountIdFinder;
@@ -17,7 +16,7 @@ public class SteamCrossplatformSyncContext {
     private final GameSessionRepository sessionRepository;
 
     public SteamCrossplatformSyncContext() {
-        this.config = SteamCrossplatformSync.loadConfiguration();
+        this.config = SteamCrossplatformSyncConfig.load();
         this.steamAccountId = SteamAccountIdFinder.findIfPresent().orElse(null);
         this.installedGameFinderService = new InstalledGameFinderService();
         this.sessionRepository = new GameSessionRepository();

@@ -1,31 +1,16 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
-import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class CloudSyncLocationSupplierTest {
-
-    @Before
-    public void resetCache() {
-        CloudSyncLocationSupplier.resetCacheForTesting();
-    }
-
-    @After
-    public void clearCache() {
-        CloudSyncLocationSupplier.resetCacheForTesting();
-    }
 
     @Test
     public void lookupRunsOnDedicatedDaemonThreadsNotTheCommonPool() throws Exception {
@@ -38,12 +23,11 @@ public class CloudSyncLocationSupplierTest {
     @Test
     public void providerRootIsResolvedOnlyOnceAcrossRepeatedCalls() {
         var provider = new CountingProvider(Optional.of(Path.of("drive-root")));
-        var config = mock(SteamCrossplatformSyncConfig.class);
-        doReturn(Path.of("games")).when(config).getCloudStorageRelativeWritePath();
+        var supplier = new CloudSyncLocationSupplier(List.of(provider));
 
-        CloudSyncLocationSupplier.resolveProviderRoot(config, List.of(provider));
-        CloudSyncLocationSupplier.resolveProviderRoot(config, List.of(provider));
-        CloudSyncLocationSupplier.resolveProviderRoot(config, List.of(provider));
+        supplier.resolveProviderRoot(null);
+        supplier.resolveProviderRoot(null);
+        supplier.resolveProviderRoot(null);
 
         assertThat(provider.callCount()).isEqualTo(1);
     }
@@ -51,15 +35,24 @@ public class CloudSyncLocationSupplierTest {
     @Test
     public void aFailedLookupIsAlsoMemoizedRatherThanRetried() {
         var provider = new CountingProvider(Optional.empty());
-        var config = mock(SteamCrossplatformSyncConfig.class);
-        doReturn(Path.of("games")).when(config).getCloudStorageRelativeWritePath();
+        var supplier = new CloudSyncLocationSupplier(List.of(provider));
 
-        Optional<Path> first = CloudSyncLocationSupplier.resolveProviderRoot(config, List.of(provider));
-        Optional<Path> second = CloudSyncLocationSupplier.resolveProviderRoot(config, List.of(provider));
+        Optional<Path> first = supplier.resolveProviderRoot(null);
+        Optional<Path> second = supplier.resolveProviderRoot(null);
 
         assertThat(first).isEmpty();
         assertThat(second).isEmpty();
         assertThat(provider.callCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void separateSuppliersDoNotShareACachedRoot() {
+        var provider = new CountingProvider(Optional.of(Path.of("drive-root")));
+
+        new CloudSyncLocationSupplier(List.of(provider)).resolveProviderRoot(null);
+        new CloudSyncLocationSupplier(List.of(provider)).resolveProviderRoot(null);
+
+        assertThat(provider.callCount()).isEqualTo(2);
     }
 
     private static class CountingProvider implements CloudStorageProvider {

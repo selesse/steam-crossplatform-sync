@@ -12,16 +12,9 @@ import tools.jackson.dataformat.yaml.YAMLFactory;
 
 public class ConfigLoader {
     private static final Logger logger = LoggerFactory.getLogger(ConfigLoader.class);
-    private static Optional<ConfigRaw> config = null;
 
-    public static Optional<ConfigRaw> loadIfExists(Path configLocation) {
-        if (config == null) {
-            config = loadMaybeForReal(configLocation);
-        }
-        return config;
-    }
-
-    private static Optional<ConfigRaw> loadMaybeForReal(Path configLocation) {
+    /** Reads the config file, or empty when it's missing or unparseable. */
+    public static Optional<ConfigRaw> read(Path configLocation) {
         if (!Files.exists(configLocation)) {
             logger.debug("Config not found {}", configLocation);
             return Optional.empty();
