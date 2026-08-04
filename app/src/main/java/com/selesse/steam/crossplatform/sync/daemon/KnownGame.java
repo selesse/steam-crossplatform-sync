@@ -18,8 +18,7 @@ record KnownGame(SteamApp steamApp, GameSession session) implements TrackedGame 
 
     @Override
     public void onClosed(SteamCrossplatformSyncContext context) {
-        GameSessionRecord record = session.finish();
-        context.getSessionRepository().save(record);
+        GameSessionRecord record = finishSession(context);
         LOGGER.info("Game closed: {}", steamApp.getName());
         LOGGER.info("Running sync service for {}", steamApp.getName());
         // A sync failure shouldn't also silently skip the session-end hook - they're independent
