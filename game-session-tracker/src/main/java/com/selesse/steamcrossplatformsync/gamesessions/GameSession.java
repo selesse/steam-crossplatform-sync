@@ -1,13 +1,12 @@
 package com.selesse.steamcrossplatformsync.gamesessions;
 
 import com.selesse.os.Hostnames;
-import com.selesse.steam.SteamApp;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
 public class GameSession {
-    // 2x the normal daemon polling interval (1 minute) to allow for timing variance.
+    // Comfortably above the daemon's 30 second polling interval, to allow for timing variance.
     // If elapsed time exceeds this, we assume a suspend/sleep occurred.
     // See: Daemon.java for polling configuration.
     private static final Duration MAX_EXPECTED_POLL_INTERVAL = Duration.ofMinutes(2);
@@ -26,10 +25,6 @@ public class GameSession {
         this.startedAt = OffsetDateTime.now(clock);
         this.lastActiveAt = this.startedAt;
         this.activePlaytimeSeconds = 0;
-    }
-
-    public static GameSession start(SteamApp steamApp) {
-        return start(steamApp.getId(), steamApp.getName());
     }
 
     public static GameSession start(long gameId, String gameName) {

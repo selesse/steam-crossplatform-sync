@@ -1,6 +1,5 @@
 module com.selesse.steamcrossplatformsync.gamesessions {
     requires com.selesse.common;
-    requires com.selesse.steam.config.reader;
     requires java.sql;
     requires org.xerial.sqlitejdbc;
     requires flyway.core;

@@ -53,7 +53,7 @@ public class GameMonitor implements Runnable {
         TrackedGame tracked;
         try {
             SteamApp game = context.loadGame(gameId);
-            tracked = new KnownGame(game, GameSession.start(game));
+            tracked = new KnownGame(game, GameSession.start(game.getId(), game.getName()));
             LOGGER.info("Game launched: {}", game.getName());
         } catch (RuntimeException e) {
             LOGGER.warn("Could not load game {}, tracking session by app ID only", gameId, e);
