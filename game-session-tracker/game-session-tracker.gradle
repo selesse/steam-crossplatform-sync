@@ -7,3 +7,10 @@ dependencies {
     implementation('org.xerial:sqlite-jdbc:3.51.1.0')
     implementation(project(':common'))
 }
+
+// ModuleMigrationScripts reads a named module's contents. Tests run from the classpath, so they
+// need a real module to point at: the jar this project builds.
+tasks.named('test') {
+    inputs.file(tasks.jar.archiveFile)
+    systemProperty('game-session-tracker.jar', tasks.jar.archiveFile.get().asFile.absolutePath)
+}

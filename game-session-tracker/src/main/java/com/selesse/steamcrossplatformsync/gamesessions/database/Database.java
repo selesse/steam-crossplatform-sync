@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import org.flywaydb.core.Flyway;
 
 public class Database {
@@ -18,8 +19,14 @@ public class Database {
             assert (mkdirs);
         }
 
-        var flyway =
-                Flyway.configure().dataSource(sqliteFile.jdbcPath(), "", "").load();
+        var configuration = Flyway.configure().dataSource(sqliteFile.jdbcPath(), "", "");
+        // Where the module can list its own scripts, hand them over rather than let Flyway scan
+        // for them; scanning finds nothing inside a jlink image. There are no Java migrations, so
+        // the empty class provider spares Flyway a second futile scan.
+        ModuleMigrationScripts.forThisModule()
+                .ifPresent(scripts -> configuration.resourceProvider(scripts).javaMigrationClassProvider(List::of));
+
+        var flyway = configuration.load();
         // Flyway treats "I found no migration scripts at all" as nothing to do, so a packaging
         // that hides db/migration from it produces an empty database and carries on. That only
         // surfaces later, as a missing table when the first session is recorded.
