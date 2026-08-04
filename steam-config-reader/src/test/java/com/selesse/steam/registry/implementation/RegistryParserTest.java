@@ -14,11 +14,10 @@ public class RegistryParserTest {
         List<String> lines = List.of(String.format("\t\t%s\t\t%s", specialKeyName, specialValue));
         RegistryObject registry = RegistryParser.parse(lines);
 
-        RegistryValue objectValue = registry.getObjectValue("hello\t");
-        assertThat(objectValue).isInstanceOf(RegistryString.class);
+        RegistryString objectValue = registry.getObjectValueAsString("hello\t");
 
-        assertThat(((RegistryString) objectValue).getName()).isEqualTo("hello\t");
-        assertThat(((RegistryString) objectValue).getValue()).isEqualTo("my \tfriend\\\"");
+        assertThat(objectValue.getName()).isEqualTo("hello\t");
+        assertThat(objectValue.getValue()).isEqualTo("my \tfriend\\\"");
     }
 
     @Test

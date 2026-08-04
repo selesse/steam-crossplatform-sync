@@ -53,26 +53,27 @@ public class RegistryPrettyPrint {
     private static String prettyPrint(int indentLevel, RegistryValue value) {
         StringBuilder stringBuilder = new StringBuilder();
         String indent = Strings.repeat("\t", indentLevel);
-        if (value instanceof RegistryObject registryObject) {
-            Map<String, RegistryValue> keyValuePairs =
-                    registryObject.getKeys().stream().collect(keyAndValueCollector(registryObject));
-            for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
-                if (x.getValue() instanceof RegistryString string) {
-                    stringBuilder.append(indent).append(printRegistry(string));
-                } else {
-                    stringBuilder
-                            .append(indent)
-                            .append("\"")
-                            .append(x.getKey())
-                            .append("\"")
-                            .append("\n");
-                    stringBuilder.append(indent).append("{\n");
-                    stringBuilder.append(prettyPrint(indentLevel + 1, x.getValue()));
-                    stringBuilder.append(indent).append("}\n");
+        switch (value) {
+            case RegistryString string -> stringBuilder.append(indent).append(printRegistry(string));
+            case RegistryObject registryObject -> {
+                Map<String, RegistryValue> keyValuePairs =
+                        registryObject.getKeys().stream().collect(keyAndValueCollector(registryObject));
+                for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
+                    if (x.getValue() instanceof RegistryString string) {
+                        stringBuilder.append(indent).append(printRegistry(string));
+                    } else {
+                        stringBuilder
+                                .append(indent)
+                                .append("\"")
+                                .append(x.getKey())
+                                .append("\"")
+                                .append("\n");
+                        stringBuilder.append(indent).append("{\n");
+                        stringBuilder.append(prettyPrint(indentLevel + 1, x.getValue()));
+                        stringBuilder.append(indent).append("}\n");
+                    }
                 }
             }
-        } else if (value instanceof RegistryString string) {
-            stringBuilder.append(indent).append(printRegistry(string));
         }
 
         return stringBuilder.toString();

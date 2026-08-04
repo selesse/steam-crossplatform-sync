@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +26,10 @@ public class SteamAccountIdFinder {
             return Optional.empty();
         }
         var loginUsersRegistry = loginUsersRegistryMaybe.get();
-        var userIds = Optional.ofNullable(loginUsersRegistry.getObjectValueAsObject("users"))
+        var userIds = loginUsersRegistry
+                .findObject("users")
                 .map(RegistryObject::getKeys)
-                .orElse(new ArrayList<>());
+                .orElse(List.of());
 
         if (userIds.isEmpty()) {
             return Optional.empty();
@@ -39,10 +40,10 @@ public class SteamAccountIdFinder {
         }
 
         var autoLoginUserId = userIds.stream()
-                .filter(userId -> {
-                    var autoLogin = loginUsersRegistry.getObjectValueAsString("users/%s/AutoLogin".formatted(userId));
-                    return autoLogin != null && "1".equals(autoLogin.getValue());
-                })
+                .filter(userId -> loginUsersRegistry
+                        .findString("users/%s/AutoLogin".formatted(userId))
+                        .map(autoLogin -> "1".equals(autoLogin.getValue()))
+                        .orElse(false))
                 .findFirst();
 
         if (autoLoginUserId.isPresent()) {
@@ -56,8 +57,10 @@ public class SteamAccountIdFinder {
     }
 
     private static long getTimestamp(RegistryObject loginUsersRegistry, String userId) {
-        var timestamp = loginUsersRegistry.getObjectValueAsString("users/%s/Timestamp".formatted(userId));
-        return timestamp != null ? Long.parseLong(timestamp.getValue()) : 0L;
+        return loginUsersRegistry
+                .findString("users/%s/Timestamp".formatted(userId))
+                .map(timestamp -> Long.parseLong(timestamp.getValue()))
+                .orElse(0L);
     }
 
     @VisibleForTesting

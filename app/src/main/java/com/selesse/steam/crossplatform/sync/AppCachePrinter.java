@@ -6,7 +6,7 @@ import com.selesse.steam.SteamInstall;
 import com.selesse.steam.appcache.App;
 import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.registry.RegistryPrettyPrint;
-import com.selesse.steam.registry.implementation.RegistryObject;
+import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,10 +52,10 @@ public class AppCachePrinter {
     }
 
     private String nameOrEmpty(App app) {
-        RegistryObject registryObject = SteamAppLoader.convert(app.vdfObject());
-        return registryObject.pathExists("common/name")
-                ? registryObject.getObjectValueAsString("common/name").getValue()
-                : "";
+        return SteamAppLoader.convert(app.vdfObject())
+                .findString("common/name")
+                .map(RegistryString::getValue)
+                .orElse("");
     }
 
     private void printApp(App app) {

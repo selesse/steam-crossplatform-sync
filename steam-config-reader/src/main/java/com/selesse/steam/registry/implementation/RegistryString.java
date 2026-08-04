@@ -1,6 +1,6 @@
 package com.selesse.steam.registry.implementation;
 
-public class RegistryString extends RegistryValue {
+public final class RegistryString implements RegistryValue {
     private final String name;
     private final String value;
 

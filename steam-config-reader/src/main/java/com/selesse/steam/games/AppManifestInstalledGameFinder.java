@@ -31,7 +31,7 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
 
     private List<Path> getLibrarySteamAppsPaths() {
         RegistryObject libraries = registry.readLibraryFolders()
-                .map(registryObject -> registryObject.getObjectValueAsObject("libraryfolders"))
+                .flatMap(registryObject -> registryObject.findObject("libraryfolders"))
                 .orElse(null);
         if (libraries == null) {
             return List.of();
@@ -53,11 +53,13 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
 
     private Long loadInstalledAppIdOrNull(File appManifestFile) {
         RegistryObject registryObject = registry.readVdf(appManifestFile.toPath());
-        RegistryObject appState = registryObject.getObjectValueAsObject("AppState");
-        boolean fullyInstalled = appState != null
-                && appState.pathExists("StateFlags")
-                && isFullyInstalled(
-                        appState.getObjectValueAsString("StateFlags").getValue());
+        RegistryObject appState = registryObject.findObject("AppState").orElse(null);
+        if (appState == null) {
+            return null;
+        }
+        boolean fullyInstalled = appState.findString("StateFlags")
+                .map(stateFlags -> isFullyInstalled(stateFlags.getValue()))
+                .orElse(false);
         if (!fullyInstalled) {
             return null;
         }

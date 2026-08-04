@@ -55,12 +55,10 @@ public class SteamAppLoader {
     }
 
     private static boolean nameMatches(App app, String name) {
-        RegistryObject registryObject = convert(app.vdfObject());
-        return registryObject.pathExists("common/name")
-                && registryObject
-                        .getObjectValueAsString("common/name")
-                        .getValue()
-                        .equals(name);
+        return convert(app.vdfObject())
+                .findString("common/name")
+                .map(appName -> appName.getValue().equals(name))
+                .orElse(false);
     }
 
     private SteamApp toSteamApp(App rawApp) {

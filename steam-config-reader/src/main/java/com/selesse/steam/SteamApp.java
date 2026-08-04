@@ -53,11 +53,11 @@ public class SteamApp {
     }
 
     public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {
-        if (!getRegistryObject().pathExists("common/oslist")) {
+        RegistryString oslist = registryObject.findString("common/oslist").orElse(null);
+        if (oslist == null) {
             return List.of(OperatingSystems.OperatingSystem.WINDOWS);
         }
-        RegistryString objectValueAsString = registryObject.getObjectValueAsString("common/oslist");
-        List<String> oses = Splitter.on(",").splitToList(objectValueAsString.getValue());
+        List<String> oses = Splitter.on(",").splitToList(oslist.getValue());
         return oses.stream()
                 .flatMap(x -> SteamOperatingSystem.tryFromString(x).stream())
                 .map(SteamOperatingSystem::toOperatingSystem)
@@ -102,7 +102,7 @@ public class SteamApp {
     }
 
     public boolean hasUserFileSystem() {
-        return registryObject.getObjectValueAsObject("ufs") != null && registryObject.pathExists("ufs/savefiles");
+        return registryObject.pathExists("ufs/savefiles");
     }
 
     public boolean isGame() {
