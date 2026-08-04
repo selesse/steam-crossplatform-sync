@@ -45,8 +45,8 @@ public class App {
             new AppCachePrinter().listIds();
         } else if (arguments.contains("--generate-games")) {
             new GamesFileGenerator(context).run();
-        } else if (arguments.contains("--find-unhandled-save-files")) {
-            new FindUndetectedSaveFiles(context).run();
+        } else if (arguments.contains("--find-unresolved-save-paths")) {
+            new FindUnresolvedSavePaths(context).run();
         } else {
             boolean fast = arguments.contains("--fast");
             new Daemon(context, fast).run();
