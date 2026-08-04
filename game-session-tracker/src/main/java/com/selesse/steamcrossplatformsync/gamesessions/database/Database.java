@@ -20,6 +20,14 @@ public class Database {
 
         var flyway =
                 Flyway.configure().dataSource(sqliteFile.jdbcPath(), "", "").load();
+        // Flyway treats "I found no migration scripts at all" as nothing to do, so a packaging
+        // that hides db/migration from it produces an empty database and carries on. That only
+        // surfaces later, as a missing table when the first session is recorded.
+        if (flyway.info().all().length == 0) {
+            throw new IllegalStateException("Flyway resolved no migrations for " + sqliteFile.path()
+                    + ". The scripts under db/migration aren't reachable from Flyway in this"
+                    + " packaging, so the database would be left with no tables.");
+        }
         flyway.migrate();
     }
 
