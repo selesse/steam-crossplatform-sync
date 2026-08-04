@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.fail;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.games.saves.SaveFile;
-import com.selesse.steam.games.saves.SaveFilesFactory;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import java.io.IOException;
 import java.util.Collection;
@@ -42,7 +41,7 @@ public class TestGameInstallationPaths {
     @Test
     public void testGame() {
         steamApp = SteamAppLoader.findByName(TestAppCache.PATH, gameTestCase.name());
-        SaveFile saveFile = SaveFilesFactory.determineSaveFile(steamApp);
+        SaveFile saveFile = new SaveFile(steamApp);
 
         if (gameTestCase.windows() != null) {
             assertThat(symbolPaths(steamApp, OperatingSystems.OperatingSystem.WINDOWS))

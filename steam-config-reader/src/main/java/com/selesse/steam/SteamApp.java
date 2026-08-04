@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
-import com.selesse.steam.games.saves.SaveFilesFactory;
+import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -74,7 +74,7 @@ public class SteamApp {
         if (target != OperatingSystems.OperatingSystem.WINDOWS && !supports(target)) {
             return List.of();
         }
-        return SaveFilesFactory.determineSaveFile(this).savePathsFor(target);
+        return new SaveFile(this).savePathsFor(target);
     }
 
     /** Whether {@link #getSavePaths} resolves to anything for {@code os}. */

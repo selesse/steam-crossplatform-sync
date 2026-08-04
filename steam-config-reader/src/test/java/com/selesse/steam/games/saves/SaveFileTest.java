@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-public class EverythingInSaveFilesTest {
+public class SaveFileTest {
     private static final long TEST_APP_ID = 9999991L;
 
     @Test
@@ -26,7 +26,7 @@ public class EverythingInSaveFilesTest {
         SteamApp steamApp = windowsOnlyGame();
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).savePathsFor(OperatingSystem.LINUX);
+            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
             assertThat(paths).hasSize(1);
             assertThat(paths.get(0).getSymbolPath())
@@ -42,7 +42,7 @@ public class EverythingInSaveFilesTest {
         SteamApp steamApp = windowsOnlyGame();
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(false)) {
-            List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).savePathsFor(OperatingSystem.LINUX);
+            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
             assertThat(paths).hasSize(1);
             assertThat(paths.get(0).getSymbolPath())
@@ -59,7 +59,7 @@ public class EverythingInSaveFilesTest {
         String xdgDataHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share"));
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).savePathsFor(OperatingSystem.LINUX);
+            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
             assertThat(paths).hasSize(1);
             assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgDataHome + "/Chucklefish/Wargroove/save/*");
@@ -75,7 +75,7 @@ public class EverythingInSaveFilesTest {
         String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).savePathsFor(OperatingSystem.LINUX);
+            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
             assertThat(paths).hasSize(1);
             assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
@@ -89,7 +89,7 @@ public class EverythingInSaveFilesTest {
         SteamApp steamApp = realFixtureSteamApp(TestGames.INSCRYPTION);
 
         try (MockedStatic<SteamRegistry> mocked = mockProton(true)) {
-            List<UserFileSystemPath> paths = new EverythingInSaveFiles(steamApp).savePathsFor(OperatingSystem.LINUX);
+            List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
 
             assertThat(paths).hasSize(1);
             assertThat(paths.get(0).getRoot()).doesNotContain("compatdata");
