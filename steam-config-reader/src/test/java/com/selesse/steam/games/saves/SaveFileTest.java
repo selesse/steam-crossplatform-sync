@@ -140,6 +140,21 @@ public class SaveFileTest {
                         + "/AppData/LocalLow/Test Game/save/*.sav");
     }
 
+    // A rootoverride naming a non-desktop os (e.g. a VR companion app's Android build) used to
+    // throw as soon as any resolution scanned the override list, regardless of which os was asked
+    // for. It should be ignored like there were no overrides at all.
+    @Test
+    public void aRootOverrideForANonDesktopOsIsIgnoredRatherThanThrowing() {
+        SteamApp steamApp = gameWithAndroidRootOverride(installWithNoDepots());
+
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/Test Game/save/*.sav");
+    }
+
     private SteamInstall installWithNoDepots() {
         return installWithDepots(List.of());
     }
@@ -217,6 +232,40 @@ public class SaveFileTest {
                       "root" "WinAppDataLocalLow"
                       "path" "Test Game/save"
                       "pattern" "*.sav"
+                    }
+                  }
+                }
+                """.formatted(TEST_APP_ID);
+        return new SteamApp(TestVdf.parse(vdf), install);
+    }
+
+    private SteamApp gameWithAndroidRootOverride(SteamInstall install) {
+        String vdf = """
+                "common"
+                {
+                  "gameid" "%d"
+                  "name" "Test Game"
+                  "oslist" "windows"
+                }
+                "ufs"
+                {
+                  "savefiles"
+                  {
+                    "0"
+                    {
+                      "root" "WinAppDataLocalLow"
+                      "path" "Test Game/save"
+                      "pattern" "*.sav"
+                    }
+                  }
+                  "rootoverrides"
+                  {
+                    "0"
+                    {
+                      "root" "WinAppDataLocalLow"
+                      "os" "android"
+                      "oscompare" "="
+                      "useinstead" "AndroidExternalStorage"
                     }
                   }
                 }

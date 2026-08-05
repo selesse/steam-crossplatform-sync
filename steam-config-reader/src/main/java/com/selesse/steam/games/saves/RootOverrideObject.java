@@ -4,6 +4,7 @@ import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.List;
+import java.util.Optional;
 
 public class RootOverrideObject {
     private final RegistryObject registryObject;
@@ -16,9 +17,11 @@ public class RootOverrideObject {
         return registryObject.getObjectValueAsString("root").getValue();
     }
 
-    public OperatingSystems.OperatingSystem getOs() {
+    // A rootoverride's os isn't limited to desktop platforms (e.g. some VR titles list "android"
+    // for a companion app), so this is empty rather than throwing when it names one we don't sync.
+    public Optional<OperatingSystems.OperatingSystem> getOs() {
         String osValue = registryObject.getObjectValueAsString("os").getValue();
-        return SteamOperatingSystem.fromString(osValue).toOperatingSystem();
+        return SteamOperatingSystem.tryFromString(osValue).map(SteamOperatingSystem::toOperatingSystem);
     }
 
     public String getOsCompare() {

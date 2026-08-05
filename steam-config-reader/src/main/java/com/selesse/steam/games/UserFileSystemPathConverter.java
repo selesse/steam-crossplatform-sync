@@ -15,7 +15,10 @@ public class UserFileSystemPathConverter {
                 .map(model -> {
                     String rootToUseInstead = SteamPathConverter.convert(overrides.getUseInstead());
                     if (rootToUseInstead.equals("gameinstall")) {
-                        rootToUseInstead = steamApp.getInstallationDirectory(overrides.getOs());
+                        // Guaranteed present: SaveFile only reaches here after filtering overrides to
+                        // ones whose os resolved and matched the target.
+                        rootToUseInstead = steamApp.getInstallationDirectory(
+                                overrides.getOs().orElseThrow());
                     }
                     String path = model.getRawPath();
                     if (overrides.hasPathTransforms()) {

@@ -33,8 +33,9 @@ public class SaveFile {
                         saveFileObject, os, steamApp.getInstall().accountId()))
                 .toList();
         var overrides = readRootOverrides(os);
-        boolean hasExplicitLinuxOverride =
-                overrides.stream().anyMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX);
+        boolean hasExplicitLinuxOverride = overrides.stream().anyMatch(x -> x.getOs()
+                .filter(o -> o == OperatingSystems.OperatingSystem.LINUX)
+                .isPresent());
 
         if (os == OperatingSystems.OperatingSystem.LINUX) {
             Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(hasExplicitLinuxOverride);
@@ -48,7 +49,7 @@ public class SaveFile {
                 overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
             }
             return overrides.stream()
-                    .filter(o -> o.getOs() == os)
+                    .filter(o -> o.getOs().filter(x -> x == os).isPresent())
                     .map(overrideObject ->
                             UserFileSystemPathConverter.convert(saveFileObjects, overrideObject, steamApp))
                     .flatMap(List::stream)
