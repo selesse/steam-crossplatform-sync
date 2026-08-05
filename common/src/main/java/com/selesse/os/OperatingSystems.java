@@ -25,9 +25,9 @@ public class OperatingSystems {
     }
 
     /**
-     * Deliberately has no {@code STEAM_OS}, so a switch over a family has nothing to get wrong -
-     * where nine separate {@code case LINUX, STEAM_OS} arms each had to pair the two correctly.
-     * {@link OperatingSystem#family()} is now the only place SteamOS is stated to be Linux.
+     * Deliberately has no {@code STEAM_OS}: a switch over a family cannot mishandle it, because
+     * there is nothing to handle. {@link OperatingSystem#family()} is the only place SteamOS is
+     * stated to be Linux, so switching on the OS itself means opting back into restating it.
      */
     public enum OperatingSystemFamily {
         WINDOWS(OperatingSystem.WINDOWS),

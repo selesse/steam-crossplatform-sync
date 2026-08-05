@@ -64,10 +64,11 @@ public class SaveFileTest {
                         + "/AppData/LocalLow/Test Game/save/*.sav");
     }
 
+    // Not a general rule: a Windows depot on disk beats the override, as the depot test below shows.
+    // This is the abstaining case - Wargroove's install tells us nothing, so its declared Linux
+    // location (useinstead: LinuxXdgDataHome) beats a guess drawn from a leftover prefix.
     @Test
-    public void explicitLinuxRootOverrideWinsOverProton() {
-        // Wargroove has no native Linux depot but declares an explicit Linux rootoverride
-        // (useinstead: LinuxXdgDataHome). Even with Proton "active", that explicit override must win.
+    public void anExplicitLinuxRootOverrideBeatsTheWeakerSignalsWhenTheDepotsAbstain() {
         SteamApp steamApp = realFixtureSteamApp(TestGames.WARGROOVE, protonInstall(true));
         String xdgDataHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_DATA_HOME", "~/.local/share"));
 
@@ -80,8 +81,7 @@ public class SaveFileTest {
     @Test
     public void explicitLinuxRootOverrideUsingXdgConfigHomeResolvesCorrectly() {
         // Regression test for the real Rogue Legacy 2 bug: an explicit rootoverride using
-        // "LinuxXdgConfigHome" used to pass through SteamPathConverter unconverted. Also proves
-        // this explicit override wins over Proton, exactly like the Wargroove case above.
+        // "LinuxXdgConfigHome" used to pass through SteamPathConverter unconverted.
         SteamApp steamApp = gameWithLinuxXdgConfigHomeOverride(protonInstall(true));
         String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
 

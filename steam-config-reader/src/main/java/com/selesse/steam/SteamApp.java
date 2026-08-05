@@ -17,8 +17,8 @@ public class SteamApp {
     private final RegistryObject registryObject;
     private final SteamInstall install;
 
-    // Null until read. Reading it means finding and parsing an app manifest, and the save-path
-    // lookups below ask several times per app.
+    // Memoized: reading it finds and parses an app manifest, and the save-path lookups below ask
+    // several times per app.
     private List<String> installedDepotIds;
 
     public SteamApp(RegistryObject registryObject, SteamInstall install) {

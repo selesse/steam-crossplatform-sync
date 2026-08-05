@@ -32,21 +32,20 @@ public class SaveFile {
                 .map(saveFileObject -> UserFileSystemPath.fromSaveFile(
                         saveFileObject, os, steamApp.getInstall().accountId()))
                 .toList();
-        if (ufs.pathExists("rootoverrides") && os != OperatingSystems.OperatingSystem.WINDOWS) {
-            var overrides = ufs.getObjectValueAsObject("rootoverrides").getKeys().stream()
-                    .map(key -> ufs.getObjectValueAsObject("rootoverrides/" + key))
-                    .map(RootOverrideObject::new)
-                    .toList();
-            boolean hasExplicitLinuxOverride =
-                    overrides.stream().anyMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX);
-            if (os == OperatingSystems.OperatingSystem.LINUX) {
-                Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(hasExplicitLinuxOverride);
-                if (protonResolved.isPresent()) {
-                    return protonResolved.get();
-                }
-                if (!hasExplicitLinuxOverride) {
-                    overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
-                }
+        var overrides = readRootOverrides(os);
+        boolean hasExplicitLinuxOverride =
+                overrides.stream().anyMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX);
+
+        if (os == OperatingSystems.OperatingSystem.LINUX) {
+            Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(hasExplicitLinuxOverride);
+            if (protonResolved.isPresent()) {
+                return protonResolved.get();
+            }
+        }
+
+        if (!overrides.isEmpty()) {
+            if (os == OperatingSystems.OperatingSystem.LINUX && !hasExplicitLinuxOverride) {
+                overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
             }
             return overrides.stream()
                     .filter(o -> o.getOs() == os)
@@ -55,12 +54,6 @@ public class SaveFile {
                     .flatMap(List::stream)
                     .toList();
         }
-        if (os == OperatingSystems.OperatingSystem.LINUX) {
-            Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(false);
-            if (protonResolved.isPresent()) {
-                return protonResolved.get();
-            }
-        }
         if (isNonWindowsButWeOnlyHaveWindowsSaveFiles(os, saveFileObjects)) {
             return saveFileObjects.stream().map(x -> x.convert(os)).toList();
         }
@@ -68,6 +61,20 @@ public class SaveFile {
             return saveFileObjects.stream().filter(x -> x.getPlatform() == os).toList();
         }
         return saveFileObjects;
+    }
+
+    /**
+     * The app's {@code rootoverrides}, or empty when it has none or when they don't apply. They only
+     * ever redirect away from the Windows shape, so a Windows target never consults them.
+     */
+    private List<RootOverrideObject> readRootOverrides(OperatingSystems.OperatingSystem os) {
+        if (os == OperatingSystems.OperatingSystem.WINDOWS || !ufs.pathExists("rootoverrides")) {
+            return List.of();
+        }
+        return ufs.getObjectValueAsObject("rootoverrides").getKeys().stream()
+                .map(key -> ufs.getObjectValueAsObject("rootoverrides/" + key))
+                .map(RootOverrideObject::new)
+                .toList();
     }
 
     /**
@@ -97,16 +104,13 @@ public class SaveFile {
     /**
      * Whether this Linux machine runs this game through Proton.
      *
-     * <p>The depots Steam installed settle it outright when they name a single platform, and are
-     * preferred over everything else: a Windows build on a Linux box can only run under Proton, and
-     * a native Linux build cannot. That beats an explicit Linux {@code rootoverride}, which says
-     * where the *native* build keeps its saves and not which build is installed - honouring it for a
-     * Proton install points at a directory the game never writes.
+     * <p>{@link SteamApp#getInstalledBuild} settles it whenever it can, and outranks an explicit
+     * Linux {@code rootoverride}: an override says where the <em>native</em> build keeps its saves,
+     * not which build is installed, so honouring it for a Proton install names a directory the game
+     * never writes to.
      *
-     * <p>When the depots abstain, fall back to the weaker signals. Both are known to be lossy: a
-     * compatdata prefix outlives a switch back to a native build, and {@code common/oslist} is store
-     * metadata that can omit a Linux build the game ships. An explicit Linux override is the
-     * tie-breaker in that case, since a declared native location beats a guess.
+     * <p>Only when the depots abstain do the guesses below get a say, and then the override wins -
+     * a location the developer declared beats one we inferred.
      */
     private boolean isRunningUnderProton(boolean hasExplicitLinuxOverride) {
         return switch (steamApp.getInstalledBuild()) {
