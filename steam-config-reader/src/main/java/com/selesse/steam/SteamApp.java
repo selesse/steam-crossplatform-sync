@@ -1,5 +1,6 @@
 package com.selesse.steam;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
@@ -15,6 +16,10 @@ import java.util.stream.Stream;
 public class SteamApp {
     private final RegistryObject registryObject;
     private final SteamInstall install;
+
+    // Null until read. Reading it means finding and parsing an app manifest, and the save-path
+    // lookups below ask several times per app.
+    private List<String> installedDepotIds;
 
     public SteamApp(RegistryObject registryObject, SteamInstall install) {
         this.registryObject = registryObject;
@@ -62,7 +67,7 @@ public class SteamApp {
      * answer is {@link InstalledBuild#UNKNOWN}.
      */
     public InstalledBuild getInstalledBuild() {
-        List<String> installedDepotIds = install.registry().getInstalledDepotIds(getId());
+        List<String> installedDepotIds = getInstalledDepotIds();
         if (installedDepotIds.isEmpty()) {
             return InstalledBuild.UNKNOWN;
         }
@@ -105,15 +110,55 @@ public class SteamApp {
     }
 
     /**
+     * Whether this app runs on {@code os} <em>on this machine</em>, which is not the same as whether
+     * its store page advertises {@code os}.
+     *
+     * <p>Most of a Steam Deck's library is Windows-only by that advertisement and runs anyway,
+     * through Proton. Steam does not install a game it cannot run, so being installed here settles
+     * it outright - {@link #getInstalledBuild} then says whether that means natively or under
+     * Proton. {@code oslist} only decides it for apps that aren't installed, where there is nothing
+     * better to go on.
+     */
+    public boolean runsOn(OperatingSystems.OperatingSystem os) {
+        return runsOn(os, OperatingSystems.get());
+    }
+
+    @VisibleForTesting
+    boolean runsOn(OperatingSystems.OperatingSystem os, OperatingSystems.OperatingSystem runningOn) {
+        // Being installed proves this app runs on *this* machine, so it only settles the question
+        // when the machine asked about is the one we're on. Asked from a Mac about Linux, the
+        // manifests here describe a Mac install and say nothing.
+        boolean askingAboutThisMachine = os.family() == runningOn.family();
+        if (os.family() == OperatingSystems.OperatingSystemFamily.LINUX
+                && askingAboutThisMachine
+                && isInstalledHere()) {
+            return true;
+        }
+        return supports(os);
+    }
+
+    /** Whether Steam has this app installed on this machine, per its own app manifests. */
+    public boolean isInstalledHere() {
+        return !getInstalledDepotIds().isEmpty();
+    }
+
+    private List<String> getInstalledDepotIds() {
+        if (installedDepotIds == null) {
+            installedDepotIds = install.registry().getInstalledDepotIds(getId());
+        }
+        return installedDepotIds;
+    }
+
+    /**
      * Where this app's saves live when running on {@code os}, or empty if it has none there.
      */
     public List<UserFileSystemPath> getSavePaths(OperatingSystems.OperatingSystem os) {
         // ufs entries and rootoverrides only ever describe windows/macos/linux, so SteamOS reads
-        // as Linux from here down. Windows is never gated on declared support: an app with no
-        // oslist is treated as Windows-only, and Windows-rooted ufs entries are the fallback
+        // as Linux from here down. Windows is never gated on whether the app runs there: an app with
+        // no oslist is treated as Windows-only, and Windows-rooted ufs entries are the fallback
         // shape even for apps that don't list Windows.
         OperatingSystems.OperatingSystem target = os.family().canonicalOs();
-        if (target != OperatingSystems.OperatingSystem.WINDOWS && !supports(target)) {
+        if (target != OperatingSystems.OperatingSystem.WINDOWS && !runsOn(target)) {
             return List.of();
         }
         return new SaveFile(this).savePathsFor(target);

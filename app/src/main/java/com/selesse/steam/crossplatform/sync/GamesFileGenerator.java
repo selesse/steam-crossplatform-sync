@@ -43,7 +43,7 @@ public class GamesFileGenerator {
     // doesn't run on. Windows is always emitted: a game with no oslist is treated as
     // Windows-only, and Windows-rooted save paths are the fallback shape regardless.
     private List<String> getPathsOrNull(SteamApp steamApp, OperatingSystems.OperatingSystem os) {
-        if (os != OperatingSystems.OperatingSystem.WINDOWS && !steamApp.supports(os)) {
+        if (os != OperatingSystems.OperatingSystem.WINDOWS && !steamApp.runsOn(os)) {
             return null;
         }
         return steamApp.getSavePaths(os).stream()

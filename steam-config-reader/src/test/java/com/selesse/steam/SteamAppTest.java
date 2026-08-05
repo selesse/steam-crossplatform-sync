@@ -3,6 +3,7 @@ package com.selesse.steam;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.selesse.os.OperatingSystems;
+import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.List;
@@ -70,14 +71,52 @@ public class SteamAppTest {
         assertThat(appWithDepots(List.of()).getInstalledBuild()).isEqualTo(SteamApp.InstalledBuild.UNKNOWN);
     }
 
+    // Most of a Deck's library is Windows-only by its store page and runs anyway, through Proton.
+    // Asking oslist meant those games resolved no Linux save paths at all and were never synced.
+    @Test
+    public void aWindowsOnlyGameInstalledOnThisLinuxMachineRunsHere() {
+        SteamApp steamApp = windowsOnlyAppWithDepots(List.of("11"));
+
+        assertThat(steamApp.runsOn(OperatingSystem.LINUX, OperatingSystem.STEAM_OS))
+                .isTrue();
+        assertThat(steamApp.runsOn(OperatingSystem.LINUX, OperatingSystem.LINUX))
+                .isTrue();
+    }
+
+    @Test
+    public void aWindowsOnlyGameThatIsNotInstalledFallsBackToItsStorePage() {
+        SteamApp steamApp = windowsOnlyAppWithDepots(List.of());
+
+        assertThat(steamApp.runsOn(OperatingSystem.LINUX, OperatingSystem.LINUX))
+                .isFalse();
+    }
+
+    // Being installed says this runs on the machine we're on. Asked from a Mac about Linux, the
+    // local manifests describe a Mac install and prove nothing about Linux.
+    @Test
+    public void beingInstalledOnAMacSaysNothingAboutWhetherItRunsOnLinux() {
+        SteamApp steamApp = windowsOnlyAppWithDepots(List.of("11"));
+
+        assertThat(steamApp.runsOn(OperatingSystem.LINUX, OperatingSystem.MAC)).isFalse();
+    }
+
+    private SteamApp windowsOnlyAppWithDepots(List<String> installedDepotIds) {
+        return appWithDepots(installedDepotIds, "windows");
+    }
+
     // 11 is windows-only, 12 linux-only, 13 shared between both, 14 untagged.
     private SteamApp appWithDepots(List<String> installedDepotIds) {
-        RegistryObject registryObject = TestVdf.parse("""
+        return appWithDepots(installedDepotIds, null);
+    }
+
+    private SteamApp appWithDepots(List<String> installedDepotIds, String oslist) {
+        RegistryObject registryObject =
+                TestVdf.parse("""
                 "common"
                 {
                   "gameid" "4242"
                   "name" "Test Game"
-                }
+                %s}
                 "depots"
                 {
                   "11"
@@ -108,7 +147,7 @@ public class SteamAppTest {
                     }
                   }
                 }
-                """);
+                """.formatted(oslist == null ? "" : "  \"oslist\" \"%s\"%n".formatted(oslist)));
         SteamRegistry steamRegistry = Mockito.mock(SteamRegistry.class);
         Mockito.when(steamRegistry.getInstalledDepotIds(ArgumentMatchers.anyLong()))
                 .thenReturn(installedDepotIds);
