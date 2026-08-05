@@ -61,7 +61,7 @@ public class TestVdfTest {
 
     @Test
     public void producesSomethingTheRealParserUnderstands() {
-        RegistryObject registryObject = TestVdf.parseWithoutCollapse("""
+        RegistryObject registryObject = TestVdf.parse("""
                 "common"
                 {
                   "gameid" "4242"

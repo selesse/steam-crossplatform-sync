@@ -10,23 +10,31 @@ public class RegistryParser {
     private static final Pattern multiLinePatternStart = Pattern.compile("\t*\"(.+?)\"\t*\"[^\"]*");
 
     public static RegistryObject parse(List<String> lines) {
-        return collapseIfNecessary(parseWithoutRegistryCollapse(lines));
-    }
-
-    public static RegistryObject parseWithoutRegistryCollapse(List<String> lines) {
         if (Iterables.getLast(lines).isEmpty()) {
             lines = lines.subList(0, lines.size() - 1);
         }
         return (RegistryObject) parseValue(lines);
     }
 
-    private static RegistryObject collapseIfNecessary(RegistryObject registryObject) {
+    /**
+     * Parses one app's entry as the app cache writes it, wrapped in a block named after its appid:
+     *
+     * <pre>{@code
+     * "646570"
+     * {
+     *   "common" { ... }
+     * }
+     * }</pre>
+     *
+     * <p>The wrapper is dropped, so the result is the app's own body and paths read as
+     * {@code common/name} rather than {@code 646570/common/name}. An entry that isn't shaped that
+     * way is returned as parsed.
+     */
+    public static RegistryObject parseAppCacheEntry(List<String> lines) {
+        RegistryObject registryObject = parse(lines);
         List<String> keys = registryObject.getKeys();
-        if (keys.size() == 1) {
-            String keyValue = keys.get(0);
-            if (keyValue.matches("\\d+")) {
-                return registryObject.getObjectValueAsObject(keyValue);
-            }
+        if (keys.size() == 1 && keys.get(0).matches("\\d+")) {
+            return registryObject.getObjectValueAsObject(keys.get(0));
         }
         return registryObject;
     }

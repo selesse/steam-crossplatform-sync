@@ -62,7 +62,7 @@ public class RegistryObjectTest {
     }
 
     private RegistryObject appWithCommonBlock() {
-        return TestVdf.parseWithoutCollapse("""
+        return TestVdf.parse("""
                 "common"
                 {
                   "gameid" "9999991"

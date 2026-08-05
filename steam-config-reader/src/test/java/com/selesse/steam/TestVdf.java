@@ -31,14 +31,8 @@ public final class TestVdf {
 
     private TestVdf() {}
 
-    /** Parses, collapsing a lone numeric top-level key the way the app cache is read. */
     public static RegistryObject parse(String vdf) {
         return RegistryParser.parse(lines(vdf));
-    }
-
-    /** Parses without collapsing, for fixtures that are already a bare app body. */
-    public static RegistryObject parseWithoutCollapse(String vdf) {
-        return RegistryParser.parseWithoutRegistryCollapse(lines(vdf));
     }
 
     public static List<String> lines(String vdf) {

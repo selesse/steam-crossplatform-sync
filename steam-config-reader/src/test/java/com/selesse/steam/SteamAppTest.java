@@ -72,7 +72,7 @@ public class SteamAppTest {
 
     // 11 is windows-only, 12 linux-only, 13 shared between both, 14 untagged.
     private SteamApp appWithDepots(List<String> installedDepotIds) {
-        RegistryObject registryObject = TestVdf.parseWithoutCollapse("""
+        RegistryObject registryObject = TestVdf.parse("""
                 "common"
                 {
                   "gameid" "4242"

@@ -221,7 +221,7 @@ public class SaveFileTest {
                   }
                 %s}
                 """.formatted(TEST_APP_ID, withLinuxOverride ? LINUX_XDG_CONFIG_HOME_OVERRIDE : "");
-        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
+        return new SteamApp(TestVdf.parse(vdf), install);
     }
 
     private SteamApp windowsOnlyGame(SteamInstall install) {
@@ -245,7 +245,7 @@ public class SaveFileTest {
                   }
                 }
                 """.formatted(TEST_APP_ID);
-        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
+        return new SteamApp(TestVdf.parse(vdf), install);
     }
 
     private SteamApp gameWithLinuxXdgConfigHomeOverride(SteamInstall install) {
@@ -269,11 +269,11 @@ public class SaveFileTest {
                   }
                 %s}
                 """.formatted(TEST_APP_ID, LINUX_XDG_CONFIG_HOME_OVERRIDE);
-        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
+        return new SteamApp(TestVdf.parse(vdf), install);
     }
 
     private SteamApp realFixtureSteamApp(TestGames testGame, SteamInstall install) {
-        RegistryObject registryObject = RegistryParser.parse(testGame.registryFileContentsFromFile());
+        RegistryObject registryObject = RegistryParser.parseAppCacheEntry(testGame.registryFileContentsFromFile());
         return new SteamApp(registryObject, install);
     }
 }

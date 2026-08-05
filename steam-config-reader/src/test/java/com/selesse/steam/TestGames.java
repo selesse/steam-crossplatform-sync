@@ -35,7 +35,7 @@ public enum TestGames {
     }
 
     public RegistryObject getGameRegistryObject() {
-        return RegistryParser.parseWithoutRegistryCollapse(registryFileContents());
+        return RegistryParser.parse(registryFileContents());
     }
 
     public List<String> registryFileContents() {
