@@ -39,12 +39,14 @@ public class SaveFile {
                     .toList();
             boolean hasExplicitLinuxOverride =
                     overrides.stream().anyMatch(x -> x.getOs() == OperatingSystems.OperatingSystem.LINUX);
-            if (os == OperatingSystems.OperatingSystem.LINUX && !hasExplicitLinuxOverride) {
-                Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton();
+            if (os == OperatingSystems.OperatingSystem.LINUX) {
+                Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(hasExplicitLinuxOverride);
                 if (protonResolved.isPresent()) {
                     return protonResolved.get();
                 }
-                overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
+                if (!hasExplicitLinuxOverride) {
+                    overrides = UserFileSystemPathConverter.convertMacToLinux(overrides);
+                }
             }
             return overrides.stream()
                     .filter(o -> o.getOs() == os)
@@ -54,7 +56,7 @@ public class SaveFile {
                     .toList();
         }
         if (os == OperatingSystems.OperatingSystem.LINUX) {
-            Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton();
+            Optional<List<UserFileSystemPath>> protonResolved = tryResolveViaProton(false);
             if (protonResolved.isPresent()) {
                 return protonResolved.get();
             }
@@ -74,11 +76,8 @@ public class SaveFile {
      * empty when Proton isn't in play here, or when the Windows-target resolution isn't purely
      * user-profile-rooted (e.g. a gameinstall-rooted save, which lives at the same path either way).
      */
-    private Optional<List<UserFileSystemPath>> tryResolveViaProton() {
-        boolean gameHasNoNativeLinuxDepot =
-                !steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX);
-        boolean protonActive = steamApp.getInstall().registry().hasActiveProtonPrefix(steamApp.getId());
-        if (!protonActive && !gameHasNoNativeLinuxDepot) {
+    private Optional<List<UserFileSystemPath>> tryResolveViaProton(boolean hasExplicitLinuxOverride) {
+        if (!isRunningUnderProton(hasExplicitLinuxOverride)) {
             return Optional.empty();
         }
 
@@ -93,6 +92,32 @@ public class SaveFile {
         return Optional.of(windowsSavePaths.stream()
                 .map(p -> p.rerootForProton(protonPrefixRoot))
                 .toList());
+    }
+
+    /**
+     * Whether this Linux machine runs this game through Proton.
+     *
+     * <p>The depots Steam installed settle it outright when they name a single platform, and are
+     * preferred over everything else: a Windows build on a Linux box can only run under Proton, and
+     * a native Linux build cannot. That beats an explicit Linux {@code rootoverride}, which says
+     * where the *native* build keeps its saves and not which build is installed - honouring it for a
+     * Proton install points at a directory the game never writes.
+     *
+     * <p>When the depots abstain, fall back to the weaker signals. Both are known to be lossy: a
+     * compatdata prefix outlives a switch back to a native build, and {@code common/oslist} is store
+     * metadata that can omit a Linux build the game ships. An explicit Linux override is the
+     * tie-breaker in that case, since a declared native location beats a guess.
+     */
+    private boolean isRunningUnderProton(boolean hasExplicitLinuxOverride) {
+        return switch (steamApp.getInstalledBuild()) {
+            case WINDOWS -> true;
+            case LINUX -> false;
+            case UNKNOWN ->
+                !hasExplicitLinuxOverride
+                        && (steamApp.getInstall().registry().hasActiveProtonPrefix(steamApp.getId())
+                                || !steamApp.getSupportedOperatingSystems()
+                                        .contains(OperatingSystems.OperatingSystem.LINUX));
+        };
     }
 
     private boolean isNonWindowsButWeOnlyHaveWindowsSaveFiles(

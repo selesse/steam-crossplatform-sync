@@ -9,6 +9,7 @@ import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class SteamApp {
@@ -50,6 +51,41 @@ public class SteamApp {
 
     public String getInstallationDirectory(OperatingSystems.OperatingSystem os) {
         return SteamInstallationPaths.get(os) + "/" + getInstallationDirectory();
+    }
+
+    /**
+     * Which platform's build Steam actually has on disk, according to the depots it installed.
+     *
+     * <p>Only depots declaring a single platform vote. A depot listing several (e.g. {@code
+     * "windows,linux"}) is shared content serving every build, and one with no {@code oslist} at all
+     * is platform-agnostic - neither says anything about what is running, so both abstain and the
+     * answer is {@link InstalledBuild#UNKNOWN}.
+     */
+    public InstalledBuild getInstalledBuild() {
+        List<String> installedDepotIds = install.registry().getInstalledDepotIds(getId());
+        if (installedDepotIds.isEmpty()) {
+            return InstalledBuild.UNKNOWN;
+        }
+        // Matched whole, so a shared "windows,linux" depot equals neither and abstains on its own.
+        List<String> declaredPlatforms = installedDepotIds.stream()
+                .map(depotId -> registryObject.findString("depots/" + depotId + "/config/oslist"))
+                .flatMap(Optional::stream)
+                .map(RegistryString::getValue)
+                .toList();
+        if (declaredPlatforms.contains("linux")) {
+            return InstalledBuild.LINUX;
+        }
+        if (declaredPlatforms.contains("windows")) {
+            return InstalledBuild.WINDOWS;
+        }
+        return InstalledBuild.UNKNOWN;
+    }
+
+    /** What {@link #getInstalledBuild} concluded, where {@code UNKNOWN} means "no usable signal". */
+    public enum InstalledBuild {
+        WINDOWS,
+        LINUX,
+        UNKNOWN
     }
 
     public List<OperatingSystems.OperatingSystem> getSupportedOperatingSystems() {

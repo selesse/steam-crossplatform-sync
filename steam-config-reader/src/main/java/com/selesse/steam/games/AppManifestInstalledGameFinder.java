@@ -21,28 +21,11 @@ public class AppManifestInstalledGameFinder implements InstalledGameFetcher {
 
     @Override
     public List<Long> fetch() {
-        return getLibrarySteamAppsPaths().stream()
+        return registry.getLibrarySteamAppsPaths().stream()
                 .flatMap(steamAppsPath -> findAppManifests(steamAppsPath).stream())
                 .map(this::loadInstalledAppIdOrNull)
                 .filter(Objects::nonNull)
                 .distinct()
-                .toList();
-    }
-
-    private List<Path> getLibrarySteamAppsPaths() {
-        RegistryObject libraries = registry.readLibraryFolders()
-                .flatMap(registryObject -> registryObject.findObject("libraryfolders"))
-                .orElse(null);
-        if (libraries == null) {
-            return List.of();
-        }
-
-        return libraries.getKeys().stream()
-                .map(key -> Path.of(libraries
-                                .getObjectValueAsObject(key)
-                                .getObjectValueAsString("path")
-                                .getValue())
-                        .resolve("steamapps"))
                 .toList();
     }
 

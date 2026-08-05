@@ -15,6 +15,7 @@ import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -87,10 +88,143 @@ public class SaveFileTest {
         assertThat(paths.get(0).getRoot()).doesNotContain("compatdata");
     }
 
+    // Hollow Knight on a real Deck: the Windows depot is what Steam installed, so it runs under
+    // Proton - but it also declares a Linux rootoverride. Honouring the override sent resolution to
+    // ~/.config/unity3d/..., which held one stale 2022 file while the live saves sat in the prefix.
+    @Test
+    public void anInstalledWindowsDepotBeatsAnExplicitLinuxOverride() {
+        SteamApp steamApp = gameWithPerOsDepots(installWithDepots(false, List.of("11")), true);
+
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/TestCo/Test Game/Saves/*");
+    }
+
+    // Rogue Legacy 2: a native Linux depot is installed, but a compatdata prefix survives from an
+    // earlier Proton run. The prefix must not win - and the depot settles it without relying on the
+    // rootoverride to act as a veto.
+    @Test
+    public void anInstalledLinuxDepotIgnoresALeftoverProtonPrefix() {
+        SteamApp steamApp = gameWithPerOsDepots(installWithDepots(true, List.of("12")), true);
+        String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
+
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
+    }
+
+    // Wargroove 2 installs one depot tagged "windows,linux" - shared content serving both builds,
+    // which says nothing about what is running. The depot signal abstains and the older heuristics
+    // decide: no explicit Linux override here, and a live prefix, so Proton. Reading that shared
+    // depot as "linux installed" would wrongly send this to the native path instead.
+    @Test
+    public void aDepotServingBothPlatformsAbstainsAndLeavesTheOlderHeuristicsInCharge() {
+        SteamApp steamApp = gameWithPerOsDepots(installWithDepots(true, List.of("13")), false);
+
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/TestCo/Test Game/Saves/*");
+    }
+
+    // A game that isn't installed here has no manifest, so nothing to read depots from.
+    @Test
+    public void anUninstalledGameFallsBackToTheOlderHeuristics() {
+        SteamApp steamApp = windowsOnlyGame(installWithDepots(false, List.of()));
+
+        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath())
+                .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
+                        + "/AppData/LocalLow/Test Game/save/*.sav");
+    }
+
     private SteamInstall protonInstall(boolean active) {
         SteamRegistry steamRegistry = Mockito.mock(SteamRegistry.class);
         when(steamRegistry.hasActiveProtonPrefix(anyLong())).thenReturn(active);
         return new SteamInstall(steamRegistry, TestSteamInstall.ACCOUNT_ID);
+    }
+
+    private SteamInstall installWithDepots(boolean protonPrefixActive, List<String> installedDepotIds) {
+        SteamRegistry steamRegistry = Mockito.mock(SteamRegistry.class);
+        when(steamRegistry.hasActiveProtonPrefix(anyLong())).thenReturn(protonPrefixActive);
+        when(steamRegistry.getInstalledDepotIds(anyLong())).thenReturn(installedDepotIds);
+        return new SteamInstall(steamRegistry, TestSteamInstall.ACCOUNT_ID);
+    }
+
+    // Depot 11 is windows-only, 12 is linux-only, 13 serves both. Which one the manifest says is
+    // installed is what each test varies.
+    private SteamApp gameWithPerOsDepots(SteamInstall install, boolean withLinuxOverride) {
+        List<String> lines = List.of(
+                "\"common\"",
+                "{",
+                "\t\"gameid\"\t\"" + TEST_APP_ID + "\"",
+                "\t\"name\"\t\"Test Game\"",
+                "\t\"oslist\"\t\"windows,linux\"",
+                "}",
+                "\"depots\"",
+                "{",
+                "\t\"11\"",
+                "\t{",
+                "\t\t\"config\"",
+                "\t\t{",
+                "\t\t\t\"oslist\"\t\"windows\"",
+                "\t\t}",
+                "\t}",
+                "\t\"12\"",
+                "\t{",
+                "\t\t\"config\"",
+                "\t\t{",
+                "\t\t\t\"oslist\"\t\"linux\"",
+                "\t\t}",
+                "\t}",
+                "\t\"13\"",
+                "\t{",
+                "\t\t\"config\"",
+                "\t\t{",
+                "\t\t\t\"oslist\"\t\"windows,linux\"",
+                "\t\t}",
+                "\t}",
+                "}",
+                "\"ufs\"",
+                "{",
+                "\t\"savefiles\"",
+                "\t{",
+                "\t\t\"0\"",
+                "\t\t{",
+                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
+                "\t\t\t\"path\"\t\"TestCo/Test Game/Saves\"",
+                "\t\t\t\"pattern\"\t\"*\"",
+                "\t\t}",
+                "\t}",
+                "}");
+        List<String> overrideLines = List.of(
+                "\t\"rootoverrides\"",
+                "\t{",
+                "\t\t\"0\"",
+                "\t\t{",
+                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
+                "\t\t\t\"os\"\t\"Linux\"",
+                "\t\t\t\"oscompare\"\t\"=\"",
+                "\t\t\t\"useinstead\"\t\"LinuxXdgConfigHome\"",
+                "\t\t\t\"addpath\"\t\"unity3d\"",
+                "\t\t}",
+                "\t}",
+                "}");
+        List<String> all = new ArrayList<>(lines.subList(0, lines.size() - 1));
+        if (withLinuxOverride) {
+            all.addAll(overrideLines);
+        } else {
+            all.add("}");
+        }
+        return new SteamApp(RegistryParser.parseWithoutRegistryCollapse(all), install);
     }
 
     private SteamApp windowsOnlyGame(SteamInstall install) {
