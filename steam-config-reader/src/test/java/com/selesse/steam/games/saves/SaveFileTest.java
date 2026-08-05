@@ -10,18 +10,33 @@ import com.selesse.steam.SteamApp;
 import com.selesse.steam.SteamInstall;
 import com.selesse.steam.TestGames;
 import com.selesse.steam.TestSteamInstall;
+import com.selesse.steam.TestVdf;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class SaveFileTest {
     private static final long TEST_APP_ID = 9999991L;
+
+    // Rogue Legacy 2's real shape: the native Linux build keeps saves under XDG config home.
+    private static final String LINUX_XDG_CONFIG_HOME_OVERRIDE = """
+              "rootoverrides"
+              {
+                "0"
+                {
+                  "root" "WinAppDataLocalLow"
+                  "os" "Linux"
+                  "oscompare" "="
+                  "useinstead" "LinuxXdgConfigHome"
+                  "addpath" "unity3d"
+                }
+              }
+            """;
 
     @Test
     public void windowsOnlyGameWithProtonActiveResolvesUnderTheProtonPrefix() {
@@ -162,127 +177,99 @@ public class SaveFileTest {
     // Depot 11 is windows-only, 12 is linux-only, 13 serves both. Which one the manifest says is
     // installed is what each test varies.
     private SteamApp gameWithPerOsDepots(SteamInstall install, boolean withLinuxOverride) {
-        List<String> lines = List.of(
-                "\"common\"",
-                "{",
-                "\t\"gameid\"\t\"" + TEST_APP_ID + "\"",
-                "\t\"name\"\t\"Test Game\"",
-                "\t\"oslist\"\t\"windows,linux\"",
-                "}",
-                "\"depots\"",
-                "{",
-                "\t\"11\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"windows\"",
-                "\t\t}",
-                "\t}",
-                "\t\"12\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"linux\"",
-                "\t\t}",
-                "\t}",
-                "\t\"13\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"windows,linux\"",
-                "\t\t}",
-                "\t}",
-                "}",
-                "\"ufs\"",
-                "{",
-                "\t\"savefiles\"",
-                "\t{",
-                "\t\t\"0\"",
-                "\t\t{",
-                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
-                "\t\t\t\"path\"\t\"TestCo/Test Game/Saves\"",
-                "\t\t\t\"pattern\"\t\"*\"",
-                "\t\t}",
-                "\t}",
-                "}");
-        List<String> overrideLines = List.of(
-                "\t\"rootoverrides\"",
-                "\t{",
-                "\t\t\"0\"",
-                "\t\t{",
-                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
-                "\t\t\t\"os\"\t\"Linux\"",
-                "\t\t\t\"oscompare\"\t\"=\"",
-                "\t\t\t\"useinstead\"\t\"LinuxXdgConfigHome\"",
-                "\t\t\t\"addpath\"\t\"unity3d\"",
-                "\t\t}",
-                "\t}",
-                "}");
-        List<String> all = new ArrayList<>(lines.subList(0, lines.size() - 1));
-        if (withLinuxOverride) {
-            all.addAll(overrideLines);
-        } else {
-            all.add("}");
-        }
-        return new SteamApp(RegistryParser.parseWithoutRegistryCollapse(all), install);
+        String vdf = """
+                "common"
+                {
+                  "gameid" "%d"
+                  "name" "Test Game"
+                  "oslist" "windows,linux"
+                }
+                "depots"
+                {
+                  "11"
+                  {
+                    "config"
+                    {
+                      "oslist" "windows"
+                    }
+                  }
+                  "12"
+                  {
+                    "config"
+                    {
+                      "oslist" "linux"
+                    }
+                  }
+                  "13"
+                  {
+                    "config"
+                    {
+                      "oslist" "windows,linux"
+                    }
+                  }
+                }
+                "ufs"
+                {
+                  "savefiles"
+                  {
+                    "0"
+                    {
+                      "root" "WinAppDataLocalLow"
+                      "path" "TestCo/Test Game/Saves"
+                      "pattern" "*"
+                    }
+                  }
+                %s}
+                """.formatted(TEST_APP_ID, withLinuxOverride ? LINUX_XDG_CONFIG_HOME_OVERRIDE : "");
+        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
     }
 
     private SteamApp windowsOnlyGame(SteamInstall install) {
-        List<String> lines = List.of(
-                "\"common\"",
-                "{",
-                "\t\"gameid\"\t\"" + TEST_APP_ID + "\"",
-                "\t\"name\"\t\"Test Game\"",
-                "\t\"oslist\"\t\"windows\"",
-                "}",
-                "\"ufs\"",
-                "{",
-                "\t\"savefiles\"",
-                "\t{",
-                "\t\t\"0\"",
-                "\t\t{",
-                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
-                "\t\t\t\"path\"\t\"Test Game/save\"",
-                "\t\t\t\"pattern\"\t\"*.sav\"",
-                "\t\t}",
-                "\t}",
-                "}");
-        return new SteamApp(RegistryParser.parseWithoutRegistryCollapse(lines), install);
+        String vdf = """
+                "common"
+                {
+                  "gameid" "%d"
+                  "name" "Test Game"
+                  "oslist" "windows"
+                }
+                "ufs"
+                {
+                  "savefiles"
+                  {
+                    "0"
+                    {
+                      "root" "WinAppDataLocalLow"
+                      "path" "Test Game/save"
+                      "pattern" "*.sav"
+                    }
+                  }
+                }
+                """.formatted(TEST_APP_ID);
+        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
     }
 
     private SteamApp gameWithLinuxXdgConfigHomeOverride(SteamInstall install) {
-        List<String> lines = List.of(
-                "\"common\"",
-                "{",
-                "\t\"gameid\"\t\"" + TEST_APP_ID + "\"",
-                "\t\"name\"\t\"Test Game\"",
-                "\t\"oslist\"\t\"windows,linux\"",
-                "}",
-                "\"ufs\"",
-                "{",
-                "\t\"savefiles\"",
-                "\t{",
-                "\t\t\"0\"",
-                "\t\t{",
-                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
-                "\t\t\t\"path\"\t\"TestCo/Test Game/Saves\"",
-                "\t\t\t\"pattern\"\t\"*\"",
-                "\t\t}",
-                "\t}",
-                "\t\"rootoverrides\"",
-                "\t{",
-                "\t\t\"0\"",
-                "\t\t{",
-                "\t\t\t\"root\"\t\"WinAppDataLocalLow\"",
-                "\t\t\t\"os\"\t\"Linux\"",
-                "\t\t\t\"oscompare\"\t\"=\"",
-                "\t\t\t\"useinstead\"\t\"LinuxXdgConfigHome\"",
-                "\t\t\t\"addpath\"\t\"unity3d\"",
-                "\t\t}",
-                "\t}",
-                "}");
-        RegistryObject registryObject = RegistryParser.parseWithoutRegistryCollapse(lines);
-        return new SteamApp(registryObject, install);
+        String vdf = """
+                "common"
+                {
+                  "gameid" "%d"
+                  "name" "Test Game"
+                  "oslist" "windows,linux"
+                }
+                "ufs"
+                {
+                  "savefiles"
+                  {
+                    "0"
+                    {
+                      "root" "WinAppDataLocalLow"
+                      "path" "TestCo/Test Game/Saves"
+                      "pattern" "*"
+                    }
+                  }
+                %s}
+                """.formatted(TEST_APP_ID, LINUX_XDG_CONFIG_HOME_OVERRIDE);
+        return new SteamApp(TestVdf.parseWithoutCollapse(vdf), install);
     }
 
     private SteamApp realFixtureSteamApp(TestGames testGame, SteamInstall install) {

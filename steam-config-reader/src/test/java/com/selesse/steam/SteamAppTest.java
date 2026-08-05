@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
-import com.selesse.steam.registry.implementation.RegistryParser;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -71,56 +70,59 @@ public class SteamAppTest {
         assertThat(appWithDepots(List.of()).getInstalledBuild()).isEqualTo(SteamApp.InstalledBuild.UNKNOWN);
     }
 
+    // 11 is windows-only, 12 linux-only, 13 shared between both, 14 untagged.
     private SteamApp appWithDepots(List<String> installedDepotIds) {
-        List<String> lines = List.of(
-                "\"common\"",
-                "{",
-                "\t\"gameid\"\t\"4242\"",
-                "\t\"name\"\t\"Test Game\"",
-                "}",
-                "\"depots\"",
-                "{",
-                "\t\"11\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"windows\"",
-                "\t\t}",
-                "\t}",
-                "\t\"12\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"linux\"",
-                "\t\t}",
-                "\t}",
-                "\t\"13\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t\t\"oslist\"\t\"windows,linux\"",
-                "\t\t}",
-                "\t}",
-                "\t\"14\"",
-                "\t{",
-                "\t\t\"config\"",
-                "\t\t{",
-                "\t\t}",
-                "\t}",
-                "}");
+        RegistryObject registryObject = TestVdf.parseWithoutCollapse("""
+                "common"
+                {
+                  "gameid" "4242"
+                  "name" "Test Game"
+                }
+                "depots"
+                {
+                  "11"
+                  {
+                    "config"
+                    {
+                      "oslist" "windows"
+                    }
+                  }
+                  "12"
+                  {
+                    "config"
+                    {
+                      "oslist" "linux"
+                    }
+                  }
+                  "13"
+                  {
+                    "config"
+                    {
+                      "oslist" "windows,linux"
+                    }
+                  }
+                  "14"
+                  {
+                    "config"
+                    {
+                    }
+                  }
+                }
+                """);
         SteamRegistry steamRegistry = Mockito.mock(SteamRegistry.class);
         Mockito.when(steamRegistry.getInstalledDepotIds(ArgumentMatchers.anyLong()))
                 .thenReturn(installedDepotIds);
-        return new SteamApp(
-                RegistryParser.parseWithoutRegistryCollapse(lines),
-                new SteamInstall(steamRegistry, TestSteamInstall.ACCOUNT_ID));
+        return new SteamApp(registryObject, new SteamInstall(steamRegistry, TestSteamInstall.ACCOUNT_ID));
     }
 
     private SteamApp appWithOslist(String oslist) {
-        List<String> lines = oslist == null
-                ? List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "}")
-                : List.of("\"common\"", "{", "\t\"name\"\t\"Test Game\"", "\t\"oslist\"\t\"" + oslist + "\"", "}");
-        RegistryObject registryObject = RegistryParser.parse(lines);
+        RegistryObject registryObject =
+                TestVdf.parse("""
+                "common"
+                {
+                  "name" "Test Game"
+                %s}
+                """.formatted(oslist == null ? "" : "  \"oslist\" \"%s\"%n".formatted(oslist)));
         return new SteamApp(registryObject, TestSteamInstall.get());
     }
 }

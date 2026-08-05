@@ -3,7 +3,7 @@ package com.selesse.steam.registry.implementation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
+import com.selesse.steam.TestVdf;
 import org.junit.Test;
 
 public class RegistryObjectTest {
@@ -62,12 +62,13 @@ public class RegistryObjectTest {
     }
 
     private RegistryObject appWithCommonBlock() {
-        return RegistryParser.parseWithoutRegistryCollapse(List.of(
-                "\"common\"",
-                "{",
-                "\t\"gameid\"\t\"9999991\"",
-                "\t\"name\"\t\"Test Game\"",
-                "\t\"type\"\t\"Game\"",
-                "}"));
+        return TestVdf.parseWithoutCollapse("""
+                "common"
+                {
+                  "gameid" "9999991"
+                  "name" "Test Game"
+                  "type" "Game"
+                }
+                """);
     }
 }
