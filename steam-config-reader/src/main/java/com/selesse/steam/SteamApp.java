@@ -17,8 +17,7 @@ public class SteamApp {
     private final RegistryObject registryObject;
     private final SteamInstall install;
 
-    // Memoized: reading it finds and parses an app manifest, and the save-path lookups below ask
-    // several times per app.
+    // Memoized: reading it parses an app manifest, and the lookups below ask several times per app.
     private List<String> installedDepotIds;
 
     public SteamApp(RegistryObject registryObject, SteamInstall install) {
@@ -59,19 +58,15 @@ public class SteamApp {
     }
 
     /**
-     * Which platform's build Steam actually has on disk, according to the depots it installed.
-     *
-     * <p>Only depots declaring a single platform vote. A depot listing several (e.g. {@code
-     * "windows,linux"}) is shared content serving every build, and one with no {@code oslist} at all
-     * is platform-agnostic - neither says anything about what is running, so both abstain and the
-     * answer is {@link InstalledBuild#UNKNOWN}.
+     * Which platform's build Steam has on disk. Only depots naming a single platform vote: one
+     * tagged {@code "windows,linux"} is shared content and one with no {@code oslist} is
+     * platform-agnostic, so neither says anything about which build runs.
      */
     public InstalledBuild getInstalledBuild() {
         List<String> installedDepotIds = getInstalledDepotIds();
         if (installedDepotIds.isEmpty()) {
             return InstalledBuild.UNKNOWN;
         }
-        // Matched whole, so a shared "windows,linux" depot equals neither and abstains on its own.
         List<String> declaredPlatforms = installedDepotIds.stream()
                 .map(depotId -> registryObject.findString("depots/" + depotId + "/config/oslist"))
                 .flatMap(Optional::stream)
@@ -86,7 +81,6 @@ public class SteamApp {
         return InstalledBuild.UNKNOWN;
     }
 
-    /** What {@link #getInstalledBuild} concluded, where {@code UNKNOWN} means "no usable signal". */
     public enum InstalledBuild {
         WINDOWS,
         LINUX,
@@ -110,14 +104,10 @@ public class SteamApp {
     }
 
     /**
-     * Whether this app runs on {@code os} <em>on this machine</em>, which is not the same as whether
-     * its store page advertises {@code os}.
-     *
-     * <p>Most of a Steam Deck's library is Windows-only by that advertisement and runs anyway,
-     * through Proton. Steam does not install a game it cannot run, so being installed here settles
-     * it outright - {@link #getInstalledBuild} then says whether that means natively or under
-     * Proton. {@code oslist} only decides it for apps that aren't installed, where there is nothing
-     * better to go on.
+     * Whether this app runs on {@code os} here, which is not what its store page advertises: most of
+     * a Deck's library is Windows-only by that measure and runs through Proton anyway. Steam does
+     * not install a game it cannot run, so {@code oslist} only decides for apps that aren't
+     * installed.
      */
     public boolean runsOn(OperatingSystems.OperatingSystem os) {
         return runsOn(os, OperatingSystems.get());
@@ -125,9 +115,8 @@ public class SteamApp {
 
     @VisibleForTesting
     boolean runsOn(OperatingSystems.OperatingSystem os, OperatingSystems.OperatingSystem runningOn) {
-        // Being installed proves this app runs on *this* machine, so it only settles the question
-        // when the machine asked about is the one we're on. Asked from a Mac about Linux, the
-        // manifests here describe a Mac install and say nothing.
+        // Being installed proves it runs on *this* machine, so it settles nothing when asked from a
+        // Mac about Linux.
         boolean askingAboutThisMachine = os.family() == runningOn.family();
         if (os.family() == OperatingSystems.OperatingSystemFamily.LINUX
                 && askingAboutThisMachine
@@ -137,7 +126,6 @@ public class SteamApp {
         return supports(os);
     }
 
-    /** Whether Steam has this app installed on this machine, per its own app manifests. */
     public boolean isInstalledHere() {
         return !getInstalledDepotIds().isEmpty();
     }

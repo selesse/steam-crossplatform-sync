@@ -8,6 +8,7 @@ import com.selesse.steam.registry.implementation.RegistryObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -47,35 +48,28 @@ public class SteamRegistryTest {
     }
 
     @Test
-    public void hasActiveProtonPrefixIsFalseWhenCompatDataIsMissing() throws IOException {
-        Path steamApps = Files.createTempDirectory("steamapps");
-        SteamRegistry steamRegistry = spyOnSteamApps(steamApps);
+    public void findProtonPrefixIsEmptyWhenSteamHasNotCreatedOne() throws IOException {
+        SteamRegistry steamRegistry = spyOnLibraries(Files.createTempDirectory("steamapps"));
 
-        assertThat(steamRegistry.hasActiveProtonPrefix(646570L)).isFalse();
+        assertThat(steamRegistry.findProtonPrefix(646570L)).isEmpty();
     }
 
+    // Steam puts a prefix in whichever library it likes, so looking only in the primary one misses
+    // prefixes for games installed on an SD card.
     @Test
-    public void hasActiveProtonPrefixIsFalseWhenDriveCIsEmpty() throws IOException {
-        Path steamApps = Files.createTempDirectory("steamapps");
-        Files.createDirectories(steamApps.resolve("compatdata/646570/pfx/drive_c"));
-        SteamRegistry steamRegistry = spyOnSteamApps(steamApps);
+    public void findProtonPrefixLooksInEveryLibrary() throws IOException {
+        Path primary = Files.createTempDirectory("steamapps");
+        Path secondary = Files.createTempDirectory("steamapps-sd");
+        Path prefix = secondary.resolve("compatdata/646570/pfx");
+        Files.createDirectories(prefix);
+        SteamRegistry steamRegistry = spyOnLibraries(primary, secondary);
 
-        assertThat(steamRegistry.hasActiveProtonPrefix(646570L)).isFalse();
+        assertThat(steamRegistry.findProtonPrefix(646570L)).contains(prefix);
     }
 
-    @Test
-    public void hasActiveProtonPrefixIsTrueWhenDriveCHasContent() throws IOException {
-        Path steamApps = Files.createTempDirectory("steamapps");
-        Path driveC = steamApps.resolve("compatdata/646570/pfx/drive_c");
-        Files.createDirectories(driveC.resolve("users/steamuser"));
-        SteamRegistry steamRegistry = spyOnSteamApps(steamApps);
-
-        assertThat(steamRegistry.hasActiveProtonPrefix(646570L)).isTrue();
-    }
-
-    private SteamRegistry spyOnSteamApps(Path steamApps) {
+    private SteamRegistry spyOnLibraries(Path... steamApps) {
         SteamRegistry steamRegistry = Mockito.spy(new SteamRegistry());
-        doReturn(steamApps).when(steamRegistry).getSteamAppsPath();
+        doReturn(List.of(steamApps)).when(steamRegistry).getLibrarySteamAppsPaths();
         return steamRegistry;
     }
 }

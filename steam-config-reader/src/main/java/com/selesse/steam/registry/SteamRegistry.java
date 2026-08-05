@@ -5,12 +5,10 @@ import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class SteamRegistry {
     public Path getAppCachePath() {
@@ -25,10 +23,7 @@ public class SteamRegistry {
         return readVdfIfPresent(getSteamAppsPath().resolve("libraryfolders.vdf"));
     }
 
-    /**
-     * The {@code steamapps} directory of every library, not just the primary one - games routinely
-     * live on a second drive or an SD card.
-     */
+    /** Every library, not just the primary one - games routinely live on a second drive or SD card. */
     public List<Path> getLibrarySteamAppsPaths() {
         RegistryObject libraries = readLibraryFolders()
                 .flatMap(registryObject -> registryObject.findObject("libraryfolders"))
@@ -44,11 +39,9 @@ public class SteamRegistry {
     }
 
     /**
-     * The depot ids Steam currently has installed for {@code appId}, from its own app manifest, or
-     * empty when the app isn't installed here. Cross-referenced against the app cache's per-depot
-     * {@code oslist}, this says which platform's build is on disk - unlike the compatdata prefix,
-     * which survives a switch back to a native build, or {@code common/oslist}, which describes the
-     * store page rather than this machine.
+     * The depot ids installed for {@code appId}, or empty when it isn't installed here. Against the
+     * app cache's per-depot {@code oslist} this gives the build on disk, which {@code common/oslist}
+     * cannot - that describes the store page rather than this machine.
      */
     public List<String> getInstalledDepotIds(long appId) {
         for (Path steamAppsPath : getLibrarySteamAppsPaths()) {
@@ -77,20 +70,15 @@ public class SteamRegistry {
         return RegistryParser.parse(RuntimeExceptionFiles.readAllLines(path));
     }
 
-    public boolean hasActiveProtonPrefix(long appId) {
-        Path driveC = getSteamAppsPath()
-                .resolve("compatdata")
-                .resolve(String.valueOf(appId))
-                .resolve("pfx")
-                .resolve("drive_c");
-        if (!Files.isDirectory(driveC)) {
-            return false;
-        }
-        try (Stream<Path> entries = Files.list(driveC)) {
-            return entries.findAny().isPresent();
-        } catch (IOException e) {
-            return false;
-        }
+    /** Steam keeps a prefix in whichever library it likes, not the one holding the game. */
+    public Optional<Path> findProtonPrefix(long appId) {
+        return getLibrarySteamAppsPaths().stream()
+                .map(steamApps -> steamApps
+                        .resolve("compatdata")
+                        .resolve(String.valueOf(appId))
+                        .resolve("pfx"))
+                .filter(Files::isDirectory)
+                .findFirst();
     }
 
     private String getBasePath() {

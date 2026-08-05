@@ -63,10 +63,7 @@ public class SaveFile {
         return saveFileObjects;
     }
 
-    /**
-     * The app's {@code rootoverrides}, or empty when it has none or when they don't apply. They only
-     * ever redirect away from the Windows shape, so a Windows target never consults them.
-     */
+    /** Empty for a Windows target: overrides only ever redirect away from the Windows shape. */
     private List<RootOverrideObject> readRootOverrides(OperatingSystems.OperatingSystem os) {
         if (os == OperatingSystems.OperatingSystem.WINDOWS || !ufs.pathExists("rootoverrides")) {
             return List.of();
@@ -95,22 +92,20 @@ public class SaveFile {
             return Optional.empty();
         }
 
-        String protonPrefixRoot = SteamInstallationPaths.getProtonPrefixUserProfileRoot(steamApp.getId());
+        String protonPrefixRoot = steamApp.getInstall()
+                .registry()
+                .findProtonPrefix(steamApp.getId())
+                .map(prefix -> SteamInstallationPaths.getProtonPrefixUserProfileRoot(prefix.toString()))
+                .orElseGet(() -> SteamInstallationPaths.getProtonPrefixUserProfileRoot(steamApp.getId()));
         return Optional.of(windowsSavePaths.stream()
                 .map(p -> p.rerootForProton(protonPrefixRoot))
                 .toList());
     }
 
     /**
-     * Whether this Linux machine runs this game through Proton.
-     *
-     * <p>{@link SteamApp#getInstalledBuild} settles it whenever it can, and outranks an explicit
-     * Linux {@code rootoverride}: an override says where the <em>native</em> build keeps its saves,
-     * not which build is installed, so honouring it for a Proton install names a directory the game
-     * never writes to.
-     *
-     * <p>Only when the depots abstain do the guesses below get a say, and then the override wins -
-     * a location the developer declared beats one we inferred.
+     * An explicit Linux {@code rootoverride} says where the <em>native</em> build keeps its saves,
+     * not which build is installed, so the depots outrank it - honouring it for a Proton install
+     * names a directory the game never writes to. It only decides when the depots abstain.
      */
     private boolean isRunningUnderProton(boolean hasExplicitLinuxOverride) {
         return switch (steamApp.getInstalledBuild()) {
@@ -118,9 +113,7 @@ public class SaveFile {
             case LINUX -> false;
             case UNKNOWN ->
                 !hasExplicitLinuxOverride
-                        && (steamApp.getInstall().registry().hasActiveProtonPrefix(steamApp.getId())
-                                || !steamApp.getSupportedOperatingSystems()
-                                        .contains(OperatingSystems.OperatingSystem.LINUX));
+                        && !steamApp.getSupportedOperatingSystems().contains(OperatingSystems.OperatingSystem.LINUX);
         };
     }
 

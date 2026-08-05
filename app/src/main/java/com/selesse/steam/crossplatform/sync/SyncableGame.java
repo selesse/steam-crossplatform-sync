@@ -11,11 +11,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-// @JsonIncludeProperties pins games.yml to exactly the six stored fields. Without it Jackson also
-// treats the derived accessors below as properties and writes them out - getLocalPaths() throws on
-// the way. It also makes reading tolerant of keys we don't know, so no separate @JsonIgnoreProperties
-// is needed. @JsonPropertyOrder fixes the order fields are written in, independently of the
-// component order, so the file keeps its shape no matter how this record is declared.
+// Without @JsonIncludeProperties, Jackson also writes out the derived accessors below, and
+// getLocalPaths() throws on the way.
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIncludeProperties({"name", "gameId", "windows", "mac", "linux", "sync"})
 @JsonPropertyOrder({"name", "gameId", "windows", "mac", "linux", "sync"})

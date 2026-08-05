@@ -10,11 +10,7 @@ public class OperatingSystems {
         LINUX,
         STEAM_OS;
 
-        /**
-         * The platform behaviour this OS follows. SteamOS is Linux for everything except the Steam
-         * overlay process name, so switch on this rather than on the OS itself unless that one
-         * difference is what you're after.
-         */
+        /** Prefer switching on this: SteamOS differs from Linux only in the overlay process name. */
         public OperatingSystemFamily family() {
             return switch (this) {
                 case WINDOWS -> OperatingSystemFamily.WINDOWS;
@@ -24,11 +20,6 @@ public class OperatingSystems {
         }
     }
 
-    /**
-     * Deliberately has no {@code STEAM_OS}: a switch over a family cannot mishandle it, because
-     * there is nothing to handle. {@link OperatingSystem#family()} is the only place SteamOS is
-     * stated to be Linux, so switching on the OS itself means opting back into restating it.
-     */
     public enum OperatingSystemFamily {
         WINDOWS(OperatingSystem.WINDOWS),
         MAC(OperatingSystem.MAC),
@@ -40,7 +31,6 @@ public class OperatingSystems {
             this.canonicalOs = canonicalOs;
         }
 
-        /** The OS standing in for this whole family, for code that still needs an OS downstream. */
         public OperatingSystem canonicalOs() {
             return canonicalOs;
         }

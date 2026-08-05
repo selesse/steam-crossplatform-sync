@@ -17,7 +17,11 @@ public class SteamInstallationPaths {
     }
 
     public static String getProtonPrefixUserProfileRoot(long appId) {
-        return getRoot(OperatingSystems.OperatingSystem.LINUX) + "/steamapps/compatdata/" + appId
-                + "/pfx/drive_c/users/steamuser";
+        return getProtonPrefixUserProfileRoot(
+                getRoot(OperatingSystems.OperatingSystem.LINUX) + "/steamapps/compatdata/" + appId + "/pfx");
+    }
+
+    public static String getProtonPrefixUserProfileRoot(String protonPrefix) {
+        return protonPrefix + "/drive_c/users/steamuser";
     }
 }
