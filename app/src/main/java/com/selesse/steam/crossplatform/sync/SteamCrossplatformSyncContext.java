@@ -46,7 +46,7 @@ public class SteamCrossplatformSyncContext {
         return steamInstall;
     }
 
-    public List<SteamApp> fetchAllGamesOrLoadInstalledGames() {
+    public List<SteamApp> loadInstalledGames() {
         return installedGameFinderService.find().stream().map(this::loadGame).toList();
     }
 

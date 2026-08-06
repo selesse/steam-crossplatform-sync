@@ -19,7 +19,7 @@ public class GamesFilePrinter {
     }
 
     public void run() {
-        List<SteamApp> steamApps = new ArrayList<>(context.fetchAllGamesOrLoadInstalledGames());
+        List<SteamApp> steamApps = new ArrayList<>(context.loadInstalledGames());
         steamApps.sort(Comparator.comparing(SteamApp::getName));
         steamApps.forEach(this::printApp);
     }

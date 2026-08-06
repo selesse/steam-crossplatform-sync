@@ -19,7 +19,7 @@ public class FindUnresolvedSavePaths {
     }
 
     public void run() {
-        for (SteamApp steamApp : context.fetchAllGamesOrLoadInstalledGames()) {
+        for (SteamApp steamApp : context.loadInstalledGames()) {
             if (steamApp.hasUserFileSystem()) {
                 report(steamApp);
             }

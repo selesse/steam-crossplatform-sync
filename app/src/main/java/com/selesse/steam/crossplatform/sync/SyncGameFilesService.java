@@ -5,7 +5,6 @@ import com.selesse.files.PatternSupportedPath;
 import com.selesse.files.SyncablePath;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +23,32 @@ public class SyncGameFilesService {
     }
 
     public void run(SteamApp steamApp) {
-        run(new SteamApp[] {steamApp});
+        run(steamApp.getId());
     }
 
-    public void run(Long[] gameIds) {
-        Arrays.stream(gameIds).map(context::loadGame).toList().forEach(this::run);
-    }
-
-    public void run(SteamApp[] steamApps) {
-        List<SteamApp> gamesToSync = Arrays.stream(steamApps).toList();
+    /**
+     * Syncs each game's configured save paths. Which paths those are is keyed by app ID alone, so
+     * nothing here needs the app cache entry - naming a game is left to the one branch that has
+     * something to say about it.
+     */
+    public void run(Long... gameIds) {
         GameConfig gameList = new GamesToSyncLoader().loadGames(context.getConfig());
-        for (SteamApp steamApp : gamesToSync) {
-            gameList.getGame(steamApp.getId())
-                    .ifPresentOrElse(
-                            this::sync, () -> LOGGER.warn("Could not find game config for {}", steamApp.getName()));
+        for (Long gameId : gameIds) {
+            gameList.getGame(gameId)
+                    .ifPresentOrElse(this::sync, () -> LOGGER.warn("Could not find game config for {}", name(gameId)));
+        }
+    }
+
+    /**
+     * Only for the warning above: a game missing from games.yml is something the user has to go add,
+     * and an app ID on its own isn't much to go on. Worth an app cache read on that path, not on
+     * the one where the sync just works.
+     */
+    private String name(long gameId) {
+        try {
+            return context.loadGame(gameId).getName() + " (" + gameId + ")";
+        } catch (RuntimeException e) {
+            return "app ID " + gameId;
         }
     }
 

@@ -17,7 +17,7 @@ public class GamesFileGenerator {
     }
 
     public void run() {
-        List<SteamApp> steamApps = context.fetchAllGamesOrLoadInstalledGames();
+        List<SteamApp> steamApps = context.loadInstalledGames();
 
         List<SyncableGame> syncableGames = Lists.newArrayList();
 
