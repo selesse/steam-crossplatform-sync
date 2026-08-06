@@ -33,6 +33,25 @@ daemonApp {
     jarTask = tasks.shadowJar
 }
 
+// sqlite-jdbc bundles a native library for every OS/arch it supports, which is most of that
+// dependency's weight in the fat jar. Every machine builds and installs its own copy (see
+// README), so only the native library for the machine actually running this build is needed.
+tasks.shadowJar {
+    def osName = System.getProperty('os.name').toLowerCase()
+    def nativeOs = osName.contains('mac') ? 'Mac'
+        : osName.contains('win') ? 'Windows'
+        : osName.contains('freebsd') ? 'FreeBSD'
+        : 'Linux'
+
+    def osArch = System.getProperty('os.arch').toLowerCase()
+    def nativeArch = (osArch.contains('aarch64') || osArch.contains('arm64')) ? 'aarch64'
+        : (osArch.contains('amd64') || osArch.contains('x86_64')) ? 'x86_64'
+        : osArch
+
+    def keepPrefix = "org/sqlite/native/${nativeOs}/${nativeArch}/"
+    exclude { details -> details.path.startsWith('org/sqlite/native/') && !details.path.startsWith(keepPrefix) }
+}
+
 // Flyway finds migrations by scanning a classpath, and a jlink image has none. Nothing running
 // from a classpath - which is every test - can catch that, so this runs a real migration inside
 // the image.
