@@ -46,7 +46,7 @@ public class GamesFilePrinter {
         boolean printedAnyPath = false;
         for (OperatingSystem os : PRINTED_OSES) {
             for (UserFileSystemPath path : savePathsOrEmpty(steamApp, os)) {
-                System.out.println("  " + label(os) + " path: " + path.getSymbolPath());
+                System.out.println("  " + os.family().displayName() + " path: " + path.getSymbolPath());
                 printedAnyPath = true;
             }
         }
@@ -64,13 +64,5 @@ public class GamesFilePrinter {
         } catch (RuntimeException e) {
             return List.of();
         }
-    }
-
-    private String label(OperatingSystem os) {
-        return switch (os.family()) {
-            case WINDOWS -> "Windows";
-            case MAC -> "Mac";
-            case LINUX -> "Linux";
-        };
     }
 }

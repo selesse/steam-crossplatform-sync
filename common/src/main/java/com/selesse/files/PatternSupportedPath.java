@@ -21,9 +21,11 @@ import java.util.List;
  */
 public class PatternSupportedPath {
     private final String path;
+    private final List<String> parts;
 
     public PatternSupportedPath(String path) {
         this.path = OsAgnosticPaths.of(path);
+        this.parts = Splitter.on("/").splitToList(this.path);
     }
 
     public static PatternSupportedPath of(String path) {
@@ -36,7 +38,7 @@ public class PatternSupportedPath {
 
     public String getFileName() {
         assert !hasPattern();
-        return Iterables.getLast(Splitter.on("/").splitToList(path));
+        return lastPart();
     }
 
     public PatternSupportedPath getParent() {
@@ -62,30 +64,30 @@ public class PatternSupportedPath {
     }
 
     public boolean hasPattern() {
-        List<String> parts = Splitter.on("/").splitToList(path);
-        String last = Iterables.getLast(parts);
-        return last.contains("*") || last.contains("?");
+        return lastPart().contains("*") || lastPart().contains("?");
     }
 
     public String asParts() {
         return path;
     }
 
+    public String getPattern() {
+        return lastPart();
+    }
+
+    private String lastPart() {
+        return Iterables.getLast(parts);
+    }
+
     private boolean recursivelyIncludeEverything() {
-        List<String> parts = Splitter.on("/").splitToList(path);
-        return Iterables.getLast(parts).equals("*");
+        return lastPart().equals("*");
     }
 
     private Path getPathOrParentPathIfAsterisk() {
         if (hasPattern()) {
-            List<String> parts = Splitter.on("/").splitToList(path);
             return Path.of(Joiner.on("/").join(parts.subList(0, parts.size() - 1)));
         }
         return Path.of(path);
-    }
-
-    public String getPattern() {
-        return Iterables.getLast(Splitter.on("/").splitToList(path));
     }
 
     public PatternSupportedPath relativize(PatternSupportedPath localPath) {

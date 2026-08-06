@@ -4,7 +4,6 @@ import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.SteamInstall;
 import com.selesse.steam.appcache.App;
-import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.ArrayList;
@@ -21,10 +20,7 @@ public class AppCachePrinter {
     }
 
     public void run() {
-        AppCache appCache = appCacheReader.load();
-        List<App> apps = new ArrayList<>(appCache.getApps());
-        apps.sort(Comparator.comparingInt(App::appId));
-        apps.forEach(this::printApp);
+        loadSortedBy(Comparator.comparingInt(App::appId)).forEach(this::printApp);
     }
 
     public void run(Long... appIds) {
@@ -40,15 +36,18 @@ public class AppCachePrinter {
     }
 
     public void listIds() {
-        AppCache appCache = appCacheReader.load();
-        List<App> apps = new ArrayList<>(appCache.getApps());
-        apps.sort(Comparator.comparing(this::nameOrEmpty, String.CASE_INSENSITIVE_ORDER));
-        for (App app : apps) {
+        for (App app : loadSortedBy(Comparator.comparing(this::nameOrEmpty, String.CASE_INSENSITIVE_ORDER))) {
             String name = nameOrEmpty(app);
             if (!name.isEmpty()) {
                 System.out.println(app.appId() + "\t" + name);
             }
         }
+    }
+
+    private List<App> loadSortedBy(Comparator<App> order) {
+        List<App> apps = new ArrayList<>(appCacheReader.load().getApps());
+        apps.sort(order);
+        return apps;
     }
 
     private String nameOrEmpty(App app) {

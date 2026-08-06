@@ -21,18 +21,25 @@ public class OperatingSystems {
     }
 
     public enum OperatingSystemFamily {
-        WINDOWS(OperatingSystem.WINDOWS),
-        MAC(OperatingSystem.MAC),
-        LINUX(OperatingSystem.LINUX);
+        WINDOWS(OperatingSystem.WINDOWS, "Windows"),
+        MAC(OperatingSystem.MAC, "Mac"),
+        LINUX(OperatingSystem.LINUX, "Linux");
 
         private final OperatingSystem canonicalOs;
+        private final String displayName;
 
-        OperatingSystemFamily(OperatingSystem canonicalOs) {
+        OperatingSystemFamily(OperatingSystem canonicalOs, String displayName) {
             this.canonicalOs = canonicalOs;
+            this.displayName = displayName;
         }
 
         public OperatingSystem canonicalOs() {
             return canonicalOs;
+        }
+
+        /** How to name this family to a person, e.g. in {@code --print-games} output. */
+        public String displayName() {
+            return displayName;
         }
     }
 
