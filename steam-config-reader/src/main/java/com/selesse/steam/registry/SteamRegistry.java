@@ -1,6 +1,5 @@
 package com.selesse.steam.registry;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
@@ -10,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class SteamRegistry {
     public Path getAppCachePath() {

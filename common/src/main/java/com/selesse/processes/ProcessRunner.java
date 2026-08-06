@@ -1,6 +1,5 @@
 package com.selesse.processes;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import java.io.BufferedReader;
@@ -14,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class ProcessRunner {
     private final ProcessBuilder processBuilder;

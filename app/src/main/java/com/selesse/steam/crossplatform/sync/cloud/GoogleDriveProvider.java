@@ -1,6 +1,5 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.selesse.concurrent.IsolatedExecutors;
 import com.selesse.files.RuntimeExceptionFiles;
@@ -15,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class GoogleDriveProvider implements CloudStorageProvider {
     // Files.getFileStore() can block indefinitely (not just slowly) on a drive that's

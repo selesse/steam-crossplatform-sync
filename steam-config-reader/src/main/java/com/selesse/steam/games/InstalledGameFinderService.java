@@ -1,6 +1,5 @@
 package com.selesse.steam.games;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.steam.AppCacheReader;
 import com.selesse.steam.AppType;
 import com.selesse.steam.SteamAppLoader;
@@ -9,6 +8,7 @@ import com.selesse.steam.appcache.App;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class InstalledGameFinderService {
     private final List<InstalledGameFetcher> finders;

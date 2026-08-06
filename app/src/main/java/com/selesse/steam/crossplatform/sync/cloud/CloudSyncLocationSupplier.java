@@ -1,6 +1,5 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.concurrent.IsolatedExecutors;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -9,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

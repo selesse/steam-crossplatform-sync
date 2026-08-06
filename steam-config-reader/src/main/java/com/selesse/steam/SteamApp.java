@@ -1,6 +1,5 @@
 package com.selesse.steam;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
@@ -12,6 +11,7 @@ import com.selesse.steam.registry.implementation.RegistryString;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class SteamApp {
     private final RegistryObject registryObject;

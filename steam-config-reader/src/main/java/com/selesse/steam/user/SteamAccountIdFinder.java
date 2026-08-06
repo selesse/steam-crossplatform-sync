@@ -1,12 +1,12 @@
 package com.selesse.steam.user;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

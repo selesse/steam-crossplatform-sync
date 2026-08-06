@@ -1,11 +1,11 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.files.PatternSupportedPath;
 import com.selesse.files.SyncablePath;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
 import java.util.List;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

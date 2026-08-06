@@ -1,6 +1,5 @@
 package com.selesse.steam.crossplatform.sync.daemon;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.concurrent.IsolatedExecutors;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
@@ -9,6 +8,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

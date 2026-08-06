@@ -1,12 +1,12 @@
 package com.selesse.steam.crossplatform.sync.config;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.crossplatform.sync.cloud.CloudSyncLocationSupplier;
 import com.selesse.steam.crossplatform.sync.serialize.ConfigRaw;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 
 public class SteamCrossplatformSyncConfig {

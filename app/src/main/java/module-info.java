@@ -10,6 +10,7 @@ module com.selesse.steam.crossplatform.sync {
     requires tools.jackson.dataformat.yaml;
     requires java.sql;
     requires static org.jspecify;
+    requires static org.jetbrains.annotations;
 
     exports com.selesse;
     exports com.selesse.steam.crossplatform.sync;
