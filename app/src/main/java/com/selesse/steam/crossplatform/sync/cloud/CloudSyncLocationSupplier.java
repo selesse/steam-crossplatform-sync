@@ -56,7 +56,7 @@ public class CloudSyncLocationSupplier {
                 .map(p -> {
                     var future = CompletableFuture.supplyAsync(p::getRoot, LOOKUP_EXECUTOR);
                     try {
-                        return future.get(1, TimeUnit.SECONDS);
+                        return future.get(LOOKUP_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
                     } catch (Exception e) {
                         LOGGER.warn("Cloud storage provider {} timed out or failed finding root", p.getName());
                         return Optional.<Path>empty();

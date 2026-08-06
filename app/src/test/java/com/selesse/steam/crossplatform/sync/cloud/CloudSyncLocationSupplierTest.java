@@ -3,6 +3,7 @@ package com.selesse.steam.crossplatform.sync.cloud;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -53,6 +54,38 @@ public class CloudSyncLocationSupplierTest {
         new CloudSyncLocationSupplier(List.of(provider)).resolveProviderRoot(null);
 
         assertThat(provider.callCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void aProviderIsWaitedOnForAsLongAsItIsBudgetedToProbe() {
+        var provider = new SlowProvider(CloudStorageProvider.LOOKUP_TIMEOUT.minusMillis(500));
+        var supplier = new CloudSyncLocationSupplier(List.of(provider));
+
+        assertThat(supplier.resolveProviderRoot(null)).contains(Path.of("drive-root"));
+    }
+
+    private static class SlowProvider implements CloudStorageProvider {
+        private final Duration probeTime;
+
+        SlowProvider(Duration probeTime) {
+            this.probeTime = probeTime;
+        }
+
+        @Override
+        public String getName() {
+            return "slow";
+        }
+
+        @Override
+        public Optional<Path> getRoot() {
+            try {
+                Thread.sleep(probeTime.toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return Optional.empty();
+            }
+            return Optional.of(Path.of("drive-root"));
+        }
     }
 
     private static class CountingProvider implements CloudStorageProvider {
