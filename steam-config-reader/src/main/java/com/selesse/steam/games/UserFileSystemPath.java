@@ -3,7 +3,6 @@ package com.selesse.steam.games;
 import static com.selesse.os.OperatingSystems.OperatingSystem;
 
 import com.selesse.files.OsAgnosticPaths;
-import com.selesse.os.FilePathSanitizer;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.games.saves.SaveFileObject;
 import com.selesse.steam.registry.SteamOperatingSystem;
@@ -81,10 +80,6 @@ public class UserFileSystemPath {
             return backslashToForwardSlash(convertedRoot) + path;
         }
         return backslashToForwardSlash(convertedRoot) + "/" + path;
-    }
-
-    public String getLiteralPath() {
-        return FilePathSanitizer.sanitize(root) + "/" + getPath();
     }
 
     public OperatingSystem getPlatform() {

@@ -1,5 +1,6 @@
 package com.selesse.steam.registry;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.FilePathSanitizer;
 import com.selesse.os.OperatingSystems;
@@ -15,7 +16,7 @@ public class SteamRegistry {
         return Path.of(getBasePath(), "appcache/appinfo.vdf");
     }
 
-    public Path getSteamAppsPath() {
+    private Path getSteamAppsPath() {
         return Path.of(getBasePath(), "steamapps");
     }
 
@@ -62,7 +63,8 @@ public class SteamRegistry {
         return readVdfIfPresent(Path.of(getBasePath(), "config/loginusers.vdf"));
     }
 
-    public Optional<RegistryObject> readVdfIfPresent(Path path) {
+    @VisibleForTesting
+    Optional<RegistryObject> readVdfIfPresent(Path path) {
         return path.toFile().isFile() ? Optional.of(readVdf(path)) : Optional.empty();
     }
 

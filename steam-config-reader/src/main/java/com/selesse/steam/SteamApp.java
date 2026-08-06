@@ -49,7 +49,7 @@ public class SteamApp {
         return AppType.fromString(objectValueAsString);
     }
 
-    public String getInstallationDirectory() {
+    private String getInstallationDirectory() {
         return registryObject.getObjectValueAsString("config/installdir").getValue();
     }
 
@@ -99,7 +99,7 @@ public class SteamApp {
                 .toList();
     }
 
-    public boolean supports(OperatingSystems.OperatingSystem operatingSystem) {
+    private boolean supports(OperatingSystems.OperatingSystem operatingSystem) {
         return getSupportedOperatingSystems().contains(operatingSystem);
     }
 
@@ -153,7 +153,7 @@ public class SteamApp {
     }
 
     /** Whether {@link #getSavePaths} resolves to anything for {@code os}. */
-    public boolean hasSavePathsFor(OperatingSystems.OperatingSystem os) {
+    private boolean hasSavePathsFor(OperatingSystems.OperatingSystem os) {
         try {
             return !getSavePaths(os).isEmpty();
         } catch (RuntimeException e) {

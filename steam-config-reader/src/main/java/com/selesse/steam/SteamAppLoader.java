@@ -24,10 +24,6 @@ public class SteamAppLoader {
         return toSteamApp(rawApp);
     }
 
-    public SteamApp findByName(String name) {
-        return findByName(install.registry().getAppCachePath(), name);
-    }
-
     public SteamApp findByName(Path appCachePath, String name) {
         App rawApp = appCacheReader
                 .findFirst(appCachePath, app -> nameMatches(app, name))
