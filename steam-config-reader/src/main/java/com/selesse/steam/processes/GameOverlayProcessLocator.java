@@ -1,9 +1,8 @@
 package com.selesse.steam.processes;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.registry.windows.GetGameIdFromGameOverlay;
+import com.selesse.text.Splitter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +17,7 @@ public class GameOverlayProcessLocator {
                     List<String> processArguments = p.info()
                             .command()
                             .map(x -> Splitter.on(File.separatorChar).splitToList(x))
-                            .orElse(Lists.newArrayList());
+                            .orElse(List.of());
                     return !processArguments.isEmpty()
                             && processArguments.getLast().equalsIgnoreCase(gameOverlayProcess);
                 })

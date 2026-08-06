@@ -1,6 +1,5 @@
 package com.selesse.processes;
 
-import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -60,7 +60,7 @@ public class ProcessRunner {
             pathEnvironmentVariable = System.getenv(pathVariable);
         }
         Path filePath = findAbsolutePathOfProgramInPath(programName, pathEnvironmentVariable);
-        List<String> copyOfArguments = Lists.newArrayList(existingArguments);
+        List<String> copyOfArguments = new ArrayList<>(existingArguments);
         copyOfArguments.set(0, filePath.toString());
         processBuilder.command(copyOfArguments);
     }

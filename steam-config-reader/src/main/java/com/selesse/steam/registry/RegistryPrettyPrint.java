@@ -1,6 +1,5 @@
 package com.selesse.steam.registry;
 
-import com.google.common.base.Strings;
 import com.selesse.collections.MapCollectors;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
@@ -32,7 +31,7 @@ public class RegistryPrettyPrint {
             stringBuilder.append("{\n");
             indentLevel = 1;
         }
-        String indent = Strings.repeat("\t", indentLevel);
+        String indent = "\t".repeat(indentLevel);
         for (Map.Entry<String, RegistryValue> x : keyValuePairs.entrySet()) {
             stringBuilder
                     .append(indent)
@@ -52,7 +51,7 @@ public class RegistryPrettyPrint {
 
     private static String prettyPrint(int indentLevel, RegistryValue value) {
         StringBuilder stringBuilder = new StringBuilder();
-        String indent = Strings.repeat("\t", indentLevel);
+        String indent = "\t".repeat(indentLevel);
         switch (value) {
             case RegistryString string -> stringBuilder.append(indent).append(printRegistry(string));
             case RegistryObject registryObject -> {
@@ -80,8 +79,7 @@ public class RegistryPrettyPrint {
     }
 
     private static String printRegistry(RegistryString registryString) {
-        return "%s%s%s\n"
-                .formatted(quote(registryString.getName()), Strings.repeat("\t", 2), quote(registryString.getValue()));
+        return "%s%s%s\n".formatted(quote(registryString.getName()), "\t".repeat(2), quote(registryString.getValue()));
     }
 
     private static String quote(String value) {

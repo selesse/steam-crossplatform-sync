@@ -1,7 +1,6 @@
 package com.selesse.steam.registry.implementation;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.selesse.text.Splitter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ public final class RegistryObject implements RegistryValue {
     }
 
     public List<String> getKeys() {
-        return Lists.newArrayList(values.keySet());
+        return List.copyOf(values.keySet());
     }
 
     public void put(String key, RegistryValue value) {

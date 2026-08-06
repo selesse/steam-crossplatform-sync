@@ -1,9 +1,9 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.google.common.collect.Lists;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import tools.jackson.databind.ObjectMapper;
@@ -19,7 +19,7 @@ public class GamesFileGenerator {
     public void run() {
         List<SteamApp> steamApps = context.loadInstalledGames();
 
-        List<SyncableGame> syncableGames = Lists.newArrayList();
+        List<SyncableGame> syncableGames = new ArrayList<>();
 
         for (SteamApp steamApp : steamApps) {
             if (steamApp.hasUserFileSystem() && steamApp.hasAnySavePaths()) {

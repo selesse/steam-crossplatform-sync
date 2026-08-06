@@ -1,5 +1,4 @@
 module com.selesse.common {
-    requires com.google.common;
     requires mslinks;
     requires org.slf4j;
     requires static org.jetbrains.annotations;
@@ -9,4 +8,5 @@ module com.selesse.common {
     exports com.selesse.files;
     exports com.selesse.os;
     exports com.selesse.processes;
+    exports com.selesse.text;
 }

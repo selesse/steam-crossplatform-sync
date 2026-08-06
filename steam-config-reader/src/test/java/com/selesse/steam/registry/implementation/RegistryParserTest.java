@@ -2,7 +2,7 @@ package com.selesse.steam.registry.implementation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.base.Splitter;
+import com.selesse.text.Splitter;
 import java.util.List;
 import org.junit.Test;
 

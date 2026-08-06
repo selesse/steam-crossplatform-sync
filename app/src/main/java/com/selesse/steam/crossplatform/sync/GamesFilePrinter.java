@@ -1,12 +1,12 @@
 package com.selesse.steam.crossplatform.sync;
 
-import com.google.common.base.Joiner;
 import com.selesse.os.OperatingSystems.OperatingSystem;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.games.UserFileSystemPath;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GamesFilePrinter {
     private static final List<OperatingSystem> PRINTED_OSES =
@@ -35,7 +35,10 @@ public class GamesFilePrinter {
             return;
         }
         System.out.println(steamApp);
-        System.out.println("  Supported OSes: " + Joiner.on(", ").join(steamApp.getSupportedOperatingSystems()));
+        System.out.println("  Supported OSes: "
+                + steamApp.getSupportedOperatingSystems().stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(", ")));
 
         if (!steamApp.hasUserFileSystem()) {
             System.out.println("  No save data found");

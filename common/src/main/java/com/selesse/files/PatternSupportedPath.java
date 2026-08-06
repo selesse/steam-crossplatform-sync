@@ -1,8 +1,6 @@
 package com.selesse.files;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import com.selesse.text.Splitter;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -76,7 +74,7 @@ public class PatternSupportedPath {
     }
 
     private String lastPart() {
-        return Iterables.getLast(parts);
+        return parts.get(parts.size() - 1);
     }
 
     private boolean recursivelyIncludeEverything() {
@@ -85,7 +83,7 @@ public class PatternSupportedPath {
 
     private Path getPathOrParentPathIfAsterisk() {
         if (hasPattern()) {
-            return Path.of(Joiner.on("/").join(parts.subList(0, parts.size() - 1)));
+            return Path.of(String.join("/", parts.subList(0, parts.size() - 1)));
         }
         return Path.of(path);
     }

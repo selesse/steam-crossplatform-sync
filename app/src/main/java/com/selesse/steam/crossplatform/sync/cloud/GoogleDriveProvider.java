@@ -1,6 +1,5 @@
 package com.selesse.steam.crossplatform.sync.cloud;
 
-import com.google.common.collect.Lists;
 import com.selesse.concurrent.IsolatedExecutors;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.OperatingSystems;
@@ -14,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.jetbrains.annotations.VisibleForTesting;
 
 public class GoogleDriveProvider implements CloudStorageProvider {
@@ -59,7 +59,8 @@ public class GoogleDriveProvider implements CloudStorageProvider {
         // could run for (number of drives) * LOOKUP_TIMEOUT, well past what the caller is
         // waiting for.
         Instant deadline = Instant.now().plus(LOOKUP_TIMEOUT);
-        return Lists.newArrayList(FileSystems.getDefault().getRootDirectories()).stream()
+        return StreamSupport.stream(
+                        FileSystems.getDefault().getRootDirectories().spliterator(), false)
                 .filter(drive -> isGoogleDrive(drive, deadline))
                 .filter(drive ->
                         Path.of(drive.toString(), "My Drive.lnk").toFile().isFile())

@@ -1,15 +1,14 @@
 package com.selesse.steam.registry.windows;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.selesse.processes.ProcessRunner;
+import com.selesse.text.Splitter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GetGameIdFromGameOverlay {
     private static final List<String> COMMAND =
-            Lists.newArrayList("wmic", "process", "where", "name='GameOverlayUI64.exe'", "get", "CommandLine");
+            List.of("wmic", "process", "where", "name='GameOverlayUI64.exe'", "get", "CommandLine");
 
     public static long get() {
         String commandLineOutput = new ProcessRunner(COMMAND).runAndGetOutput();

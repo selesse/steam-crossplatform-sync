@@ -1,11 +1,11 @@
 package com.selesse.steam;
 
-import com.google.common.base.Splitter;
 import com.selesse.files.RuntimeExceptionFiles;
 import com.selesse.os.Resources;
 import com.selesse.steam.registry.RegistryPrettyPrint;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryParser;
+import com.selesse.text.Splitter;
 import java.nio.file.Path;
 import java.util.List;
 

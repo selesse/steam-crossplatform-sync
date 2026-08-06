@@ -1,6 +1,5 @@
 module com.selesse.steam.config.reader {
     requires com.selesse.common;
-    requires com.google.common;
     requires org.slf4j;
     requires tools.jackson.databind;
     requires static org.jetbrains.annotations;

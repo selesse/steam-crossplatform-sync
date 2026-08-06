@@ -1,6 +1,5 @@
 package com.selesse.steam;
 
-import com.google.common.base.Splitter;
 import com.selesse.os.OperatingSystems;
 import com.selesse.steam.games.SteamInstallationPaths;
 import com.selesse.steam.games.UserFileSystemPath;
@@ -8,6 +7,7 @@ import com.selesse.steam.games.saves.SaveFile;
 import com.selesse.steam.registry.SteamOperatingSystem;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
+import com.selesse.text.Splitter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;

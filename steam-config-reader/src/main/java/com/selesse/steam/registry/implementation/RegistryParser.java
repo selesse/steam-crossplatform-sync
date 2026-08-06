@@ -1,6 +1,5 @@
 package com.selesse.steam.registry.implementation;
 
-import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +9,7 @@ public class RegistryParser {
     private static final Pattern multiLinePatternStart = Pattern.compile("\t*\"(.+?)\"\t*\"[^\"]*");
 
     public static RegistryObject parse(List<String> lines) {
-        if (Iterables.getLast(lines).isEmpty()) {
+        if (lines.get(lines.size() - 1).isEmpty()) {
             lines = lines.subList(0, lines.size() - 1);
         }
         return (RegistryObject) parseValue(lines);

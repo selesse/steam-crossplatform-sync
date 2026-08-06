@@ -32,7 +32,6 @@ subprojects {
 
         api('org.slf4j:slf4j-api:2.0.17')
         implementation('ch.qos.logback:logback-classic:1.5.22')
-        api('com.google.guava:guava:33.5.0-jre')
         compileOnly('org.jspecify:jspecify:1.0.0')
         compileOnly('org.jetbrains:annotations:26.1.0')
     }
