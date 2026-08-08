@@ -5,6 +5,9 @@ import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import com.selesse.steam.registry.implementation.RegistryString;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SteamAppLoader {
     private final SteamInstall install;
@@ -22,6 +25,24 @@ public class SteamAppLoader {
     public SteamApp load(Path appCachePath, long gameId) {
         App rawApp = appCacheReader.loadOne(appCachePath, gameId).orElseThrow(RegistryNotFoundException::new);
         return toSteamApp(rawApp);
+    }
+
+    public List<SteamApp> loadSome(List<Long> gameIds) {
+        return loadSome(install.registry().getAppCachePath(), gameIds);
+    }
+
+    /** Loads every id in a single pass over the app cache, rather than one pass per id. */
+    public List<SteamApp> loadSome(Path appCachePath, List<Long> gameIds) {
+        Map<Long, App> rawApps = appCacheReader.loadSome(appCachePath, Set.copyOf(gameIds));
+        return gameIds.stream()
+                .map(gameId -> {
+                    App rawApp = rawApps.get(gameId);
+                    if (rawApp == null) {
+                        throw new RegistryNotFoundException();
+                    }
+                    return toSteamApp(rawApp);
+                })
+                .toList();
     }
 
     public SteamApp findByName(Path appCachePath, String name) {
