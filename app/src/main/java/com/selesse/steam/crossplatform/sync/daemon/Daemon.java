@@ -30,8 +30,8 @@ public class Daemon implements Runnable {
             AppCache appCache = appCacheReader.load();
             LOGGER.info("Found {} games in the app cache", appCache.getApps().size());
         } catch (RegistryNotFoundException e) {
-            LOGGER.error("App cache could not be read - did the cache format change?", e);
-            throw e;
+            LOGGER.error(e.getMessage());
+            System.exit(1);
         }
     }
 

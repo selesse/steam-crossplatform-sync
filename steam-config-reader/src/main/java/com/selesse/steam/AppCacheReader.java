@@ -5,6 +5,7 @@ import com.selesse.steam.appcache.AppCache;
 import com.selesse.steam.appcache.AppCacheBufferedReader;
 import com.selesse.steam.registry.RegistryNotFoundException;
 import com.selesse.steam.registry.SteamRegistry;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -51,11 +52,16 @@ public class AppCacheReader {
      * missing one is not a per-entry problem worth distinguishing from any other.
      */
     private <T> T read(Path path, CacheRead<T> read) {
+        if (!Files.exists(path)) {
+            throw new RegistryNotFoundException(
+                    "No app cache found at " + path + " - is Steam installed and has it been run at least once?");
+        }
         try {
             return read.apply(new AppCacheBufferedReader(path));
         } catch (Exception e) {
             LOGGER.info("Unable to read app cache", e);
-            throw new RegistryNotFoundException();
+            throw new RegistryNotFoundException(
+                    "Could not read app cache at " + path + " - did the cache format change?");
         }
     }
 

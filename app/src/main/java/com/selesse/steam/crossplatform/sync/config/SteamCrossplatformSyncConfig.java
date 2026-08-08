@@ -31,7 +31,7 @@ public class SteamCrossplatformSyncConfig {
         this.cloudSyncLocations = cloudSyncLocations;
     }
 
-    private static Path defaultConfigDirectory() {
+    public static Path defaultConfigDirectory() {
         return switch (OperatingSystems.get().family()) {
             case WINDOWS -> Path.of(System.getenv("LOCALAPPDATA"), "steam-crossplatform-sync");
             case MAC, LINUX -> {

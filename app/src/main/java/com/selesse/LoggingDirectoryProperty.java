@@ -11,8 +11,10 @@ public class LoggingDirectoryProperty extends PropertyDefinerBase {
         if (runningInIde()) {
             return System.getProperty("user.dir") + File.separatorChar + "log";
         } else {
-            SteamCrossplatformSyncConfig config = SteamCrossplatformSyncConfig.load();
-            return config.getConfigDirectory().toAbsolutePath().toString();
+            // Not load(): that logs, and we're still inside logback's own bootstrap here.
+            return SteamCrossplatformSyncConfig.defaultConfigDirectory()
+                    .toAbsolutePath()
+                    .toString();
         }
     }
 
