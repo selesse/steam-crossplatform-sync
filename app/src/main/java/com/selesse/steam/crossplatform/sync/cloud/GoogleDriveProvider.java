@@ -86,17 +86,17 @@ public class GoogleDriveProvider implements CloudStorageProvider {
     }
 
     private Optional<Path> loadGoogleDrivePathFromItsDatabase(Path localDbPath) {
-        try {
-            Connection connectionToDb = getConnectionToDb(localDbPath);
-            Statement connection = connectionToDb.createStatement();
-            connection.execute("select data_value from data where entry_key = \"local_sync_root_path\"");
-            ResultSet resultSet = connection.getResultSet();
-            String result = resultSet.getString(1);
-            // Not sure why, but on Windows it's prefixed with this
-            if (result.startsWith("\\\\?\\")) {
-                result = result.replace("\\\\?\\", "");
+        try (Connection connectionToDb = getConnectionToDb(localDbPath);
+                Statement statement = connectionToDb.createStatement()) {
+            statement.execute("select data_value from data where entry_key = \"local_sync_root_path\"");
+            try (ResultSet resultSet = statement.getResultSet()) {
+                String result = resultSet.getString(1);
+                // Not sure why, but on Windows it's prefixed with this
+                if (result.startsWith("\\\\?\\")) {
+                    result = result.replace("\\\\?\\", "");
+                }
+                return Optional.of(Path.of(result));
             }
-            return Optional.of(Path.of(result));
         } catch (SQLException ignored) {
             return defaultPathIfExists();
         }
