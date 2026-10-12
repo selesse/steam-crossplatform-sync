@@ -8,6 +8,7 @@ import com.selesse.steam.games.UserFileSystemPathConverter;
 import com.selesse.steam.registry.implementation.RegistryObject;
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.VisibleForTesting;
 
 /**
  * An app's save locations, as described by the {@code ufs} block of its app cache entry.
@@ -15,10 +16,17 @@ import java.util.Optional;
 public class SaveFile {
     private final SteamApp steamApp;
     private final RegistryObject ufs;
+    private final OperatingSystems.OperatingSystem runningOn;
 
     public SaveFile(SteamApp steamApp) {
+        this(steamApp, OperatingSystems.get());
+    }
+
+    @VisibleForTesting
+    SaveFile(SteamApp steamApp, OperatingSystems.OperatingSystem runningOn) {
         this.steamApp = steamApp;
         this.ufs = steamApp.getRegistryObject().getObjectValueAsObject("ufs");
+        this.runningOn = runningOn;
     }
 
     /**
@@ -107,9 +115,15 @@ public class SaveFile {
      * An explicit Linux {@code rootoverride} says where the <em>native</em> build keeps its saves,
      * not which build is installed, so the depots outrank it - honouring it for a Proton install
      * names a directory the game never writes to. It only decides when the depots abstain.
+     *
+     * <p>The depots are read from this machine's manifests, so they only vote when this machine is
+     * the Linux one: a Windows build installed on Windows says nothing about how Linux runs it.
      */
     private boolean isRunningUnderProton(boolean hasExplicitLinuxOverride) {
-        return switch (steamApp.getInstalledBuild()) {
+        SteamApp.InstalledBuild installedBuild = runningOn.family() == OperatingSystems.OperatingSystemFamily.LINUX
+                ? steamApp.getInstalledBuild()
+                : SteamApp.InstalledBuild.UNKNOWN;
+        return switch (installedBuild) {
             case WINDOWS -> true;
             case LINUX -> false;
             case UNKNOWN ->

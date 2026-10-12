@@ -90,7 +90,8 @@ public class SaveFileTest {
     public void anInstalledWindowsDepotBeatsAnExplicitLinuxOverride() {
         SteamApp steamApp = gameWithPerOsDepots(installWithDepots(List.of("11")), true, "windows,linux");
 
-        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths =
+                new SaveFile(steamApp, OperatingSystem.LINUX).savePathsFor(OperatingSystem.LINUX);
 
         assertThat(paths).hasSize(1);
         assertThat(paths.get(0).getSymbolPath())
@@ -98,12 +99,27 @@ public class SaveFileTest {
                         + "/AppData/LocalLow/TestCo/Test Game/Saves/*");
     }
 
+    // The same install seen from Windows: the local Windows depot is how Windows runs it, and says
+    // nothing about which build a Linux machine has, so the declared Linux location stands.
+    @Test
+    public void anInstalledWindowsDepotOnAWindowsMachineSaysNothingAboutLinux() {
+        SteamApp steamApp = gameWithPerOsDepots(installWithDepots(List.of("11")), true, "windows,linux");
+        String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
+
+        List<UserFileSystemPath> paths =
+                new SaveFile(steamApp, OperatingSystem.WINDOWS).savePathsFor(OperatingSystem.LINUX);
+
+        assertThat(paths).hasSize(1);
+        assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
+    }
+
     @Test
     public void anInstalledLinuxDepotResolvesToTheNativeLocation() {
         SteamApp steamApp = gameWithPerOsDepots(installWithDepots(List.of("12")), true, "windows,linux");
         String xdgConfigHome = OsAgnosticPaths.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", "~/.config"));
 
-        List<UserFileSystemPath> paths = new SaveFile(steamApp).savePathsFor(OperatingSystem.LINUX);
+        List<UserFileSystemPath> paths =
+                new SaveFile(steamApp, OperatingSystem.LINUX).savePathsFor(OperatingSystem.LINUX);
 
         assertThat(paths).hasSize(1);
         assertThat(paths.get(0).getSymbolPath()).isEqualTo(xdgConfigHome + "/unity3d/TestCo/Test Game/Saves/*");
@@ -115,13 +131,13 @@ public class SaveFileTest {
         SteamApp withoutLinuxBuild = gameWithPerOsDepots(installWithDepots(List.of("13")), false, "windows");
         SteamApp withLinuxBuild = gameWithPerOsDepots(installWithDepots(List.of("13")), false, "windows,linux");
 
-        assertThat(new SaveFile(withoutLinuxBuild)
+        assertThat(new SaveFile(withoutLinuxBuild, OperatingSystem.LINUX)
                         .savePathsFor(OperatingSystem.LINUX)
                         .get(0)
                         .getSymbolPath())
                 .isEqualTo(SteamInstallationPaths.getProtonPrefixUserProfileRoot(TEST_APP_ID)
                         + "/AppData/LocalLow/TestCo/Test Game/Saves/*");
-        assertThat(new SaveFile(withLinuxBuild)
+        assertThat(new SaveFile(withLinuxBuild, OperatingSystem.LINUX)
                         .savePathsFor(OperatingSystem.LINUX)
                         .get(0)
                         .getSymbolPath())
