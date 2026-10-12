@@ -16,18 +16,20 @@ public class GetGameIdFromGameOverlay {
             "-NoProfile",
             "-Command",
             "(Get-CimInstance -ClassName Win32_Process -Filter 'Name=''GameOverlayUI64.exe''').CommandLine");
-    private static final Pattern GAME_ID_PATTERN = Pattern.compile("-gameid (\\d+) ");
+    private static final Pattern GAME_ID_PATTERN = Pattern.compile("-gameid (\\d+)");
 
     public static long get() {
         try {
             String commandLineOutput = new ProcessRunner(COMMAND).runAndGetOutput();
-            Matcher matcher = GAME_ID_PATTERN.matcher(commandLineOutput);
-            if (matcher.find()) {
-                return Long.parseLong(matcher.group(1));
-            }
+            return parseGameId(commandLineOutput);
         } catch (RuntimeException e) {
             // PowerShell/WMI unavailable, or GameOverlayUI64.exe's command line didn't contain a game id.
         }
         return 0;
+    }
+
+    static long parseGameId(String commandLineOutput) {
+        Matcher matcher = GAME_ID_PATTERN.matcher(commandLineOutput);
+        return matcher.find() ? Long.parseLong(matcher.group(1)) : 0;
     }
 }
