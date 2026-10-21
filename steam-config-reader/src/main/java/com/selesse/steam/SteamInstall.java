@@ -2,6 +2,7 @@ package com.selesse.steam;
 
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.user.SteamAccountIdFinder;
+import java.util.function.Function;
 
 /**
  * The Steam installation everything else reads through: where its files are, and who is signed in.
@@ -12,8 +13,13 @@ import com.selesse.steam.user.SteamAccountIdFinder;
  *
  * @param registry reader for Steam's on-disk VDF files
  * @param accountId the signed-in account, or {@code null} if none could be determined
+ * @param env looks up an environment variable, returning {@code null} when it's unset
  */
-public record SteamInstall(SteamRegistry registry, SteamAccountId accountId) {
+public record SteamInstall(SteamRegistry registry, SteamAccountId accountId, Function<String, String> env) {
+    public SteamInstall(SteamRegistry registry, SteamAccountId accountId) {
+        this(registry, accountId, System::getenv);
+    }
+
     public static SteamInstall detect() {
         SteamRegistry registry = new SteamRegistry();
         return new SteamInstall(
