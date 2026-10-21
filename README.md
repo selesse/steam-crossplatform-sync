@@ -59,10 +59,18 @@ games:
     gameId: 457140
 ```
 
-Once the configuration files are ready, `./gradlew localRelease` will install
-the application. On OS X, it'll install a LaunchAgent for the current user. On
-Windows, it'll copy a fat JAR over into the startup folder. If double clicking
-the JAR doesn't work, you may need to run [Jarfix][jarfix].
+Once the configuration files are ready, `./gradlew daemonInstall` installs
+and (re)starts the application as a background service: a systemd user service
+on Linux, a LaunchAgent on OS X, and a startup entry on Windows. The other
+daemon tasks are:
+
+- `./gradlew daemonStatus` shows whether it is running
+- `./gradlew daemonLogs` prints its logs
+- `./gradlew daemonStart`, `daemonStop` and `daemonRestart` control it
+- `./gradlew daemonUninstall` removes it
+
+On Windows, if double clicking the JAR doesn't work, you may need to run
+[Jarfix][jarfix].
 
 [jarfix]: https://johann.loefflmann.net/en/software/jarfix/index.html
 
