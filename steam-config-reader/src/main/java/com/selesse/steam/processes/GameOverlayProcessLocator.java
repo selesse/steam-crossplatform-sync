@@ -28,27 +28,34 @@ public class GameOverlayProcessLocator {
         return switch (OperatingSystems.get().family()) {
             case WINDOWS -> locate().isPresent() ? GetGameIdFromGameOverlay.get() : 0L;
             case MAC ->
-                locate().map(process -> {
-                            var args = process.info().arguments().orElse(new String[] {});
-                            int gameIdIndex = Arrays.asList(args).indexOf("-gameid");
-                            if (gameIdIndex != -1 && args.length >= gameIdIndex + 1) {
-                                return Long.parseLong(args[gameIdIndex + 1]);
-                            }
-                            return 0L;
-                        })
+                locate().map(process -> appIdFromGameIdArgument(
+                                process.info().arguments().orElse(new String[] {})))
                         .orElse(0L);
             case LINUX ->
                 locate().map(process -> {
                             var args = process.info().arguments().orElse(new String[] {});
-                            for (String arg : args) {
-                                if (arg.contains("AppId=")) {
-                                    return Long.parseLong(arg.split("=")[1]);
-                                }
-                            }
-                            return 0L;
+                            long gameId = appIdFromGameIdArgument(args);
+                            return gameId > 0 ? gameId : appIdFromAppIdArgument(args);
                         })
                         .orElse(0L);
         };
+    }
+
+    static long appIdFromGameIdArgument(String[] args) {
+        int gameIdIndex = Arrays.asList(args).indexOf("-gameid");
+        if (gameIdIndex != -1 && args.length > gameIdIndex + 1) {
+            return Long.parseLong(args[gameIdIndex + 1]);
+        }
+        return 0L;
+    }
+
+    static long appIdFromAppIdArgument(String[] args) {
+        for (String arg : args) {
+            if (arg.contains("AppId=")) {
+                return Long.parseLong(arg.split("=")[1]);
+            }
+        }
+        return 0L;
     }
 
     // The one place SteamOS genuinely differs from Linux, so this switches on the OS itself.
