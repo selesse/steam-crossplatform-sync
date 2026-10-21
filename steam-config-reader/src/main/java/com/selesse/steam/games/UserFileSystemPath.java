@@ -6,20 +6,31 @@ import com.selesse.files.OsAgnosticPaths;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.games.saves.SaveFileObject;
 import com.selesse.steam.registry.SteamOperatingSystem;
+import java.util.function.Function;
 
 public class UserFileSystemPath {
     private final String root;
     private final String path;
     private final SteamAccountId accountId;
+    private final SteamPathConverter pathConverter;
 
     private String pattern;
     private boolean recursive;
     private OperatingSystem platform;
 
     public UserFileSystemPath(String root, String path, SteamAccountId accountId) {
+        this(root, path, accountId, System::getenv);
+    }
+
+    public UserFileSystemPath(String root, String path, SteamAccountId accountId, Function<String, String> env) {
+        this(root, path, accountId, new SteamPathConverter(env));
+    }
+
+    private UserFileSystemPath(String root, String path, SteamAccountId accountId, SteamPathConverter pathConverter) {
         this.root = root;
         this.path = path;
         this.accountId = accountId;
+        this.pathConverter = pathConverter;
     }
 
     public UserFileSystemPath(
@@ -29,14 +40,26 @@ public class UserFileSystemPath {
             String pattern,
             boolean recursive,
             OperatingSystem platform) {
-        this(root, path, accountId);
+        this(root, path, accountId, System::getenv, pattern, recursive, platform);
+    }
+
+    public UserFileSystemPath(
+            String root,
+            String path,
+            SteamAccountId accountId,
+            Function<String, String> env,
+            String pattern,
+            boolean recursive,
+            OperatingSystem platform) {
+        this(root, path, accountId, env);
         this.pattern = pattern;
         this.recursive = recursive;
         this.platform = platform;
     }
 
-    public static UserFileSystemPath fromSaveFile(SaveFileObject object, OperatingSystem os, SteamAccountId accountId) {
-        var userFileSystemPath = new UserFileSystemPath(object.getRoot(os), object.getPath(), accountId);
+    public static UserFileSystemPath fromSaveFile(
+            SaveFileObject object, OperatingSystem os, SteamAccountId accountId, Function<String, String> env) {
+        var userFileSystemPath = new UserFileSystemPath(object.getRoot(os), object.getPath(), accountId, env);
         if (object.hasPattern()) {
             userFileSystemPath.pattern = object.getPattern();
         }
@@ -74,7 +97,7 @@ public class UserFileSystemPath {
     }
 
     public String getSymbolPath() {
-        String convertedRoot = SteamPathConverter.convert(root);
+        String convertedRoot = pathConverter.resolve(root);
         String path = getPath();
         if (path.startsWith("/") || convertedRoot.endsWith("/")) {
             return backslashToForwardSlash(convertedRoot) + path;
@@ -95,9 +118,13 @@ public class UserFileSystemPath {
     }
 
     public UserFileSystemPath rerootForProton(String protonPrefixUserProfileRoot) {
-        String convertedRoot = SteamPathConverter.convert(root);
+        String convertedRoot = pathConverter.resolve(root);
         String rerootedRoot = convertedRoot.replace("%USERPROFILE%", protonPrefixUserProfileRoot);
-        return new UserFileSystemPath(rerootedRoot, path, accountId, pattern, recursive, platform);
+        var rerooted = new UserFileSystemPath(rerootedRoot, path, accountId, pathConverter);
+        rerooted.pattern = pattern;
+        rerooted.recursive = recursive;
+        rerooted.platform = platform;
+        return rerooted;
     }
 
     public UserFileSystemPath convert(OperatingSystem target) {
@@ -106,13 +133,13 @@ public class UserFileSystemPath {
             root = SteamInstallationPaths.getRoot(target);
         } else if (getRoot().equals("WinMyDocuments")) {
             if (target == OperatingSystem.MAC) {
-                root = SteamPathConverter.convert("MacAppSupport");
+                root = pathConverter.resolve("MacAppSupport");
             } else if (target == OperatingSystem.LINUX) {
                 root = "~/.local/share";
             }
         }
 
-        return new UserFileSystemPath(root, getPath(), accountId);
+        return new UserFileSystemPath(root, getPath(), accountId, pathConverter);
     }
 
     private String backslashToForwardSlash(String value) {

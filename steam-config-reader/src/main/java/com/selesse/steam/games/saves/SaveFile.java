@@ -38,7 +38,10 @@ public class SaveFile {
                 .map(key -> ufs.getObjectValueAsObject("savefiles/" + key))
                 .map(registryObject -> new SaveFileObject(steamApp, registryObject))
                 .map(saveFileObject -> UserFileSystemPath.fromSaveFile(
-                        saveFileObject, os, steamApp.getInstall().accountId()))
+                        saveFileObject,
+                        os,
+                        steamApp.getInstall().accountId(),
+                        steamApp.getInstall().env()))
                 .toList();
         var overrides = readRootOverrides(os);
         boolean hasExplicitLinuxOverride = overrides.stream().anyMatch(x -> x.getOs()

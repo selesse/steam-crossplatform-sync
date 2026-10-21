@@ -11,9 +11,10 @@ import java.util.List;
 public class UserFileSystemPathConverter {
     public static List<UserFileSystemPath> convert(
             List<UserFileSystemPath> saveFileObjects, RootOverrideObject overrides, SteamApp steamApp) {
+        var pathConverter = new SteamPathConverter(steamApp.getInstall().env());
         return saveFileObjects.stream()
                 .map(model -> {
-                    String rootToUseInstead = SteamPathConverter.convert(overrides.getUseInstead());
+                    String rootToUseInstead = pathConverter.resolve(overrides.getUseInstead());
                     if (rootToUseInstead.equals("gameinstall")) {
                         // Guaranteed present: SaveFile only reaches here after filtering overrides to
                         // ones whose os resolved and matched the target.
@@ -39,6 +40,7 @@ public class UserFileSystemPathConverter {
                             rootToUseInstead,
                             path,
                             steamApp.getInstall().accountId(),
+                            steamApp.getInstall().env(),
                             model.getPattern(),
                             model.isRecursive(),
                             model.getPlatform());
