@@ -38,7 +38,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(rootProject.file('.java-version').text.trim() as int)
             vendor = JvmVendorSpec.ADOPTIUM
         }
     }
