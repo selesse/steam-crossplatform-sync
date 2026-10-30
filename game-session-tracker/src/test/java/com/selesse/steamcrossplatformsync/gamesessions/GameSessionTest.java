@@ -30,6 +30,22 @@ public class GameSessionTest {
     }
 
     @Test
+    public void recordActiveDoesNotLoseSubSecondRemaindersAcrossPolls() {
+        var startTime = Instant.parse("2024-01-01T12:00:00Z");
+        var mutableClock = new MutableClock(startTime);
+
+        var session = GameSession.start(12345L, "Test Game", mutableClock);
+
+        // 60 polls of 30.5s each is 1830s; truncating every poll would report only 1800s
+        for (int i = 0; i < 60; i++) {
+            mutableClock.advance(Duration.ofMillis(30_500));
+            session.recordActive();
+        }
+
+        assertThat(session.getActivePlaytimeSeconds()).isEqualTo(1830);
+    }
+
+    @Test
     public void recordActiveIgnoresSuspendTime() {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);

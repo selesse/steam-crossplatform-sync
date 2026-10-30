@@ -15,7 +15,7 @@ public class GameSession {
     private final String gameName;
     private final Clock clock;
     private final OffsetDateTime startedAt;
-    private long activePlaytimeSeconds;
+    private Duration activePlaytime;
     private OffsetDateTime lastActiveAt;
 
     private GameSession(long gameId, String gameName, Clock clock) {
@@ -24,7 +24,7 @@ public class GameSession {
         this.clock = clock;
         this.startedAt = OffsetDateTime.now(clock);
         this.lastActiveAt = this.startedAt;
-        this.activePlaytimeSeconds = 0;
+        this.activePlaytime = Duration.ZERO;
     }
 
     public static GameSession start(long gameId, String gameName) {
@@ -41,13 +41,13 @@ public class GameSession {
 
         // Only count time if it looks like normal polling (not a suspend/sleep)
         if (elapsed.compareTo(MAX_EXPECTED_POLL_INTERVAL) <= 0) {
-            activePlaytimeSeconds += elapsed.getSeconds();
+            activePlaytime = activePlaytime.plus(elapsed);
         }
         lastActiveAt = now;
     }
 
     long getActivePlaytimeSeconds() {
-        return activePlaytimeSeconds;
+        return activePlaytime.getSeconds();
     }
 
     /** Closes out the session and returns what happened. Persisting it is the caller's business. */
@@ -56,6 +56,6 @@ public class GameSession {
         var finishedAt = OffsetDateTime.now(clock);
 
         return new GameSessionRecord(
-                startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), activePlaytimeSeconds);
+                startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), getActivePlaytimeSeconds());
     }
 }
