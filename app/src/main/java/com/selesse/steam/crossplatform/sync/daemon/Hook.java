@@ -41,6 +41,9 @@ abstract class Hook {
                     ? new ProcessBuilder("cmd", "/c", hookPath.toAbsolutePath().toString())
                     : new ProcessBuilder(hookPath.toAbsolutePath().toString());
             pb.environment().putAll(env());
+            // Hooks start with the service manager's environment, which has no JDK on it, and a hook
+            // that rebuilds this daemon needs the one that is running it.
+            pb.environment().putIfAbsent("JAVA_HOME", System.getProperty("java.home"));
             pb.redirectErrorStream(true);
             Process process = pb.start();
             String output = new String(process.getInputStream().readAllBytes());

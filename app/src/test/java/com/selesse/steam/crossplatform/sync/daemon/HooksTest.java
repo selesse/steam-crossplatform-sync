@@ -69,6 +69,26 @@ public class HooksTest {
     }
 
     @Test
+    public void hooksRunWithJavaHomeOfTheRunningJvm() throws IOException {
+        Path envOutput = configDir.resolve("env-output.properties");
+        writeExecutableScript(
+                hooksDir.resolve("session-end"), "#!/bin/sh", "echo JAVA_HOME=$JAVA_HOME >> " + envOutput);
+
+        new SessionEndHook(new GameSessionRecord(
+                        OffsetDateTime.parse("2026-01-01T12:00:00+00:00"),
+                        OffsetDateTime.parse("2026-01-01T13:00:00+00:00"),
+                        1236720L,
+                        "Brotato",
+                        "my-host",
+                        3000L))
+                .run(config);
+
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(envOutput));
+        assertThat(props.getProperty("JAVA_HOME")).isNotBlank();
+    }
+
+    @Test
     public void sessionEndHookReceivesEmptyGameNameWhenUnresolved() throws IOException {
         Path envOutput = configDir.resolve("env-output.properties");
         writeExecutableScript(
