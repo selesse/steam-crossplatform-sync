@@ -1,0 +1,41 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cp node_modules/sql.js/dist/sql-wasm.wasm public/ && vite",
+    "build": "tsc && vite build && cp node_modules/sql.js/dist/sql-wasm.wasm dist/",
+    "lint": "biome check .",
+    "preview": "vite preview",
+    "use-databases": "bun scripts/use-databases.ts",
+    "fix": "biome check --write ."
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.29.2",
+    "@types/sql.js": "^1.4.9",
+    "date-fns": "^4.1.0",
+    "react": "^18.3.1",
+    "react-big-calendar": "^1.19.4",
+    "react-dom": "^18.3.1",
+    "react-router": "^6.30.2",
+    "react-router-dom": "^6.30.2",
+    "react-select": "^5.10.2",
+    "recharts": "^2.15.4",
+    "sql.js": "1.10.3",
+    "temporal-polyfill": "^0.3.2",
+    "vite-plugin-top-level-await": "^1.6.0"
+  },
+  "overrides": {
+    "@babel/runtime": "^7.29.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/react": "^18.3.27",
+    "@types/react-big-calendar": "^1.16.3",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}

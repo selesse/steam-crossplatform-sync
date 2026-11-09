@@ -1,0 +1,119 @@
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Mobile: hamburger toggle */
+.menuToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Mobile: nav hidden by default, shown when open */
+.nav {
+  display: none;
+}
+
+.nav--open {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Base link style */
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-weight: 400;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.navLink--active {
+  background: rgba(142, 202, 230, 0.15);
+  color: #8ecae6;
+  font-weight: 500;
+}
+
+.navLink--active:hover {
+  background: rgba(142, 202, 230, 0.2);
+  color: #8ecae6;
+}
+
+.navIcon {
+  font-size: 0.95em;
+  flex-shrink: 0;
+}
+
+/* Group label above the playtime sub-items */
+.navGroupLabel {
+  padding: 0.65rem 0.6rem 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: default;
+}
+
+/* Indented group items */
+.navGroupItem .navLink {
+  padding-left: 1.4rem;
+  font-size: 0.9rem;
+}
+
+/* Thin rule between groups */
+.navDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.4rem 0.6rem;
+}
+
+.layoutGrid {
+  display: grid;
+}
+
+@media (min-width: 600px) {
+  .menuToggle {
+    display: none;
+  }
+
+  .nav {
+    display: block;
+  }
+
+  .layoutGrid {
+    grid-template-columns: minmax(160px, max-content) 1fr;
+    gap: 0 1.5rem;
+  }
+
+  .header {
+    grid-column: span 2;
+  }
+}

@@ -1,0 +1,126 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #8ecae6;
+}
+
+h1,
+h2 {
+  text-align: center;
+}
+
+a {
+  font-weight: 500;
+  color: #bde0fe;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #60adf5;
+}
+
+select {
+  background-color: #2a2a2a;
+  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238ecae6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  padding-right: 1.6rem;
+}
+
+select:hover {
+  border-color: #8ecae6;
+}
+
+select:focus {
+  outline: none;
+  border-color: #8ecae6;
+  box-shadow: 0 0 0 2px rgba(142, 202, 230, 0.25);
+}
+
+/* Shared period navigation toolbar */
+.period-nav {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 60vw;
+  margin: 0 auto 20px;
+}
+
+.period-nav-btn {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+}
+
+.period-nav-btn:hover:not(:disabled) {
+  background-color: #3a3a3a;
+}
+
+.period-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.period-nav-icon {
+  display: none;
+}
+
+.period-nav-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.period-nav-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 599px) {
+  .period-nav {
+    width: 100%;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.5rem;
+  }
+
+  .period-nav-full {
+    display: none;
+  }
+
+  .period-nav-icon {
+    display: inline;
+    font-size: 1.1rem;
+  }
+
+  .period-nav-today {
+    display: none;
+  }
+}

@@ -1,0 +1,74 @@
+.dashboard {
+  padding: 0.5rem 0;
+}
+
+.statCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.statCard {
+  background: #2e2e2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+}
+
+.statCard-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #8ecae6;
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+}
+
+.statCard-value--game {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.statCard-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recentSessions {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.recentSessions th {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 0.75rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recentSessions th:first-child,
+.recentSessions td:first-child {
+  padding-left: 0;
+}
+
+.recentSessions td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+}
+
+.recentSessions tr:last-child td {
+  border-bottom: none;
+}
+
+.recentSessions .muted {
+  color: rgba(255, 255, 255, 0.5);
+}
