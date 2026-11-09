@@ -2,21 +2,26 @@
  * Shared type definitions for playtime data
  */
 
+// In these, host is the machine the time was played on, and streamedHours is
+// the part of the total another machine ran and streamed to it.
 export interface PlaytimeByHost {
   numberOfHours: number;
   year: string;
   host: string;
+  streamedHours: number;
 }
 
 export interface MonthlyPlaytime {
   numberOfHours: number;
   month: string;
   host: string;
+  streamedHours: number;
 }
 
 export interface PlaytimeByHostTotal {
   sumHours: number;
   host: string;
+  streamedHours: number;
 }
 
 export interface HoursPlayed {

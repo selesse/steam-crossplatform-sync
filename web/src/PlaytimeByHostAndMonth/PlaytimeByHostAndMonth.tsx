@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDatabase } from "../database";
 import { useKeyboardNavigation } from "../hooks";
 import { getAvailableYears } from "../services/metadata";
-import { getPlaytimeByHostAndMonth } from "../services/playtime";
+import { getPlaytimeByHostAndMonth, getStreamSources } from "../services/playtime";
 import { filterByMinPercentagePerGroup, getUniqueHosts } from "../utils/playtime-helpers";
 import PlaytimeByHostAndMonthGraph from "./PlaytimeByHostAndMonthGraph";
 
@@ -100,7 +100,11 @@ export default function PlaytimeByHostAndMonth() {
       </div>
       <h2>Playtime by host and month ({selectedYear})</h2>
       {playtimeByMonthAndHost.length > 0 ? (
-        <PlaytimeByHostAndMonthGraph uniqueHosts={uniqueHosts} playtimeByMonthAndHost={playtimeByMonthAndHost} />
+        <PlaytimeByHostAndMonthGraph
+          uniqueHosts={uniqueHosts}
+          playtimeByMonthAndHost={playtimeByMonthAndHost}
+          streamSources={getStreamSources(database)}
+        />
       ) : (
         <div>No data available for this time period</div>
       )}

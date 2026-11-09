@@ -28,6 +28,7 @@ export function getPlaytimeByHostAndYear(db: Database, minHours: number = MIN_SE
     numberOfHours: value[0] as number,
     year: value[1] as string,
     host: value[2] as string,
+    streamedHours: value[3] as number,
   }));
 }
 
@@ -43,7 +44,7 @@ export function getPlaytimeByHostAndMonth(
   minHours: number = MIN_SESSION_HOURS,
 ): MonthlyPlaytime[] {
   const sqlQuery = `
-    SELECT sum(session_hours), year_month, host FROM games_by_month WHERE
+    SELECT sum(session_hours), year_month, host, sum(streamed_hours) FROM games_by_month WHERE
       substr(year_month, 1, 4) = '${year}'
     GROUP BY year_month, host
     HAVING sum(session_hours) > ${minHours}
@@ -60,6 +61,7 @@ export function getPlaytimeByHostAndMonth(
     numberOfHours: value[0] as number,
     month: value[1] as string,
     host: value[2] as string,
+    streamedHours: value[3] as number,
   }));
 }
 
@@ -70,7 +72,7 @@ export function getPlaytimeByHostAndMonth(
  */
 export function getPlaytimeByHost(db: Database, minHours: number = MIN_SESSION_HOURS): PlaytimeByHostTotal[] {
   const result = db.exec(
-    `SELECT sum(session_hours), host FROM playtime_by_host
+    `SELECT sum(session_hours), host, sum(streamed_hours) FROM playtime_by_host
      GROUP BY host
      HAVING sum(session_hours) > ${minHours}`,
   );
@@ -82,6 +84,7 @@ export function getPlaytimeByHost(db: Database, minHours: number = MIN_SESSION_H
   return result[0].values.map((value) => ({
     sumHours: value[0] as number,
     host: value[1] as string,
+    streamedHours: value[2] as number,
   }));
 }
 
@@ -140,4 +143,13 @@ export function getPlaytimeByYearAndMonth(
     year: value[1] as string,
     month: value[2] as string,
   }));
+}
+
+/**
+ * The machines that streamed to each machine, for tooltips.
+ * @returns Map from the machine played on to the machines that ran the games
+ */
+export function getStreamSources(db: Database): Map<string, string[]> {
+  const result = db.exec("SELECT host, ran_on FROM stream_sources");
+  return new Map((result[0]?.values ?? []).map((value) => [value[0] as string, (value[1] as string).split(",")]));
 }

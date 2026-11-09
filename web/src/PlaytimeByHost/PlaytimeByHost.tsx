@@ -1,5 +1,5 @@
 import { useDatabase } from "../database";
-import { getPlaytimeByHost } from "../services/playtime";
+import { getPlaytimeByHost, getStreamSources } from "../services/playtime";
 import { filterByMinPercentage } from "../utils/playtime-helpers";
 import PlaytimeByHostGraph from "./PlaytimeByHostGraph";
 
@@ -10,7 +10,7 @@ export default function PlaytimeByHost() {
   return (
     <>
       <h2>Playtime by host (hours)</h2>
-      <PlaytimeByHostGraph data={data} />
+      <PlaytimeByHostGraph data={data} streamSources={getStreamSources(database)} />
     </>
   );
 }

@@ -3,14 +3,16 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import HourSumTooltip from "../Tooltip/HourSumTooltip";
 import { pickColor } from "../color-wheel";
 import { useChartDimensions } from "../hooks";
+import { StreamedLegendSwatch, streamedFill, streamedKey, streamedName, streamedPatterns } from "../streamed";
 import type { MonthlyPlaytime } from "../types/playtime";
 
 interface Props {
   playtimeByMonthAndHost: MonthlyPlaytime[];
   uniqueHosts: string[];
+  streamSources: Map<string, string[]>;
 }
 
-export default function PlaytimeByHostAndMonthGraph({ uniqueHosts, playtimeByMonthAndHost }: Props) {
+export default function PlaytimeByHostAndMonthGraph({ uniqueHosts, playtimeByMonthAndHost, streamSources }: Props) {
   const [activeHost, setActiveHost] = useState<string | null>(null);
   const { yAxisWidth, xAxisHeight, showAxisLabels } = useChartDimensions();
 
@@ -18,13 +20,15 @@ export default function PlaytimeByHostAndMonthGraph({ uniqueHosts, playtimeByMon
 
   for (const playtime of playtimeByMonthAndHost) {
     (dataFormat as any)[playtime.month] ||= {};
-    (dataFormat as any)[playtime.month][playtime.host] = playtime.numberOfHours;
+    (dataFormat as any)[playtime.month][playtime.host] = playtime.numberOfHours - playtime.streamedHours;
+    (dataFormat as any)[playtime.month][streamedKey(playtime.host)] = playtime.streamedHours;
   }
+  const anyStreamed = playtimeByMonthAndHost.some((playtime) => playtime.streamedHours > 0);
 
   const data = Object.keys(dataFormat).map((chunk) => {
     const month = (dataFormat as any)[chunk];
     const playtimePerHost = uniqueHosts.map((host) => {
-      return { [host]: month[host] || 0 };
+      return { [host]: month[host] || 0, [streamedKey(host)]: month[streamedKey(host)] || 0 };
     });
 
     return {
@@ -72,6 +76,7 @@ export default function PlaytimeByHostAndMonthGraph({ uniqueHosts, playtimeByMon
           </button>
         );
       })}
+      {anyStreamed && <StreamedLegendSwatch />}
     </div>
   );
 
@@ -87,11 +92,22 @@ export default function PlaytimeByHostAndMonthGraph({ uniqueHosts, playtimeByMon
           label={showAxisLabels ? { value: "Hours", angle: -90, position: "insideLeft" } : undefined}
           width={yAxisWidth}
         />
+        {streamedPatterns(uniqueHosts)}
         <Tooltip content={<HourSumTooltip />} />
         <Legend content={renderLegend} />
         {uniqueHosts.map((host) => {
           const isActive = activeHost === null || activeHost === host;
-          return <Bar key={host} dataKey={host} stackId="a" fill={pickColor(host)} opacity={isActive ? 1 : 0.2} />;
+          return [
+            <Bar key={host} dataKey={host} stackId="a" fill={pickColor(host)} opacity={isActive ? 1 : 0.2} />,
+            <Bar
+              key={streamedKey(host)}
+              dataKey={streamedKey(host)}
+              name={streamedName(host, streamSources)}
+              stackId="a"
+              fill={streamedFill(host, uniqueHosts)}
+              opacity={isActive ? 1 : 0.2}
+            />,
+          ];
         })}
       </BarChart>
     </ResponsiveContainer>

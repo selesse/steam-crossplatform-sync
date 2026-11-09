@@ -3,14 +3,16 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import HourSumTooltip from "../Tooltip/HourSumTooltip";
 import { pickColor } from "../color-wheel";
 import { useChartDimensions } from "../hooks";
+import { StreamedLegendSwatch, streamedFill, streamedKey, streamedName, streamedPatterns } from "../streamed";
 import type { PlaytimeByHost } from "../types/playtime";
 
 interface Props {
   playtimeByYearAndHost: PlaytimeByHost[];
   uniqueHosts: string[];
+  streamSources: Map<string, string[]>;
 }
 
-export default function PlaytimeByHostGraph({ uniqueHosts, playtimeByYearAndHost }: Props) {
+export default function PlaytimeByHostGraph({ uniqueHosts, playtimeByYearAndHost, streamSources }: Props) {
   const [activeHost, setActiveHost] = useState<string | null>(null);
   const { yAxisWidth, xAxisHeight, showAxisLabels } = useChartDimensions();
 
@@ -18,13 +20,15 @@ export default function PlaytimeByHostGraph({ uniqueHosts, playtimeByYearAndHost
 
   for (const playtime of playtimeByYearAndHost) {
     (dataFormat as any)[playtime.year] ||= {};
-    (dataFormat as any)[playtime.year][playtime.host] = playtime.numberOfHours;
+    (dataFormat as any)[playtime.year][playtime.host] = playtime.numberOfHours - playtime.streamedHours;
+    (dataFormat as any)[playtime.year][streamedKey(playtime.host)] = playtime.streamedHours;
   }
+  const anyStreamed = playtimeByYearAndHost.some((playtime) => playtime.streamedHours > 0);
 
   const data = Object.keys(dataFormat).map((chunk) => {
     const year = (dataFormat as any)[chunk];
     const playtimePerHost = uniqueHosts.map((host) => {
-      return { [host]: year[host] || 0 };
+      return { [host]: year[host] || 0, [streamedKey(host)]: year[streamedKey(host)] || 0 };
     });
 
     return {
@@ -72,6 +76,7 @@ export default function PlaytimeByHostGraph({ uniqueHosts, playtimeByYearAndHost
           </button>
         );
       })}
+      {anyStreamed && <StreamedLegendSwatch />}
     </div>
   );
 
@@ -87,11 +92,22 @@ export default function PlaytimeByHostGraph({ uniqueHosts, playtimeByYearAndHost
           label={showAxisLabels ? { value: "Hours", angle: -90, position: "insideLeft" } : undefined}
           width={yAxisWidth}
         />
+        {streamedPatterns(uniqueHosts)}
         <Tooltip content={<HourSumTooltip />} />
         <Legend content={renderLegend} />
         {uniqueHosts.map((host) => {
           const isActive = activeHost === null || activeHost === host;
-          return <Bar key={host} dataKey={host} stackId="a" fill={pickColor(host)} opacity={isActive ? 1 : 0.2} />;
+          return [
+            <Bar key={host} dataKey={host} stackId="a" fill={pickColor(host)} opacity={isActive ? 1 : 0.2} />,
+            <Bar
+              key={streamedKey(host)}
+              dataKey={streamedKey(host)}
+              name={streamedName(host, streamSources)}
+              stackId="a"
+              fill={streamedFill(host, uniqueHosts)}
+              opacity={isActive ? 1 : 0.2}
+            />,
+          ];
         })}
       </BarChart>
     </ResponsiveContainer>

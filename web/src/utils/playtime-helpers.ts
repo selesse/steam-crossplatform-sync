@@ -54,6 +54,14 @@ export function getUniqueHosts<T extends { host: string }>(data: T[]): string[] 
   return [...new Set(data.map((item) => item.host))].sort();
 }
 
+/**
+ * How to name where a stretch of play happened: the machine played on, and
+ * the machine that streamed it there if that was another one.
+ */
+export function hostLabel(playedOn: string, ranOn: string): string {
+  return playedOn === ranOn ? playedOn : `${playedOn} ← ${ranOn}`;
+}
+
 export interface SessionPlaytime {
   playtimeSeconds: number;
   idleSeconds: number;
