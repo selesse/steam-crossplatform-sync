@@ -1,30 +1,60 @@
-# React + TypeScript + Vite
+# Playtime dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A dashboard for the playtime history steam-crossplatform-sync records:
+playtime by game, machine, month and year, plus a calendar of every session.
+It runs entirely in the browser, on [sql.js][sql.js] (SQLite compiled to
+WebAssembly), so there's no server to run beyond something to serve static
+files.
 
-Currently, two official plugins are available:
+[sql.js]: https://sql.js.org
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Running it
 
-## Expanding the ESLint configuration
+You'll need [bun][bun].
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+```
+bun install
+bun run use-databases ~/.local/share/steam-crossplatform-sync/steam-logs.sqlite3
+bun run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+`use-databases` takes any number of databases, one per machine, as the daemon
+writes them. It copies them into `public/` under content-hashed names and
+lists them in `public/db-manifest.json`. Run it again whenever you want newer
+data.
+
+To host it, build the bundle, then point it at your databases:
+
+```
+bun run build
+bun run use-databases --out dist path/to/*/steam-logs.sqlite3
+```
+
+and serve `dist/` from the root of a domain.
+
+[bun]: https://bun.sh
+
+## How it reads the data
+
+On load, [`src/database.ts`](src/database.ts) fetches every database in
+`db-manifest.json` and copies their `games` and `gaming_sessions` rows into one
+in-memory database. A session that appears in more than one database counts
+once, and a game takes its name from the last database that has one. It then
+creates the views in [`src/views.sql`](src/views.sql), which most charts query.
+
+## Conventions
+
+- Use bun, not npm, to install packages and run scripts.
+- `bun run lint` checks linting, formatting and import order with
+  [Biome][biome]; `bun run fix` applies what it can. CI runs it along with
+  `bun run build`.
+- Use the [Temporal API][temporal] instead of `Date`. The polyfill
+  (`temporal-polyfill/global`) is imported in `main.tsx`, so `Temporal` is
+  available everywhere without an import.
+  - Current date/time: `Temporal.Now.plainDateISO()`, `Temporal.Now.instant()`
+  - Timestamps from the database (ISO 8601 strings): `Temporal.Instant.from(str)`
+  - `new Date(...)` only where a library requires it, such as
+    react-big-calendar's event `start`/`end` and date-fns callbacks.
+
+[biome]: https://biomejs.dev
+[temporal]: https://tc39.es/proposal-temporal/

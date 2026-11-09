@@ -74,6 +74,63 @@ On Windows, if double clicking the JAR doesn't work, you may need to run
 
 [jarfix]: https://johann.loefflmann.net/en/software/jarfix/index.html
 
+## Playtime history
+
+Every game session is also recorded in a SQLite database on each machine:
+`~/.local/share/steam-crossplatform-sync/steam-logs.sqlite3` on OS X and Linux
+(or under `$XDG_DATA_HOME` if it's set), and
+`%LOCALAPPDATA%\steam-crossplatform-sync\steam-logs.sqlite3` on Windows.
+
+[`web/`](web/) is a dashboard for that history: playtime by game, machine,
+month and year, plus a calendar of every session. Point it at one or more
+machines' databases and start it with [bun][bun]:
+
+```
+cd web
+bun install
+bun run use-databases ~/.local/share/steam-crossplatform-sync/steam-logs.sqlite3
+bun run dev
+```
+
+To see several machines together, gather their databases in one place (the
+[session-end hook](#hooks) below is one way) and pass them all to
+`use-databases`. A session that shows up in more than one is counted once.
+
+To host it, `bun run build`, then `bun run use-databases --out dist` with your
+databases, and serve `dist/` as static files from the root of a domain.
+
+[bun]: https://bun.sh
+
+## Hooks
+
+After a game closes, once its session is recorded and its saves are synced,
+the daemon runs `hooks/session-end` from its configuration directory, if
+there is one. It must be executable; on Windows, name it `session-end.bat`
+instead. The hook runs in the background, and a failure is only logged.
+
+It gets these environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `STEAM_APP_ID` | The game's Steam app ID |
+| `GAME_NAME` | The game's name, if known |
+| `SESSION_STARTED_AT`, `SESSION_ENDED_AT` | When the session started and ended (ISO 8601) |
+| `SESSION_DURATION_SECONDS` | How long the game was open |
+| `ACTIVE_PLAYTIME_SECONDS` | How much of that the machine was awake, not asleep or suspended |
+| `DB_PATH` | The playtime database described above |
+| `JAVA_HOME` | The JDK running the daemon |
+
+For example, this hook copies each machine's playtime database into cloud
+storage, where the dashboard can read them all:
+
+```sh
+#!/bin/sh
+dir="$HOME/Dropbox/steam-sync/logs/$(hostname)"
+mkdir -p "$dir"
+# .backup takes a consistent copy even while the daemon is writing.
+sqlite3 "$DB_PATH" ".backup '$dir/steam-logs.sqlite3'"
+```
+
 ## Sync strategy
 
 For now, the sync strategy is intentionally dumb. It looks across both folders
