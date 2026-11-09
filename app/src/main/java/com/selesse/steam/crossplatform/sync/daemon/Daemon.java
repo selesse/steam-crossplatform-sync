@@ -49,6 +49,8 @@ public class Daemon implements Runnable {
                     getExceptionTolerantRunnable(command), 0, period, timeUnitFrequency);
             executorService.scheduleAtFixedRate(
                     getExceptionTolerantRunnable(new GameNameEnricher(context)), 0, 1, TimeUnit.HOURS);
+            executorService.scheduleAtFixedRate(
+                    getExceptionTolerantRunnable(RemotePlayRecorder.forContext(context)), 0, 5, TimeUnit.MINUTES);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 LOGGER.info("Shutting down game monitor daemon");
                 command.run();

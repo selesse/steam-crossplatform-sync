@@ -23,6 +23,13 @@ sealed interface TrackedGame permits KnownGame, UnknownGame {
      * session tracking couldn't write to its database.
      */
     default GameSessionRecord finishSession(SteamCrossplatformSyncContext context) {
+        // Before the session is recorded, so a stream that just ended is in the database by the
+        // time the session-end hook copies it somewhere.
+        try {
+            RemotePlayRecorder.forContext(context).run();
+        } catch (RuntimeException e) {
+            LOGGER.warn("Could not record Remote Play streams", e);
+        }
         GameSessionRecord record = session().finish();
         try {
             context.getSessionRepository().save(record);

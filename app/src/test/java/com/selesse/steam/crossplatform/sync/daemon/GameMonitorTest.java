@@ -9,9 +9,11 @@ import ch.qos.logback.core.read.ListAppender;
 import com.selesse.steam.GameRunningDetector;
 import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.SteamApp;
+import com.selesse.steam.SteamInstall;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
+import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
 import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
@@ -34,6 +36,7 @@ public class GameMonitorTest {
     private SteamCrossplatformSyncConfig syncConfig;
     private SteamApp brotato;
     private SteamApp hollowKnight;
+    private Path steamLogs;
 
     @Before
     public void setup() throws IOException {
@@ -59,6 +62,11 @@ public class GameMonitorTest {
         context = mock(SteamCrossplatformSyncContext.class);
         doReturn(syncConfig).when(context).getConfig();
         doReturn(repository).when(context).getSessionRepository();
+
+        steamLogs = Files.createTempDirectory("game-monitor-test-steam-logs");
+        SteamRegistry registry = mock(SteamRegistry.class);
+        doReturn(steamLogs).when(registry).getLogsPath();
+        doReturn(new SteamInstall(registry, null)).when(context).getSteamInstall();
 
         brotato = mock(SteamApp.class);
         doReturn(1236720L).when(brotato).getId();
@@ -87,6 +95,36 @@ public class GameMonitorTest {
 
         assertThat(repository.findUnknownGameIds()).isEmpty();
         verify(syncConfig, times(1)).getGamesFile();
+    }
+
+    @Test
+    public void closingAGameRecordsTheStreamsThatEndedWhileItRan() throws IOException, SQLException {
+        Files.writeString(steamLogs.resolve("streaming_log.txt"), """
+                [2026-11-03 21:55:11][1.0] Streaming started to steamdeck at 192.168.50.55:50972, audio channels = 2
+                [2026-11-03 23:07:13][2.0] >>> Stopped desktop stream
+                """);
+
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+
+            GameMonitor monitor = new GameMonitor(context);
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+            monitor.run();
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
+            monitor.run();
+        }
+
+        try (var conn = Database.open(sqliteFile);
+                var stmt = conn.createStatement();
+                var rs = stmt.executeQuery("SELECT remote_host FROM remote_play_sessions")) {
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getString(1)).isEqualTo("steamdeck");
+            assertThat(rs.next()).isFalse();
+        }
     }
 
     @Test

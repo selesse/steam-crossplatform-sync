@@ -131,6 +131,38 @@ public class GameSessionRepositoryTest {
         assertThat(savedSteamAccountIds()).containsExactly((Long) null);
     }
 
+    @Test
+    public void saveRemotePlaySessionsSkipsStreamsAlreadyRecorded() throws SQLException {
+        OffsetDateTime start = OffsetDateTime.parse("2026-11-03T21:55:11-05:00");
+        var stream = new RemotePlaySessionRecord(
+                "bench", RemotePlaySessionRecord.Role.HOST, "steamdeck", start, start.plusMinutes(72), 2909400L, false);
+        var clientStream = new RemotePlaySessionRecord(
+                "steamdeck", RemotePlaySessionRecord.Role.CLIENT, null, start, start.plusMinutes(72), null, null);
+
+        assertThat(repository.saveRemotePlaySessions(List.of(stream, clientStream)))
+                .isEqualTo(2);
+        assertThat(repository.saveRemotePlaySessions(List.of(stream, clientStream)))
+                .isZero();
+
+        try (var conn = Database.open(sqliteFile);
+                var stmt = conn.createStatement();
+                var rs = stmt.executeQuery("SELECT host, role, remote_host, started_at, steam_app_id,"
+                        + " remote_play_together FROM remote_play_sessions ORDER BY role DESC")) {
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getString("host")).isEqualTo("bench");
+            assertThat(rs.getString("role")).isEqualTo("host");
+            assertThat(rs.getString("remote_host")).isEqualTo("steamdeck");
+            assertThat(rs.getString("started_at")).isEqualTo("2026-11-03T21:55:11-05:00");
+            assertThat(rs.getLong("steam_app_id")).isEqualTo(2909400L);
+            assertThat(rs.getInt("remote_play_together")).isZero();
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getString("role")).isEqualTo("client");
+            assertThat(rs.getObject("remote_host")).isNull();
+            assertThat(rs.getObject("steam_app_id")).isNull();
+            assertThat(rs.next()).isFalse();
+        }
+    }
+
     private List<Long> savedSteamAccountIds() throws SQLException {
         try (var conn = Database.open(sqliteFile);
                 var stmt = conn.createStatement();

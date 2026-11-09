@@ -1,0 +1,18 @@
+[2026-11-03 21:40:02][789485.112045] Game Recording - would start recording game 2909400, but recording for this game is disabled
+[2026-11-03 21:55:11][790394.656860] Streaming started to steamdeck at 192.168.50.55:50972, audio channels = 2, MTU = 1468
+[2026-11-03 21:55:11][790394.656901] Streaming quality: k_EStreamQualityBalanced
+[2026-11-03 21:55:11][790395.299647] >>> Switching video stream from NONE to Desktop_MovieStream
+[2026-11-03 21:55:26][790410.241894] "SessionStats"
+{
+	"GameNameID"		"FINAL FANTASY VII REBIRTH"
+	"appid"		"2909400"
+	"ResolutionX"		"1280"
+	"RemotePlayTogether"		"0"
+}
+[2026-11-03 22:30:00][792483.144033] CLIENT: SteamNetworkingSockets connection: Connected LAN@192.168.50.55:50972 Ping: 4ms IN: 9568.4kbit 1659.1 pkt/s qual 100.0% OUT: 207.9kbit 190.0 pkt/s qual 100.0%
+[2026-11-03 23:07:13][794717.075411] Encoding complete
+[2026-11-03 23:07:13][794717.139931] >>> Stopped desktop stream
+[2026-11-04 19:38:38][868601.392270] Streaming started to steamdeck at 192.168.50.55:34424, audio channels = 2, MTU = 1468
+[2026-11-04 19:38:39][868602.412275] >>> Switching video stream from NONE to Desktop_MovieStream
+[2026-11-04 20:01:41][869984.245610] Encoding complete
+[2026-11-04 20:01:41][869984.297065] >>> Stopped desktop stream

@@ -25,7 +25,7 @@ import java.util.Set;
  * failure so the Gradle task fails with it.
  */
 public class JlinkMigrationSmokeTest {
-    private static final List<String> REQUIRED_TABLES = List.of("games", "gaming_sessions");
+    private static final List<String> REQUIRED_TABLES = List.of("games", "gaming_sessions", "remote_play_sessions");
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {

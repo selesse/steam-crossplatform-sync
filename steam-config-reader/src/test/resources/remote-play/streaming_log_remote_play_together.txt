@@ -1,0 +1,17 @@
+[2024-11-09 13:15:07][314052.308949] Streaming started to A Friend at 0.0.0.0:0, audio channels = 2, MTU = 1472
+[2024-11-09 13:15:33][314078.932347] "SessionStats"
+{
+	"GameNameID"		"Renegade Ops"
+	"appid"		"99300"
+	"RemotePlayTogether"		"1"
+}
+[2024-11-09 13:16:37][314142.713746] >>> Stopped desktop stream
+[2024-11-09 13:16:59] Client version: 1730853027
+[2024-11-09 13:23:38][405.066557] Streaming started to A Friend at 0.0.0.0:0, audio channels = 2, MTU = 1472
+[2024-11-09 13:23:38][405.168186] >>> Switching video stream from NONE to GameOverlay_MovieStream_22350
+[2024-11-09 13:23:47][414.198445] Encoding complete
+[2024-11-09 13:25:10][496.305881] CLIENT: Got control packet k_EStreamControlSetTargetBitrate
+
+
+[2024-11-09 13:27:26] Client version: 1730853027
+[2024-11-09 13:27:26][11.479135] Desktop state changed: desktop: { pos:    0,   0 size: 1280, 800 } primary: { pos:    0,   0 size: 1280, 800 }

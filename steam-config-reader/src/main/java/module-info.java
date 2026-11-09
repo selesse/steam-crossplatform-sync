@@ -12,5 +12,6 @@ module com.selesse.steam.config.reader {
     exports com.selesse.steam.registry;
     exports com.selesse.steam.registry.implementation;
     exports com.selesse.steam.registry.windows;
+    exports com.selesse.steam.streaming;
     exports com.selesse.steam.user;
 }

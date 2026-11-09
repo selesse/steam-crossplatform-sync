@@ -16,6 +16,10 @@ public class SteamRegistry {
         return Path.of(getBasePath(), "appcache/appinfo.vdf");
     }
 
+    public Path getLogsPath() {
+        return Path.of(getBasePath(), "logs");
+    }
+
     private Path getSteamAppsPath() {
         return Path.of(getBasePath(), "steamapps");
     }

@@ -75,6 +75,45 @@ public class GameSessionRepository {
         }
     }
 
+    private static final String REMOTE_PLAY_INSERT = "INSERT OR IGNORE INTO REMOTE_PLAY_SESSIONS"
+            + " (HOST, ROLE, REMOTE_HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID, REMOTE_PLAY_TOGETHER)"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    /**
+     * Records the streams not already recorded, so re-reading the same logs is harmless.
+     *
+     * @return how many were new
+     */
+    public int saveRemotePlaySessions(List<RemotePlaySessionRecord> records) {
+        try (Connection connection = Database.open(sqliteFile);
+                PreparedStatement ps = connection.prepareStatement(REMOTE_PLAY_INSERT)) {
+            connection.setAutoCommit(false);
+            int inserted = 0;
+            for (RemotePlaySessionRecord record : records) {
+                ps.setString(1, record.host());
+                ps.setString(2, record.role().databaseValue());
+                ps.setString(3, record.remoteHost());
+                ps.setString(4, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(record.startedAt()));
+                ps.setString(5, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(record.finishedAt()));
+                if (record.steamAppId() != null) {
+                    ps.setLong(6, record.steamAppId());
+                } else {
+                    ps.setNull(6, Types.INTEGER);
+                }
+                if (record.remotePlayTogether() != null) {
+                    ps.setInt(7, record.remotePlayTogether() ? 1 : 0);
+                } else {
+                    ps.setNull(7, Types.INTEGER);
+                }
+                inserted += ps.executeUpdate();
+            }
+            connection.commit();
+            return inserted;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void insertGamingSession(Connection connection, long gameId, GameSessionRecord gameSessionRecord)
             throws SQLException {
         var preparedStatement = connection.prepareStatement(SESSION_INSERT);
