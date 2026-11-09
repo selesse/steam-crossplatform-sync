@@ -12,6 +12,19 @@ public record SteamAccountId(String sixtyFourBitId) {
         }
     }
 
+    /**
+     * Whether {@code value} is an individual account's 64-bit id, such as the folder name a game
+     * keeps each account's saves under. Only that form: a 32-bit id is just a number, and too easy
+     * to mistake for any other.
+     */
+    public static boolean isSixtyFourBitId(String value) {
+        if (value.isEmpty() || !value.chars().allMatch(Character::isDigit) || value.length() > 18) {
+            return false;
+        }
+        long accountNumber = Long.parseLong(value) - MAGIC_CONVERSION_NUMBER;
+        return accountNumber > 0 && accountNumber <= 0xFFFFFFFFL;
+    }
+
     public static SteamAccountId from32Bit(long thirtyTwoBit) {
         return new SteamAccountId("" + (thirtyTwoBit + MAGIC_CONVERSION_NUMBER));
     }

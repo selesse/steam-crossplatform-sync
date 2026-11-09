@@ -22,4 +22,20 @@ public class SteamAccountIdTest {
     public void disallowsInvalidIds_inTheConstructor() {
         Assert.assertThrows(IllegalArgumentException.class, () -> new SteamAccountId("lol"));
     }
+
+    @Test
+    public void recognizesSixtyFourBitIds() {
+        assertThat(SteamAccountId.isSixtyFourBitId("76561198009129143")).isTrue();
+        assertThat(SteamAccountId.isSixtyFourBitId("76561199039324428")).isTrue();
+    }
+
+    @Test
+    public void doesNotMistakeOtherFolderNamesForSixtyFourBitIds() {
+        assertThat(SteamAccountId.isSixtyFourBitId("48863415")).isFalse(); // 32-bit form
+        assertThat(SteamAccountId.isSixtyFourBitId("User_76561198009129143")).isFalse();
+        assertThat(SteamAccountId.isSixtyFourBitId("76561197960265728")).isFalse(); // account 0
+        assertThat(SteamAccountId.isSixtyFourBitId("99999999999999999999")).isFalse();
+        assertThat(SteamAccountId.isSixtyFourBitId("saves")).isFalse();
+        assertThat(SteamAccountId.isSixtyFourBitId("")).isFalse();
+    }
 }

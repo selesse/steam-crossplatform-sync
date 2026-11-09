@@ -18,7 +18,6 @@ public class SyncGameFilesServiceTest {
     public void canHandleGameWithGlob() throws IOException {
         SteamCrossplatformSyncContext context = mock(SteamCrossplatformSyncContext.class);
         doReturn(null).when(context).getConfig();
-        doReturn(null).when(context).getSteamAccountIdIfPresent();
         SyncGameFilesService syncGameFilesService = new SyncGameFilesService(context);
 
         Path tempLocalPath = Files.createTempDirectory("sync-test-local");
@@ -39,6 +38,31 @@ public class SyncGameFilesServiceTest {
         assertThat(FileVisitors.listAll(tempCloudPath))
                 .containsExactly(Path.of(
                         tempCloudPath.toAbsolutePath().toString(),
+                        tempFile.getFileName().toString()));
+    }
+
+    // The folder is named after an account other than whoever might be signed in: that it's a
+    // Steam account id is what keeps it, so the cloud copy doesn't move when accounts switch.
+    @Test
+    public void keepsAPerAccountSaveFolderInTheCloudCopy() throws IOException {
+        SteamCrossplatformSyncContext context = mock(SteamCrossplatformSyncContext.class);
+        SyncGameFilesService syncGameFilesService = new SyncGameFilesService(context);
+
+        Path accountFolder = Files.createDirectory(
+                Files.createTempDirectory("sync-test-local").resolve("76561199039324428"));
+        Path tempFile = Files.createTempFile(accountFolder, "bob", ".sav");
+        Path tempCloudPath = Files.createTempDirectory("sync-test-cloud");
+
+        String localPath = accountFolder.toAbsolutePath() + "/*.sav";
+        SyncableGame game = spy(
+                new SyncableGame("Portal 2", List.of(localPath), List.of(localPath), List.of(localPath), 620L, true));
+        doReturn(tempCloudPath).when(game).getLocalCloudSyncPath(any());
+        syncGameFilesService.sync(game);
+
+        assertThat(FileVisitors.listAll(tempCloudPath))
+                .containsExactly(Path.of(
+                        tempCloudPath.toAbsolutePath().toString(),
+                        "76561199039324428",
                         tempFile.getFileName().toString()));
     }
 }

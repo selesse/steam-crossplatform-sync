@@ -52,13 +52,9 @@ public class SteamCrossplatformSyncContext {
         return steamAppLoader.loadSome(installedGameFinderService.find());
     }
 
-    public SteamAccountId getSteamAccountIdIfPresent() {
-        return steamInstall.accountId();
-    }
-
     /**
-     * Who is signed in to Steam at this moment. Unlike {@link #getSteamAccountIdIfPresent()}, which
-     * is settled once at startup, this asks again each time, so it follows account switches.
+     * Who is signed in to Steam at this moment. Unlike {@link SteamInstall#accountId()}, which is
+     * settled once at startup, this asks again each time, so it follows account switches.
      */
     public Optional<SteamAccountId> findSignedInSteamAccountId() {
         return new SteamAccountIdFinder(steamInstall.registry()).findSignedInUserId();

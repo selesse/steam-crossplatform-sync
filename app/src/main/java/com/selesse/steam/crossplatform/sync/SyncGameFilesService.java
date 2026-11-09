@@ -2,8 +2,10 @@ package com.selesse.steam.crossplatform.sync;
 
 import com.selesse.files.PatternSupportedPath;
 import com.selesse.files.SyncablePath;
+import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.config.GamesToSyncLoader;
+import java.nio.file.Path;
 import java.util.List;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -63,12 +65,12 @@ public class SyncGameFilesService {
 
             List<PatternSupportedPath> localPaths = game.getLocalPaths();
             for (PatternSupportedPath localPath : localPaths) {
-                var steamAccountIdMaybe = context.getSteamAccountIdIfPresent();
                 PatternSupportedPath parent = localPath.getParent();
-                if (steamAccountIdMaybe != null) {
-                    if (parent.endsWith(steamAccountIdMaybe.to64Bit())) {
-                        parent = parent.getParent();
-                    }
+                // Keep a per-account save folder in the cloud copy, so each account's saves land
+                // in their own folder there too. Decided by the folder alone, not by who is signed
+                // in: that changes from session to session, and the cloud copy mustn't move with it.
+                if (isSteamAccountFolder(parent)) {
+                    parent = parent.getParent();
                 }
                 SyncablePath syncableLocalPath = new SyncablePath(parent, localPath);
                 PatternSupportedPath cloudPath =
@@ -80,5 +82,10 @@ public class SyncGameFilesService {
         } else {
             LOGGER.info("Did not check {} because it is unsupported on this OS", game.name());
         }
+    }
+
+    private static boolean isSteamAccountFolder(PatternSupportedPath folder) {
+        Path name = folder.toAbsolutePath().getFileName();
+        return name != null && SteamAccountId.isSixtyFourBitId(name.toString());
     }
 }
