@@ -3,8 +3,10 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ main ]
+    paths-ignore: [ 'web/**', '.github/workflows/web.yml' ]
   pull_request:
     branches: [ main ]
+    paths-ignore: [ 'web/**', '.github/workflows/web.yml' ]
 
 jobs:
   build:
