@@ -42,7 +42,8 @@ public class GameNameEnricherTest {
                 1236720L,
                 null,
                 "my-hostname",
-                3600));
+                3600,
+                null));
 
         SteamApp mockGame = mock(SteamApp.class);
         doReturn("Brotato").when(mockGame).getName();
@@ -61,7 +62,8 @@ public class GameNameEnricherTest {
                 1236720L,
                 null,
                 "my-hostname",
-                3600));
+                3600,
+                null));
 
         doThrow(new RuntimeException("steamcmd not found")).when(context).loadGame(1236720L);
 

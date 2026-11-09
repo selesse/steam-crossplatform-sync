@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,8 @@ public class GameSessionRepository {
     private static final String INSERT_GAME = "INSERT OR IGNORE INTO GAMES (NAME, STEAM_APP_ID) VALUES (?, ?)";
     private static final String FETCH_GAME = "SELECT steam_app_id FROM GAMES WHERE NAME = ?";
     private static final String SESSION_INSERT =
-            "INSERT INTO GAMING_SESSIONS (HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID, ACTIVE_PLAYTIME_SECONDS) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO GAMING_SESSIONS (HOST, STARTED_AT, FINISHED_AT, STEAM_APP_ID, ACTIVE_PLAYTIME_SECONDS, STEAM_ACCOUNT_ID)"
+                    + " VALUES (?, ?, ?, ?, ?, ?)";
 
     public void save(GameSessionRecord gameSessionRecord) {
         try (Connection connection = Database.open(sqliteFile)) {
@@ -81,6 +83,11 @@ public class GameSessionRepository {
         preparedStatement.setString(3, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(gameSessionRecord.finishedAt()));
         preparedStatement.setLong(4, gameId);
         preparedStatement.setLong(5, gameSessionRecord.activePlaytimeSeconds());
+        if (gameSessionRecord.steamAccountId() != null) {
+            preparedStatement.setLong(6, gameSessionRecord.steamAccountId());
+        } else {
+            preparedStatement.setNull(6, Types.INTEGER);
+        }
         preparedStatement.executeUpdate();
     }
 }

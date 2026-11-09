@@ -13,26 +13,32 @@ public class GameSession {
 
     private final long gameId;
     private final String gameName;
+    private final Long steamAccountId;
     private final Clock clock;
     private final OffsetDateTime startedAt;
     private Duration activePlaytime;
     private OffsetDateTime lastActiveAt;
 
-    private GameSession(long gameId, String gameName, Clock clock) {
+    private GameSession(long gameId, String gameName, Long steamAccountId, Clock clock) {
         this.gameId = gameId;
         this.gameName = gameName;
+        this.steamAccountId = steamAccountId;
         this.clock = clock;
         this.startedAt = OffsetDateTime.now(clock);
         this.lastActiveAt = this.startedAt;
         this.activePlaytime = Duration.ZERO;
     }
 
-    public static GameSession start(long gameId, String gameName) {
-        return new GameSession(gameId, gameName, Clock.systemDefaultZone());
+    /**
+     * @param steamAccountId the 64-bit id of the Steam account playing, or {@code null} if unknown.
+     *     Taken at the start: whoever launched the game is who played it.
+     */
+    public static GameSession start(long gameId, String gameName, Long steamAccountId) {
+        return new GameSession(gameId, gameName, steamAccountId, Clock.systemDefaultZone());
     }
 
-    static GameSession start(long gameId, String gameName, Clock clock) {
-        return new GameSession(gameId, gameName, clock);
+    static GameSession start(long gameId, String gameName, Long steamAccountId, Clock clock) {
+        return new GameSession(gameId, gameName, steamAccountId, clock);
     }
 
     public void recordActive() {
@@ -56,6 +62,12 @@ public class GameSession {
         var finishedAt = OffsetDateTime.now(clock);
 
         return new GameSessionRecord(
-                startedAt, finishedAt, gameId, gameName, Hostnames.getCurrent(), getActivePlaytimeSeconds());
+                startedAt,
+                finishedAt,
+                gameId,
+                gameName,
+                Hostnames.getCurrent(),
+                getActivePlaytimeSeconds(),
+                steamAccountId);
     }
 }

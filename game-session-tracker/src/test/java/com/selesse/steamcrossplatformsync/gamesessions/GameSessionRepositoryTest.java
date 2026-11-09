@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +45,8 @@ public class GameSessionRepositoryTest {
                 367520L,
                 "Hollow Knight",
                 "my-hostname",
-                3600);
+                3600,
+                null);
         repository.save(record);
     }
 
@@ -55,7 +58,8 @@ public class GameSessionRepositoryTest {
                 1236720L,
                 null,
                 "my-hostname",
-                3600);
+                3600,
+                null);
         repository.save(record);
     }
 
@@ -67,14 +71,16 @@ public class GameSessionRepositoryTest {
                 1236720L,
                 null,
                 "my-hostname",
-                3600));
+                3600,
+                null));
         repository.save(new GameSessionRecord(
                 OffsetDateTime.now(),
                 OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
                 367520L,
                 "Hollow Knight",
                 "my-hostname",
-                3600));
+                3600,
+                null));
 
         assertThat(repository.findUnknownGameIds()).containsExactly(1236720L);
     }
@@ -87,12 +93,54 @@ public class GameSessionRepositoryTest {
                 1236720L,
                 null,
                 "my-hostname",
-                3600));
+                3600,
+                null));
 
         assertThat(repository.findUnknownGameIds()).containsExactly(1236720L);
 
         repository.updateGameName(1236720L, "Brotato");
 
         assertThat(repository.findUnknownGameIds()).isEmpty();
+    }
+
+    @Test
+    public void savePersistsTheSteamAccountId() throws SQLException {
+        repository.save(new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                367520L,
+                "Hollow Knight",
+                "my-hostname",
+                3600,
+                76561197960287930L));
+
+        assertThat(savedSteamAccountIds()).containsExactly(76561197960287930L);
+    }
+
+    @Test
+    public void savePersistsAnUnknownSteamAccountIdAsNull() throws SQLException {
+        repository.save(new GameSessionRecord(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plus(1, ChronoUnit.HOURS),
+                367520L,
+                "Hollow Knight",
+                "my-hostname",
+                3600,
+                null));
+
+        assertThat(savedSteamAccountIds()).containsExactly((Long) null);
+    }
+
+    private List<Long> savedSteamAccountIds() throws SQLException {
+        try (var conn = Database.open(sqliteFile);
+                var stmt = conn.createStatement();
+                var rs = stmt.executeQuery("SELECT steam_account_id FROM gaming_sessions")) {
+            List<Long> ids = new ArrayList<>();
+            while (rs.next()) {
+                long id = rs.getLong(1);
+                ids.add(rs.wasNull() ? null : id);
+            }
+            return ids;
+        }
     }
 }

@@ -14,7 +14,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(12345L, "Test Game", mutableClock);
+        var session = GameSession.start(12345L, "Test Game", null, mutableClock);
 
         // Simulate 3 polls at 1-minute intervals
         mutableClock.advance(Duration.ofMinutes(1));
@@ -34,7 +34,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(12345L, "Test Game", mutableClock);
+        var session = GameSession.start(12345L, "Test Game", null, mutableClock);
 
         // 60 polls of 30.5s each is 1830s; truncating every poll would report only 1800s
         for (int i = 0; i < 60; i++) {
@@ -50,7 +50,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(12345L, "Test Game", mutableClock);
+        var session = GameSession.start(12345L, "Test Game", null, mutableClock);
 
         // Normal poll after 1 minute
         mutableClock.advance(Duration.ofMinutes(1));
@@ -73,7 +73,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(12345L, "Test Game", mutableClock);
+        var session = GameSession.start(12345L, "Test Game", null, mutableClock);
 
         // 2 minutes is at the threshold, should be counted
         mutableClock.advance(Duration.ofMinutes(2));
@@ -87,7 +87,7 @@ public class GameSessionTest {
         var startTime = Instant.parse("2024-01-01T12:00:00Z");
         var mutableClock = new MutableClock(startTime);
 
-        var session = GameSession.start(12345L, "Test Game", mutableClock);
+        var session = GameSession.start(12345L, "Test Game", null, mutableClock);
 
         // 2 minutes + 1 second is over threshold, should not be counted
         mutableClock.advance(Duration.ofMinutes(2).plusSeconds(1));

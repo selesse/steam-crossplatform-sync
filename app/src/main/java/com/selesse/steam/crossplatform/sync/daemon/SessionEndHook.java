@@ -28,6 +28,7 @@ class SessionEndHook extends Hook {
                 "SESSION_ENDED_AT", record.finishedAt().toString(),
                 "SESSION_DURATION_SECONDS", String.valueOf(durationSeconds),
                 "ACTIVE_PLAYTIME_SECONDS", String.valueOf(record.activePlaytimeSeconds()),
+                "STEAM_ACCOUNT_ID", record.steamAccountId() != null ? String.valueOf(record.steamAccountId()) : "",
                 "DB_PATH", SqliteDatabaseLocation.get().path().toAbsolutePath().toString());
     }
 }

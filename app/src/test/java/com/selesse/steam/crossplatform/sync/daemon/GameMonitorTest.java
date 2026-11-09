@@ -7,15 +7,18 @@ import static org.mockito.Mockito.*;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.selesse.steam.GameRunningDetector;
+import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.SteamApp;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
+import com.selesse.steamcrossplatformsync.gamesessions.database.Database;
 import com.selesse.steamcrossplatformsync.gamesessions.database.SqliteFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Properties;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class GameMonitorTest {
     private GameSessionRepository repository;
+    private SqliteFile sqliteFile;
     private SteamCrossplatformSyncContext context;
     private SteamCrossplatformSyncConfig syncConfig;
     private SteamApp brotato;
@@ -39,7 +43,7 @@ public class GameMonitorTest {
             assert (testDatabase.toFile().delete());
             testDatabase.toFile().deleteOnExit();
         }
-        SqliteFile sqliteFile = new SqliteFile(testDatabase);
+        sqliteFile = new SqliteFile(testDatabase);
         repository = new GameSessionRepository(sqliteFile);
 
         // Stub sync config with an empty games file so sync is always a no-op in tests,
@@ -83,6 +87,38 @@ public class GameMonitorTest {
 
         assertThat(repository.findUnknownGameIds()).isEmpty();
         verify(syncConfig, times(1)).getGamesFile();
+    }
+
+    @Test
+    public void sessionRecordsTheSteamAccountSignedInAtLaunch() throws SQLException {
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+            doReturn(Optional.of(new SteamAccountId("76561197960287930")))
+                    .when(context)
+                    .findSignedInSteamAccountId();
+
+            GameMonitor monitor = new GameMonitor(context);
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+            monitor.run();
+
+            // Switching accounts mid-game doesn't change who played this session.
+            doReturn(Optional.of(new SteamAccountId("76561199027325428")))
+                    .when(context)
+                    .findSignedInSteamAccountId();
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
+            monitor.run();
+        }
+
+        try (var conn = Database.open(sqliteFile);
+                var stmt = conn.createStatement();
+                var rs = stmt.executeQuery("SELECT steam_account_id FROM gaming_sessions")) {
+            assertThat(rs.next()).isTrue();
+            assertThat(rs.getLong(1)).isEqualTo(76561197960287930L);
+            assertThat(rs.next()).isFalse();
+        }
     }
 
     @Test

@@ -6,8 +6,10 @@ import com.selesse.steam.SteamAppLoader;
 import com.selesse.steam.SteamInstall;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
 import com.selesse.steam.games.InstalledGameFinderService;
+import com.selesse.steam.user.SteamAccountIdFinder;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
 import java.util.List;
+import java.util.Optional;
 
 public class SteamCrossplatformSyncContext {
     private final SteamCrossplatformSyncConfig config;
@@ -52,5 +54,13 @@ public class SteamCrossplatformSyncContext {
 
     public SteamAccountId getSteamAccountIdIfPresent() {
         return steamInstall.accountId();
+    }
+
+    /**
+     * Who is signed in to Steam at this moment. Unlike {@link #getSteamAccountIdIfPresent()}, which
+     * is settled once at startup, this asks again each time, so it follows account switches.
+     */
+    public Optional<SteamAccountId> findSignedInSteamAccountId() {
+        return new SteamAccountIdFinder(steamInstall.registry()).findSignedInUserId();
     }
 }

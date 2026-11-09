@@ -47,11 +47,12 @@ public class HooksTest {
                 "echo SESSION_ENDED_AT=$SESSION_ENDED_AT >> " + envOutput,
                 "echo SESSION_DURATION_SECONDS=$SESSION_DURATION_SECONDS >> " + envOutput,
                 "echo ACTIVE_PLAYTIME_SECONDS=$ACTIVE_PLAYTIME_SECONDS >> " + envOutput,
+                "echo STEAM_ACCOUNT_ID=$STEAM_ACCOUNT_ID >> " + envOutput,
                 "echo DB_PATH=$DB_PATH >> " + envOutput);
 
         var start = OffsetDateTime.parse("2026-01-01T12:00:00+00:00");
         var end = OffsetDateTime.parse("2026-01-01T13:00:00+00:00");
-        var record = new GameSessionRecord(start, end, 1236720L, "Brotato", "my-host", 3000L);
+        var record = new GameSessionRecord(start, end, 1236720L, "Brotato", "my-host", 3000L, 76561197960287930L);
 
         new SessionEndHook(record).run(config);
 
@@ -65,6 +66,7 @@ public class HooksTest {
         assertThat(props.getProperty("SESSION_ENDED_AT")).isEqualTo("2026-01-01T13:00Z");
         assertThat(props.getProperty("SESSION_DURATION_SECONDS")).isEqualTo("3600");
         assertThat(props.getProperty("ACTIVE_PLAYTIME_SECONDS")).isEqualTo("3000");
+        assertThat(props.getProperty("STEAM_ACCOUNT_ID")).isEqualTo("76561197960287930");
         assertThat(props.getProperty("DB_PATH")).isNotBlank();
     }
 
@@ -80,7 +82,8 @@ public class HooksTest {
                         1236720L,
                         "Brotato",
                         "my-host",
-                        3000L))
+                        3000L,
+                        null))
                 .run(config);
 
         Properties props = new Properties();
@@ -94,13 +97,30 @@ public class HooksTest {
         writeExecutableScript(
                 hooksDir.resolve("session-end"), "#!/bin/sh", "echo GAME_NAME=$GAME_NAME >> " + envOutput);
 
-        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 99L, null, "my-host", 0L);
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 99L, null, "my-host", 0L, null);
 
         new SessionEndHook(record).run(config);
 
         Properties props = new Properties();
         props.load(Files.newBufferedReader(envOutput));
         assertThat(props.getProperty("GAME_NAME")).isEqualTo("");
+    }
+
+    @Test
+    public void sessionEndHookReceivesEmptySteamAccountIdWhenUnknown() throws IOException {
+        Path envOutput = configDir.resolve("env-output.properties");
+        writeExecutableScript(
+                hooksDir.resolve("session-end"),
+                "#!/bin/sh",
+                "echo STEAM_ACCOUNT_ID=$STEAM_ACCOUNT_ID >> " + envOutput);
+
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "my-host", 0L, null);
+
+        new SessionEndHook(record).run(config);
+
+        Properties props = new Properties();
+        props.load(Files.newBufferedReader(envOutput));
+        assertThat(props.getProperty("STEAM_ACCOUNT_ID")).isEqualTo("");
     }
 
     @Test
@@ -129,7 +149,7 @@ public class HooksTest {
         Path hook = hooksDir.resolve("session-end.bat");
         Files.writeString(hook, "@echo off\r\necho DB_PATH=%DB_PATH%>> " + envOutput + "\r\n");
 
-        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L, null);
 
         new SessionEndHook(record).run(config);
 
@@ -143,14 +163,14 @@ public class HooksTest {
     public void nonExecutableHookIsSkipped() throws IOException {
         Files.writeString(hooksDir.resolve("session-end"), "#!/bin/sh\nexit 0\n");
 
-        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L, null);
 
         new SessionEndHook(record).run(config);
     }
 
     @Test
     public void missingHookIsSkipped() {
-        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L, null);
 
         new SessionEndHook(record).run(config);
     }
@@ -159,7 +179,7 @@ public class HooksTest {
     public void failingHookDoesNotThrow() throws IOException {
         writeExecutableScript(hooksDir.resolve("session-end"), "#!/bin/sh", "exit 1");
 
-        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L);
+        var record = new GameSessionRecord(OffsetDateTime.now(), OffsetDateTime.now(), 1L, "Game", "host", 0L, null);
 
         new SessionEndHook(record).run(config);
     }

@@ -117,6 +117,7 @@ It gets these environment variables:
 | `SESSION_STARTED_AT`, `SESSION_ENDED_AT` | When the session started and ended (ISO 8601) |
 | `SESSION_DURATION_SECONDS` | How long the game was open |
 | `ACTIVE_PLAYTIME_SECONDS` | How much of that the machine was awake, not asleep or suspended |
+| `STEAM_ACCOUNT_ID` | The 64-bit ID of the Steam account signed in when the game launched, or empty if it couldn't be told |
 | `DB_PATH` | The playtime database described above |
 | `JAVA_HOME` | The JDK running the daemon |
 

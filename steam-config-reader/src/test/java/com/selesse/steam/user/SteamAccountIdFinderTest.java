@@ -9,6 +9,7 @@ import com.selesse.steam.SteamAccountId;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steam.registry.implementation.RegistryParser;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -52,5 +53,38 @@ public class SteamAccountIdFinderTest {
 
         Optional<SteamAccountId> steamAccountIdMaybe = userIdFinderSpy.findCurrentUserId();
         assertThat(steamAccountIdMaybe.orElseThrow()).isEqualTo(new SteamAccountId("76561199027325428"));
+    }
+
+    // 1067059700 is the 32-bit form of 76561199027325428, bobloblaw in loginusers.vdf - who isn't
+    // the AutoLogin user, so only ActiveUser can pick them.
+    @Test
+    public void findSignedInUserIdUsesSteamsActiveUser() {
+        SteamAccountIdFinder userIdFinderSpy = spyWithLoginUsers("loginusers.vdf");
+        doReturn(OptionalLong.of(1067059700L)).when(userIdFinderSpy).readActiveUser();
+
+        assertThat(userIdFinderSpy.findSignedInUserId()).contains(new SteamAccountId("76561199027325428"));
+    }
+
+    @Test
+    public void findSignedInUserIdFallsBackToLoginUsers_whenNobodyIsSignedIn() {
+        SteamAccountIdFinder userIdFinderSpy = spyWithLoginUsers("loginusers.vdf");
+        doReturn(OptionalLong.of(0L)).when(userIdFinderSpy).readActiveUser();
+
+        assertThat(userIdFinderSpy.findSignedInUserId()).contains(new SteamAccountId("76561197960287930"));
+    }
+
+    @Test
+    public void findSignedInUserIdFallsBackToLoginUsers_whenSteamDoesNotSay() {
+        SteamAccountIdFinder userIdFinderSpy = spyWithLoginUsers("loginusers.vdf");
+        doReturn(OptionalLong.empty()).when(userIdFinderSpy).readActiveUser();
+
+        assertThat(userIdFinderSpy.findSignedInUserId()).contains(new SteamAccountId("76561197960287930"));
+    }
+
+    private SteamAccountIdFinder spyWithLoginUsers(String resource) {
+        SteamAccountIdFinder userIdFinderSpy = Mockito.spy(new SteamAccountIdFinder(new SteamRegistry()));
+        var loginUsers = RegistryParser.parse(RuntimeExceptionFiles.readAllLines(Resources.getResource(resource)));
+        doReturn(Optional.of(loginUsers)).when(userIdFinderSpy).readLoginUsers();
+        return userIdFinderSpy;
     }
 }
