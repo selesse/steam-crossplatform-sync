@@ -12,6 +12,8 @@ import com.selesse.steam.SteamApp;
 import com.selesse.steam.SteamInstall;
 import com.selesse.steam.crossplatform.sync.SteamCrossplatformSyncContext;
 import com.selesse.steam.crossplatform.sync.config.SteamCrossplatformSyncConfig;
+import com.selesse.steam.crossplatform.sync.daemon.GameMonitor.State;
+import com.selesse.steam.crossplatform.sync.daemon.GameMonitor.Transition;
 import com.selesse.steam.processes.GameOverlayProcessLocator;
 import com.selesse.steam.registry.SteamRegistry;
 import com.selesse.steamcrossplatformsync.gamesessions.GameSessionRepository;
@@ -30,8 +32,8 @@ import org.mockito.MockedStatic;
 import org.slf4j.LoggerFactory;
 
 public class GameMonitorTest {
-    private GameSessionRepository repository;
     private SqliteFile sqliteFile;
+    private GameSessionRepository repository;
     private SteamCrossplatformSyncContext context;
     private SteamCrossplatformSyncConfig syncConfig;
     private SteamApp brotato;
@@ -347,5 +349,111 @@ public class GameMonitorTest {
 
         assertThat(logCapture.list)
                 .anySatisfy(event -> assertThat(event.getFormattedMessage()).isEqualTo("Game monitor run failed"));
+    }
+
+    @Test
+    public void transitionsCoverEveryPairOfTrackedAndRunningGames() {
+        OptionalLong none = OptionalLong.empty();
+        assertThat(Transition.between(none, none)).isEqualTo(Transition.NOTHING_RUNNING);
+        assertThat(Transition.between(none, OptionalLong.of(1))).isEqualTo(Transition.LAUNCHED);
+        assertThat(Transition.between(OptionalLong.of(1), OptionalLong.of(1))).isEqualTo(Transition.STILL_PLAYING);
+        assertThat(Transition.between(OptionalLong.of(1), OptionalLong.of(2))).isEqualTo(Transition.SWITCHED);
+        assertThat(Transition.between(OptionalLong.of(1), none)).isEqualTo(Transition.CLOSED);
+    }
+
+    @Test
+    public void stateFollowsLaunchSwitchAndClose() {
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+            doReturn(hollowKnight).when(context).loadGame(367520L);
+
+            GameMonitor monitor = new GameMonitor(context);
+            assertThat(monitor.state()).isEqualTo(new State.Idle());
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+            monitor.run();
+            assertThat(monitor.state()).isInstanceOfSatisfying(State.Playing.class, playing -> assertThat(
+                            playing.game().getId())
+                    .isEqualTo(1236720L));
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(367520L));
+            monitor.run();
+            assertThat(monitor.state()).isInstanceOfSatisfying(State.Playing.class, playing -> assertThat(
+                            playing.game().getId())
+                    .isEqualTo(367520L));
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
+            monitor.run();
+            assertThat(monitor.state()).isEqualTo(new State.Idle());
+        }
+    }
+
+    // Regression test: the shutdown hook used to just poll, so a game still running when the daemon
+    // stopped (a restart, a reinstall, a reboot) lost its whole session.
+    @Test
+    public void shutdownWhilePlaying_recordsSessionWithoutSyncing() throws SQLException {
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+
+            GameMonitor monitor = new GameMonitor(context);
+            monitor.run();
+            monitor.shutdown();
+
+            assertThat(monitor.state()).isEqualTo(new State.Stopped());
+        }
+
+        assertThat(sessionCount()).isEqualTo(1);
+        verify(syncConfig, never()).getGamesFile();
+    }
+
+    @Test
+    public void shutdownAfterGameClosed_closesItAsUsual() throws SQLException {
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+
+            GameMonitor monitor = new GameMonitor(context);
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+            monitor.run();
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.empty());
+            monitor.shutdown();
+        }
+
+        assertThat(sessionCount()).isEqualTo(1);
+        verify(syncConfig, times(1)).getGamesFile();
+    }
+
+    @Test
+    public void pollsAfterShutdown_areIgnored() throws SQLException {
+        try (MockedStatic<GameRunningDetector> detector = mockStatic(GameRunningDetector.class);
+                MockedStatic<GameOverlayProcessLocator> locator = mockStatic(GameOverlayProcessLocator.class)) {
+            locator.when(GameOverlayProcessLocator::locate).thenReturn(Optional.empty());
+            doReturn(brotato).when(context).loadGame(1236720L);
+
+            GameMonitor monitor = new GameMonitor(context);
+            monitor.shutdown();
+
+            detector.when(GameRunningDetector::getCurrentlyRunningGameId).thenReturn(OptionalLong.of(1236720L));
+            monitor.run();
+            assertThat(monitor.state()).isEqualTo(new State.Stopped());
+        }
+
+        verify(context, never()).loadGame(anyLong());
+        assertThat(sessionCount()).isZero();
+    }
+
+    private int sessionCount() throws SQLException {
+        try (var connection = Database.open(sqliteFile);
+                var statement = connection.createStatement();
+                var resultSet = statement.executeQuery("SELECT COUNT(*) FROM GAMING_SESSIONS")) {
+            return resultSet.getInt(1);
+        }
     }
 }

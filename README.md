@@ -12,6 +12,9 @@ so you can pick up where you left off.
 Periodically, steam-crossplatform-sync checks Steam's registry to see if there's
 a game running. When it detects that a game has been closed, it checks a
 configuration file to see where its save files are located and backs them up.
+If the daemon stops while a game is still running, it records the session so
+far, but doesn't sync the game's saves, which may still be mid-write. The next
+session starts when the daemon does.
 
 The configuration file, `games.yml`, (described below) can be generated or
 hand-crafted. Unfortunately, determining the save location of a given

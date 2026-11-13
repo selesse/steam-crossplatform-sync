@@ -53,7 +53,7 @@ public class Daemon implements Runnable {
                     getExceptionTolerantRunnable(RemotePlayRecorder.forContext(context)), 0, 5, TimeUnit.MINUTES);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 LOGGER.info("Shutting down game monitor daemon");
-                command.run();
+                command.shutdown();
             }));
 
             try {
