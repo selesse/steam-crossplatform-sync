@@ -24,16 +24,12 @@ export function getAvailableYears(db: Database): string[] {
 
 /**
  * Get the earliest available month from the database
- * @returns Year-month string in 'YYYY-MM' format
+ * @returns Year-month string in 'YYYY-MM' format, or null when there are no sessions yet
  */
-export function getEarliestMonth(db: Database): string {
+export function getEarliestMonth(db: Database): string | null {
   const result = db.exec("SELECT MIN(year_month) as earliest FROM games_by_month");
-
-  if (result.length > 0 && result[0].values.length > 0) {
-    return result[0].values[0][0] as string;
-  }
-
-  throw "No months found from games_by_month";
+  // MIN() over no rows is one row holding NULL
+  return (result[0]?.values[0]?.[0] as string | null | undefined) ?? null;
 }
 
 /**

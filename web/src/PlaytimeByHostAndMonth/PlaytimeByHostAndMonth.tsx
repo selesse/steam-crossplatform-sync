@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useDatabase } from "../database";
 import { useKeyboardNavigation } from "../hooks";
 import { getAvailableYears } from "../services/metadata";
@@ -12,9 +12,13 @@ export default function PlaytimeByHostAndMonth() {
   // Get available years from database
   const availableYears = getAvailableYears(database);
   const currentYear = Temporal.Now.plainDateISO().year.toString();
+  const latestYear = availableYears[0] || currentYear;
 
-  // State for controlling view
-  const [selectedYear, setSelectedYear] = useState<string>(availableYears[0] || currentYear);
+  // The shown year lives in the URL (?year=), so back, reload and shared links keep it
+  const [searchParams, setSearchParams] = useSearchParams();
+  const yearParam = searchParams.get("year");
+  const selectedYear = yearParam && availableYears.includes(yearParam) ? yearParam : latestYear;
+  const setSelectedYear = (year: string) => setSearchParams({ year });
 
   // Get playtime data for selected year
   const raw = getPlaytimeByHostAndMonth(database, selectedYear);
@@ -43,7 +47,7 @@ export default function PlaytimeByHostAndMonth() {
   };
 
   const onCurrentYear = () => {
-    setSelectedYear(availableYears[0] || currentYear);
+    setSelectedYear(latestYear);
   };
 
   // Handle year selection change
