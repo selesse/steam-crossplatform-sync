@@ -5,6 +5,11 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
+/**
+ * One game's session, from launch to close. It is either active, counting the time between polls
+ * toward its playtime, or finished, after {@link #finish()} - which happens once, and after which
+ * it can no longer change.
+ */
 public class GameSession {
     // Comfortably above the daemon's 30 second polling interval, to allow for timing variance.
     // If elapsed time exceeds this, we assume a suspend/sleep occurred.
@@ -18,6 +23,7 @@ public class GameSession {
     private final OffsetDateTime startedAt;
     private Duration activePlaytime;
     private OffsetDateTime lastActiveAt;
+    private boolean finished;
 
     private GameSession(long gameId, String gameName, Long steamAccountId, Clock clock) {
         this.gameId = gameId;
@@ -42,6 +48,7 @@ public class GameSession {
     }
 
     public void recordActive() {
+        requireActive();
         var now = OffsetDateTime.now(clock);
         var elapsed = Duration.between(lastActiveAt, now);
 
@@ -59,6 +66,7 @@ public class GameSession {
     /** Closes out the session and returns what happened. Persisting it is the caller's business. */
     public GameSessionRecord finish() {
         recordActive();
+        finished = true;
         var finishedAt = OffsetDateTime.now(clock);
 
         return new GameSessionRecord(
@@ -69,5 +77,11 @@ public class GameSession {
                 Hostnames.getCurrent(),
                 getActivePlaytimeSeconds(),
                 steamAccountId);
+    }
+
+    private void requireActive() {
+        if (finished) {
+            throw new IllegalStateException("Session for game " + gameId + " has already finished");
+        }
     }
 }

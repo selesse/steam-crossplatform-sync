@@ -1,6 +1,7 @@
 package com.selesse.steamcrossplatformsync.gamesessions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -94,6 +95,16 @@ public class GameSessionTest {
         session.recordActive();
 
         assertThat(session.getActivePlaytimeSeconds()).isEqualTo(0);
+    }
+
+    @Test
+    public void finishedSessionCannotChange() {
+        var session =
+                GameSession.start(12345L, "Test Game", null, new MutableClock(Instant.parse("2024-01-01T12:00:00Z")));
+        session.finish();
+
+        assertThatThrownBy(session::recordActive).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(session::finish).isInstanceOf(IllegalStateException.class);
     }
 
     private static class MutableClock extends Clock {
