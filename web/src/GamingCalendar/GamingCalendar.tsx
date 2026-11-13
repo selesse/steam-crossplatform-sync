@@ -1,6 +1,6 @@
 import { format, getDay, parse, startOfWeek } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { Calendar, type Event, type ToolbarProps, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./GamingCalendar.css";
@@ -10,6 +10,14 @@ import { useDatabase } from "../database";
 import { getSessions } from "../services/sessions";
 import type { Session } from "../types/playtime";
 import { computeSessionPlaytime } from "../utils/playtime-helpers";
+import {
+  type Popup,
+  type View,
+  calendarReducer,
+  canGoBack,
+  canGoForward,
+  initialCalendarState,
+} from "./calendar-state";
 
 const localizer = dateFnsLocalizer({
   format,
@@ -22,15 +30,9 @@ const localizer = dateFnsLocalizer({
 // react-big-calendar requires legacy Date objects at its boundary
 const toDate = (d: Temporal.PlainDate): Date => new Date(d.year, d.month - 1, d.day);
 
-const fromDate = (d: Date): Temporal.PlainDate => Temporal.PlainDate.from(d.toISOString().slice(0, 10));
-
-function startOfWeekMonday(d: Temporal.PlainDate): Temporal.PlainDate {
-  return d.subtract({ days: d.dayOfWeek - 1 });
-}
-
-function compareYearMonth(a: Temporal.PlainDate, b: Temporal.PlainDate): number {
-  return a.year !== b.year ? a.year - b.year : a.month - b.month;
-}
+// Local fields, not toISOString(): that's UTC, a day early east of UTC
+const fromDate = (d: Date): Temporal.PlainDate =>
+  Temporal.PlainDate.from({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
 
 // Sessions of the same game separated by a short gap (e.g. quick relaunches,
 // crashes) are folded into one calendar event so the week view doesn't turn
@@ -60,41 +62,23 @@ function mergeCloseSessions(sessions: Session[]): Session[] {
   return merged;
 }
 
-function isBackDisabled(date: Temporal.PlainDate, view: string, earliestDate: Temporal.PlainDate | null): boolean {
-  if (!earliestDate) return false;
-  if (view === "week") {
-    return Temporal.PlainDate.compare(startOfWeekMonday(date), startOfWeekMonday(earliestDate)) <= 0;
-  }
-  return compareYearMonth(date, earliestDate) <= 0;
-}
-
-function isNextDisabled(date: Temporal.PlainDate, view: string): boolean {
-  const today = Temporal.Now.plainDateISO();
-  if (view === "week") {
-    return Temporal.PlainDate.compare(startOfWeekMonday(date), startOfWeekMonday(today)) >= 0;
-  }
-  return compareYearMonth(date, today) >= 0;
-}
-
 interface CustomToolbarProps extends ToolbarProps<SessionEvent> {
-  earliestDate: Temporal.PlainDate | null;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  onStep: (to: "PREV" | "NEXT" | "TODAY") => void;
 }
 
-function CustomToolbar({ date, view, onNavigate, onView, label, earliestDate }: CustomToolbarProps) {
-  const currentDate = fromDate(date);
-  const backDisabled = isBackDisabled(currentDate, view, earliestDate);
-  const nextDisabled = isNextDisabled(currentDate, view);
-
+function CustomToolbar({ view, onView, label, canGoBack, canGoForward, onStep }: CustomToolbarProps) {
   return (
     <div className="rbc-toolbar">
       <span className="rbc-btn-group">
-        <button type="button" disabled={backDisabled} onClick={() => onNavigate("PREV")}>
+        <button type="button" disabled={!canGoBack} onClick={() => onStep("PREV")}>
           Back
         </button>
-        <button type="button" onClick={() => onNavigate("TODAY")}>
+        <button type="button" onClick={() => onStep("TODAY")}>
           Today
         </button>
-        <button type="button" disabled={nextDisabled} onClick={() => onNavigate("NEXT")}>
+        <button type="button" disabled={!canGoForward} onClick={() => onStep("NEXT")}>
           Next
         </button>
       </span>
@@ -129,7 +113,7 @@ function EventLabel({ event }: { event: SessionEvent }) {
 }
 
 function DayHeader({ date }: { date: Date }) {
-  const d = Temporal.PlainDate.from(date.toISOString().slice(0, 10));
+  const d = fromDate(date);
   const longName = d.toLocaleString("en-US", { weekday: "long" });
   const shortName = d.toLocaleString("en-US", { weekday: "short" });
   return (
@@ -143,11 +127,7 @@ function DayHeader({ date }: { date: Date }) {
   );
 }
 
-interface PopupState {
-  event: SessionEvent;
-  x: number;
-  y: number;
-}
+type PopupState = Popup<SessionEvent>;
 
 function formatDuration(totalMinutes: number): string {
   const h = Math.floor(totalMinutes / 60);
@@ -210,13 +190,13 @@ function EventPopup({ popup, onClose }: { popup: PopupState; onClose: () => void
   );
 }
 
-type View = "week" | "month" | "agenda";
-
 export default function GamingCalendar() {
   const db = useDatabase();
-  const [date, setDate] = useState<Temporal.PlainDate>(Temporal.Now.plainDateISO());
-  const [view, setView] = useState<View>("week");
-  const [popup, setPopup] = useState<PopupState | null>(null);
+  const [{ date, view, popup }, dispatch] = useReducer(
+    calendarReducer<SessionEvent>,
+    Temporal.Now.plainDateISO(),
+    initialCalendarState<SessionEvent>,
+  );
 
   const events = useMemo<SessionEvent[]>(() => {
     return mergeCloseSessions(getSessions(db)).map((session) => ({
@@ -242,39 +222,35 @@ export default function GamingCalendar() {
     );
   }, [events]);
 
+  const onStep = useCallback(
+    (to: "PREV" | "NEXT" | "TODAY") =>
+      dispatch({ type: "navigate", to, earliest: earliestDate, today: Temporal.Now.plainDateISO() }),
+    [earliestDate],
+  );
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       switch (e.key) {
         case "ArrowLeft":
-          setDate((c) => {
-            if (isBackDisabled(c, view, earliestDate)) return c;
-            return view === "week" ? c.add({ weeks: -1 }) : c.add({ months: -1 });
-          });
-          break;
+          return onStep("PREV");
         case "ArrowRight":
-          setDate((c) => {
-            if (isNextDisabled(c, view)) return c;
-            return view === "week" ? c.add({ weeks: 1 }) : c.add({ months: 1 });
-          });
-          break;
-        case "a":
-          setView("agenda");
-          break;
-        case "m":
-          setView("month");
-          break;
-        case "w":
-          setView("week");
-          break;
+          return onStep("NEXT");
         case "t":
-          setDate(Temporal.Now.plainDateISO());
-          break;
+          return onStep("TODAY");
+        case "a":
+          return dispatch({ type: "setView", view: "agenda" });
+        case "m":
+          return dispatch({ type: "setView", view: "month" });
+        case "w":
+          return dispatch({ type: "setView", view: "week" });
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [view, earliestDate]);
+  }, [onStep]);
+
+  const closePopup = useCallback(() => dispatch({ type: "closePopup" }), []);
 
   const eventStyleGetter = (event: SessionEvent) => {
     const { background, text } = gameColor(event.gameName);
@@ -304,11 +280,18 @@ export default function GamingCalendar() {
         events={events}
         date={toDate(date)}
         view={view}
-        onNavigate={(d) => setDate(fromDate(d))}
-        onView={(v) => setView(v as View)}
+        onNavigate={(d) => dispatch({ type: "goTo", date: fromDate(d) })}
+        onView={(v) => dispatch({ type: "setView", view: v as View })}
         views={["week", "month", "agenda"]}
         components={{
-          toolbar: (props: ToolbarProps<SessionEvent>) => <CustomToolbar {...props} earliestDate={earliestDate} />,
+          toolbar: (props: ToolbarProps<SessionEvent>) => (
+            <CustomToolbar
+              {...props}
+              canGoBack={canGoBack(date, view, earliestDate)}
+              canGoForward={canGoForward(date, view, Temporal.Now.plainDateISO())}
+              onStep={onStep}
+            />
+          ),
           event: EventLabel,
           header: DayHeader,
         }}
@@ -317,7 +300,7 @@ export default function GamingCalendar() {
           const rect = (e.target as HTMLElement).closest(".rbc-event")?.getBoundingClientRect();
           const x = rect ? rect.left : (e.nativeEvent as MouseEvent).clientX;
           const y = rect ? rect.top - 8 : (e.nativeEvent as MouseEvent).clientY;
-          setPopup({ event: event as SessionEvent, x, y });
+          dispatch({ type: "openPopup", popup: { event: event as SessionEvent, x, y } });
         }}
         formats={{
           dayRangeHeaderFormat: ({ start, end }, culture) =>
@@ -327,7 +310,7 @@ export default function GamingCalendar() {
         min={HOUR_8AM}
         popup
       />
-      {popup && <EventPopup popup={popup} onClose={() => setPopup(null)} />}
+      {popup && <EventPopup popup={popup} onClose={closePopup} />}
     </div>
   );
 }
