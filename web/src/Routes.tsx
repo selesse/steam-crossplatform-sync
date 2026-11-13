@@ -10,25 +10,51 @@ import PlaytimeByHost from "./PlaytimeByHost/PlaytimeByHost.tsx";
 import PlaytimeByHostAndMonth from "./PlaytimeByHostAndMonth/PlaytimeByHostAndMonth.tsx";
 import { PlaytimeByHostAndYear } from "./PlaytimeByHostAndYear";
 import { PlaytimeByYearAndMonth } from "./PlaytimeByYearAndMonth";
-import { DatabaseContext, loadDatabase } from "./database.ts";
+import { DatabaseContext, NoDatabasesError, loadDatabase } from "./database.ts";
+
+type DatabaseState =
+  | { status: "loading" }
+  | { status: "missing" }
+  | { status: "failed"; error: string }
+  | { status: "ready"; database: Database };
 
 function DatabaseProvider({ children }: { children: React.ReactNode }) {
-  const [database, setDatabase] = useState<Database | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<DatabaseState>({ status: "loading" });
 
   useEffect(() => {
+    let cancelled = false;
     loadDatabase()
-      .then(setDatabase)
+      .then((database) => !cancelled && setState({ status: "ready", database }))
       .catch((err) => {
-        console.error("Failed to load database:", err);
-        setError(String(err));
+        if (cancelled) return;
+        if (err instanceof NoDatabasesError) {
+          setState({ status: "missing" });
+        } else {
+          console.error("Failed to load database:", err);
+          setState({ status: "failed", error: String(err) });
+        }
       });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (error) return <div>Failed to load database: {error}</div>;
-  if (!database) return <div>Loading...</div>;
-
-  return <DatabaseContext.Provider value={database}>{children}</DatabaseContext.Provider>;
+  switch (state.status) {
+    case "loading":
+      return <div>Loading...</div>;
+    case "missing":
+      return (
+        <div>
+          <h2>No playtime databases yet</h2>
+          <p>Point the dashboard at one or more of the daemon's databases from the web directory, then reload:</p>
+          <pre>bun run use-databases ~/.local/share/steam-crossplatform-sync/steam-logs.sqlite3</pre>
+        </div>
+      );
+    case "failed":
+      return <div>Failed to load database: {state.error}</div>;
+    case "ready":
+      return <DatabaseContext.Provider value={state.database}>{children}</DatabaseContext.Provider>;
+  }
 }
 
 export default function Routes() {

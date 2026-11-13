@@ -37,22 +37,50 @@ const SCHEMA = `
     ON remote_play_sessions (host, role, started_at);
 `;
 
+/** Thrown when there is no db-manifest.json yet, i.e. `use-databases` hasn't been run. */
+export class NoDatabasesError extends Error {
+  constructor() {
+    super("No playtime databases have been set up yet");
+    this.name = "NoDatabasesError";
+  }
+}
+
 /**
  * Loads every database listed in db-manifest.json (one per machine, as the
  * daemon writes them) and combines them into one in-memory database.
  */
 export async function loadDatabase(): Promise<Database> {
   const SQL = await initSqlJs({ locateFile: (file) => `/${file}` });
-  const { files } = (await fetch("/db-manifest.json", { cache: "no-store" }).then((r) => r.json())) as {
-    files: string[];
-  };
-  const buffers = await Promise.all(files.map((file) => fetch(`/${file}`).then((r) => r.arrayBuffer())));
+  const files = await fetchManifest();
+  const buffers = await Promise.all(files.map(fetchDatabase));
   const db = combine(SQL, buffers);
   const result = db.exec(
     "SELECT played_on FROM play_segments WHERE active_playtime_seconds > 0 GROUP BY played_on ORDER BY MIN(started_at), played_on",
   );
   setHostOrder(result.length > 0 ? result[0].values.map((v) => v[0] as string) : []);
   return db;
+}
+
+async function fetchManifest(): Promise<string[]> {
+  const response = await fetch("/db-manifest.json", { cache: "no-store" });
+  // A missing manifest is a 404 from a static host, but the dev server answers
+  // unknown paths with index.html, so anything that isn't the manifest counts.
+  if (!response.ok) throw new NoDatabasesError();
+  try {
+    const { files } = (await response.json()) as { files: unknown };
+    if (Array.isArray(files) && files.every((file) => typeof file === "string")) return files;
+  } catch {
+    // Not JSON: see above
+  }
+  throw new NoDatabasesError();
+}
+
+async function fetchDatabase(file: string): Promise<ArrayBuffer> {
+  const response = await fetch(`/${file}`);
+  if (!response.ok) {
+    throw new Error(`db-manifest.json lists ${file}, but fetching it failed (HTTP ${response.status})`);
+  }
+  return response.arrayBuffer();
 }
 
 function combine(SQL: SqlJsStatic, buffers: ArrayBuffer[]): Database {
